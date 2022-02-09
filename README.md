@@ -32,15 +32,7 @@ Both the servers for querying the SMP server and the administration UI can be se
 
 
 ## Contributing
-We are using the simplified Github workflow to accept modifications which means you should:
-* create an issue related to the problem you want to fix or the function you want to add (good for traceability and cross-reference)
-* fork the repository
-* create a branch (optionally with the reference to the issue in the name)
-* write your code
-* commit incrementally with readable and detailed commit messages
-* submit a pull-request against the master branch of this repository
-
-If your contribution is more than a patch, please contact us beforehand to discuss which branch you can best submit the pull request to.
+As initial development has not yet finished, the internal architecture is not stable yet and can still change. If you would like to contribute to this project please contact us.
 
 ### Submitting bugs
 You can report issues directly on the [project Issue Tracker](https://github.com/holodeck-b2b/bdxr-smp-server/issues).
