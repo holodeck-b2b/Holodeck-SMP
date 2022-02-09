@@ -1,0 +1,67 @@
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin-ui/layouts/settings-layout}"
+	  >
+<body>
+<section layout:fragment="settings-content">
+	<div class="row">
+		<div class="container">
+			<div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+				<h5 class="d-flex align-items-center me-3 mb-lg-0 text-dark text-decoration-none">
+					List of Identifier Schemes
+				</h5>
+				<a th:href="@{/settings/ids/edit/}" class="btn btn-sm btn-outline-primary col-lg-auto me-lg-auto justify-content-center  ">Add new scheme</a>
+			</div>
+		</div>
+	</div>
+		<table class="table table-striped">
+			<thead>
+				<tr>
+					<th>Scheme ID</th>
+					<th>Name</th>
+					<th>Agency</th>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="s : ${schemes}">
+					<td th:text="${s.schemeId}">SchemeID</td>
+					<td th:text="${s.name}">Scheme name</td>
+					<td th:text="${s.agency}">«Scheme agency</td>
+					<td class="col-2">
+						<a th:href="@{/settings/ids/edit/{id}(id=${s.schemeId})}" class="btn btn-sm btn-outline-dark">Edit</a>
+						<button class="btn btn-sm btn-outline-danger"
+								data-bs-toggle="modal" data-bs-target="#confirmDelete"
+								th:attr="data-bs-scheme=${s.schemeId}">Delete</button>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+
+	<div class="modal fade" id="confirmDelete" tabindex="-1" aria-labelledby="gridModalLabel" style="display: none;" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Confirm delete</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<p>Are you sure you want to delete the identifier scheme?</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+					<a id="delConfirmed"><button type="button" class="btn btn-danger">Delete scheme</button></a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script>
+		$('#confirmDelete').on('show.bs.modal', function (event) {
+		  $('#delConfirmed').attr('href', "/settings/ids/delete/" +
+												event.relatedTarget.getAttribute('data-bs-scheme'));
+		})
+	</script>
+</section>
+</body>
+</html>

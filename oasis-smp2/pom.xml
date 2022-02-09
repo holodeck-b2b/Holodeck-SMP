@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.holodeckb2b.bdxr</groupId>
+        <artifactId>smp-server-parent</artifactId>
+        <version>0.1.0</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <artifactId>oasis-smp2-responder</artifactId>
+    <name>OASIS SMPv2 query responder</name>
+    <description>This project contains the classes to create the responses to SMP query according to the OASIS SMP v2 specification</description>
+
+	<dependencies>
+	    <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>smp-server</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+		<dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+	    <!-- JAXB -->
+	    <dependency>
+	        <groupId>javax.xml.bind</groupId>
+	        <artifactId>jaxb-api</artifactId>
+	    </dependency>
+	    <dependency>
+	        <groupId>com.sun.xml.bind</groupId>
+	        <artifactId>jaxb-impl</artifactId>
+	        <scope>runtime</scope>
+	    </dependency>
+    </dependencies>
+
+	<build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>jaxb2-maven-plugin</artifactId>
+                <configuration>
+                    <sources>
+                        <source>src/main/xsd/ServiceGroup-2.0.xsd</source>
+                        <source>src/main/xsd/ServiceMetadata-2.0.xsd</source>
+                    </sources>
+                </configuration>
+            </plugin>
+		</plugins>
+	</build>
+</project>

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin-ui/layouts/main-layout}"
+>
+<body>
+<section layout:fragment="dynamic-content">
+	<form method="post" th:action="@{/participants/update}" th:object="${participant}" >
+		<h5 th:text="(*{oid} ? 'Edit' : 'Add') + ' Participant'">Add new Participant</h5>
+		<div class="card">
+			<div class="card-header">
+				Identification
+			</div>
+			<div class="card-body row g-2">
+				<div class="col-3">
+					<label for="inputIdScheme" class="form-label">Identifier Scheme</label>
+					<select class="form-select" th:errorclass="is-invalid"
+							id="inputIdScheme" th:field="*{id.scheme}">
+						<option value="-1">Without scheme</option>
+						<option th:each="ids : ${idSchemes}" th:value="${ids.schemeId}"
+								th:text="${ids.schemeId}">Wireframe</option>
+					</select>
+				</div>
+				<div class="col-6">
+					<label for="inputIdValue" class="form-label">Identifier Value</label>
+					<input type="text" class="form-control" th:errorclass="is-invalid"
+						   id="inputIdValue" th:field="*{id.value}"
+						   placeholder="Participant identifier" />
+					<div id="invalidIdentifierMsg"
+						 th:if="${#fields.hasErrors('id.value')}" class="invalid-feedback"
+						 th:errors="*{id.value}">
+					</div>
+				</div>
+				<div class="col-9">
+					<label for="inputName" class="form-label">Name</label>
+					<input type="text" class="form-control" id="inputName" th:field="*{name}"
+						   th:errorclass="is-invalid"
+						   placeholder="Participant's name">
+					<div id="invalidNameMsg"
+						 th:if="${#fields.hasErrors('name')}" class="invalid-feedback"
+						 th:errors="*{name}">
+					</div>
+				</div>
+				<div class="col-9">
+					<label for="inputContactInfo" class="form-label">Contact Info</label>
+					<textarea class="form-control" id="inputContactInfo" rows="2" th:field="*{contactInfo}"></textarea>
+				</div>
+			</div>
+			<div class="card-header">
+				<div class="row align-items-center">
+					<div class="col col-md-auto">Supported Services</div>
+					<div class="col ">
+						<button type="button" th:disabled="${availableSMT.isEmpty()}"
+								class="btn btn-sm btn-outline-primary" data-bs-toggle="modal"
+								data-bs-target="#smtDialog">Add supported Service</button>
+					</div>
+				</div>
+			</div>
+			<div class="card-body row">
+				<table id="servicesList" class="table table-scroll-body" >
+					<thead>
+						<tr class="d-flex">
+							<th class="col-5">Service</th>
+							<th class="col-5">Processes</th>
+							<th class="col-2"></th>
+						</tr>
+					</thead>
+					<tbody style="height: 15vh;">
+						<tr class="d-flex" th:each="b, bStat : *{bindings}">
+							<td class="col-5" th:text="${b.template.name}"
+								th:title="${b.template.serviceId.toString()}">Service description</td>
+							<td class="col-5">
+								<div th:each="pg : ${b.template.processMetadata}">
+									<div th:each="p : ${pg.processInfo}">
+									<span th:if="${!p.processId.isNoProcess()}" th:text="${p.process.name}"
+										  th:title="${p.processId.value}"></span>
+									<span th:if="${p.processId.isNoProcess()}">«No process»</span>
+									<br/>
+									</div>
+								</div>
+							</td>
+							<td class="col-2 justify-content-start">
+								<button type="submit" name="removeBinding" th:value="${bStat.index}"
+										class="btn btn-sm btn-outline-danger">Remove</button>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+
+			</div>
+		</div>
+		<div class="row justify-content-center mt-3">
+			<div class="col-3"><button type='submit' name="save" class="btn btn-primary">Save participant data</button></div>
+			<div class="col-3 "><button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#confirmCancel">Cancel update</button></div>
+		</div>
+
+		<div class="modal fade" id="smtDialog" data-bs-backdrop="static" tabindex="-1" aria-labelledby="gridModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="gridModalLabel">Add supported Service</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body row g-2">
+						<label>Support for services is managed through Service Metadata templates.</label>
+						<select id="selectSMT" class="smt form-select" name="template2add" >
+							<option value="" selected>Select the service to add</option>
+							<option th:each="smt : ${availableSMT}" th:value="${smt.oid}"
+									th:text="${smt.name}" th:title="${smt.serviceId.value}"></option>
+						</select>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+						<button type="submit" name="addBinding" id="btnAddSvc" class="btn btn-primary" disabled data-bs-dismiss="modal">Add</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</form>
+	<script>
+		$("#selectSMT").change(function (e) {
+			e.preventDefault();
+			e.stopPropagation();
+			if (this.selectedIndex == 0)
+				$("#btnAddSvc").prop("disabled", true);
+			else
+				$("#btnAddSvc").prop("disabled", false);
+
+		});
+	</script>
+
+	<div class="modal fade" id="confirmCancel" tabindex="-1" aria-labelledby="gridModalLabel" style="display: none;" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Cancel update?</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<p>Are you sure you want to discard all updates made to the participant registration ?</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Go back</button>
+					<a th:href="@{/participants}"><button type="button" class="btn btn-danger">Discard changes</button></a>
+				</div>
+			</div>
+		</div>
+	</div>
+
+</section>
+</body>
+</html>

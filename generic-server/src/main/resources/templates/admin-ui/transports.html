@@ -1,0 +1,69 @@
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin-ui/layouts/settings-layout}"
+>
+<body>
+<section layout:fragment="settings-content">
+	<div class="row">
+		<div class="container">
+			<div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+				<h5 class="d-flex align-items-center me-3 mb-lg-0 text-dark text-decoration-none">
+					List of Transport Profiles
+				</h5>
+				<a th:href="@{/settings/transports/edit/}" class="btn btn-sm btn-outline-primary col-lg-auto me-lg-auto justify-content-center  ">Add new Profile</a>
+			</div>
+		</div>
+	</div>
+	<table class="table table-striped">
+		<thead>
+			<tr>
+				<th>Profile ID</th>
+				<th>Specification ref</th>
+				<th>#Endpoints</th>
+				<th></th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr th:each="p : ${profiles}">
+				<td th:text="${p.value1().id}">ProfileID</td>
+				<td th:text="${p.value1().specificationRef}">«Spec Reference</td>
+				<td th:text="${p.value2()}" class="text-center">1</td>
+				<td class="col-2">
+					<a th:disabled="${p.value2() > 0}"
+						th:href="@{/settings/transports/edit/{id}(id=${p.value1().id})}" class="btn btn-sm btn-outline-dark">Edit</a>
+					<button class="btn btn-sm btn-outline-danger"
+							th:disabled="${p.value2() > 0}"
+							data-bs-toggle="modal" data-bs-target="#confirmDelete"
+							th:attr="data-bs-profile=${p.value1().id}">Delete</button>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+
+	<div class="modal fade" id="confirmDelete" tabindex="-1" style="display: none;" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Confirm delete</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<p>Are you sure you want to delete the transport profile?</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+					<a id="delConfirmed"><button type="button" class="btn btn-danger">Delete profile</button></a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script>
+		$('#confirmDelete').on('show.bs.modal', function (event) {
+		  $('#delConfirmed').attr('href', "/settings/transports/delete/" +
+												event.relatedTarget.getAttribute('data-bs-profile'));
+		})
+	</script>
+</section>
+</body>
+</html>

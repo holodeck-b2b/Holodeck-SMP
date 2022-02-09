@@ -1,0 +1,69 @@
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin-ui/layouts/main-layout}"
+	  >
+<body>
+<section layout:fragment="dynamic-content">
+	<div class="row">
+		<div class="container">
+			<div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+				<h5 class="d-flex align-items-center mb-2 me-3 mb-lg-0 text-dark text-decoration-none">
+					List of Endpoints
+				</h5>
+				<a th:href="@{/endpoints/add}" class="btn btn-sm btn-outline-primary col-lg-auto me-lg-auto justify-content-center  ">Add new Endpoint</a>
+			</div>
+		</div>
+	</div>
+		<table class="table table-striped table-fit">
+			<thead>
+				<tr >
+					<th>Name</th>
+					<th>Transport profile</th>
+					<th>Endpoint URL</th>
+					<th>Description</th>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="ep : ${endpoints}">
+					<td th:text="${ep.name}">Endpoint name</td>
+					<td th:text="${ep.transportProfile}">transport-profile-id</td>
+					<td th:text="${ep.endpointURL.toString()}">https://demo.goes.no.where/as4</td>
+					<td th:text="${ep.description}">Default endpoint</td>
+					<td >
+						<a th:href="@{/endpoints/edit/{oid}(oid=${ep.oid})}" class="btn btn-sm btn-outline-dark">Edit</a>
+						<button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#confirmDelete"
+								th:attr="data-bs-endpoint=${ep.oid}">Delete</button>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+
+	<div class="modal fade" id="confirmDelete" tabindex="-1" aria-labelledby="gridModalLabel" style="display: none;" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Delete endpoint?</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<p>Are you sure you want to delete endpoint registration?</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+					<a id="delConfirmed"><button type="button" class="btn btn-danger">Delete endpoint</button></a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script>
+		$('#confirmDelete').on('show.bs.modal', function (event) {
+		  $('#delConfirmed').attr('href', "/endpoints/delete/" +
+												event.relatedTarget.getAttribute('data-bs-endpoint'));
+		})
+	</script>
+
+</section>
+</body>
+</html>

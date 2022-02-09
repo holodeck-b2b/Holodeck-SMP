@@ -1,0 +1,68 @@
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin-ui/layouts/settings-layout}"
+>
+<body>
+<section layout:fragment="settings-content">
+	<div class="row">
+		<div class="container">
+			<div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+				<h5 class="d-flex align-items-center me-3 mb-lg-0 text-dark text-decoration-none">
+					List of registered user accounts
+				</h5>
+				<a th:href="@{/settings/users/edit/}" class="btn btn-sm btn-outline-primary col-lg-auto me-lg-auto justify-content-center  ">Add new User</a>
+			</div>
+		</div>
+	</div>
+	<table class="table table-striped">
+		<thead>
+			<tr>
+				<th>Full Name</th>
+				<th>eMail address</th>
+				<th>Is admin?</th>
+				<th></th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr th:each="u : ${accounts}" th:with="isAdm=${u.roles.contains(T(org.holodeckb2b.bdxr.smp.server.ui.UserRole).ADMIN)}">
+				<td th:text="${u.fullName}">Full name</td>
+				<td th:text="${u.emailAddress}">email</td>
+				<td th:text="${isAdm}">1</td>
+				<td class="col-2">
+					<a th:href="@{/settings/users/edit/{id}(id=${u.oid})}" class="btn btn-sm btn-outline-dark">Edit</a>
+					<button class="btn btn-sm btn-outline-danger"
+							th:disabled="${isAdm and numAdm le 1}"
+							data-bs-toggle="modal" data-bs-target="#confirmDelete"
+							th:attr="data-bs-user=${u.oid}">Delete</button>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+
+	<div class="modal fade" id="confirmDelete" tabindex="-1" aria-labelledby="gridModalLabel" style="display: none;" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Confirm delete</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<p>Are you sure you want to delete this user?</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+					<a id="delConfirmed"><button type="button" class="btn btn-danger">Delete user</button></a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script>
+		$('#confirmDelete').on('show.bs.modal', function (event) {
+		  $('#delConfirmed').attr('href', "/settings/users/delete/" +
+												event.relatedTarget.getAttribute('data-bs-user'));
+		})
+	</script>
+</section>
+</body>
+</html>

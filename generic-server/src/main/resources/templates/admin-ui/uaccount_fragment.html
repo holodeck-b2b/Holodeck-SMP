@@ -1,0 +1,48 @@
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+>
+<body>
+	<div th:fragment="form(self)">
+		<input type="hidden" name="oid" th:value="*{oid}">
+		<div class="row mb-3">
+			<label for="emailAddress" class="col-2 col-form-label">Email Address</label>
+			<div class="col-5">
+				<input type="text" class="form-control" th:errorclass="is-invalid"
+					   id="emailAddress" th:field="*{emailAddress}"/>
+				<div id="invalidEmailAddressMsg"
+					 th:if="${#fields.hasErrors('emailAddress')}" class="invalid-feedback"
+					 th:errors="*{emailAddress}">
+				</div>
+			</div>
+		</div>
+		<div class="row mb-3">
+			<label for="fullName" class="col-2 col-form-label">Full name</label>
+			<div class="col-5">
+				<input type="text" class="form-control" id="profileSpec"
+						th:field="*{fullName}">
+				<div id="invalidNameMsg"
+					 th:if="${#fields.hasErrors('fullName')}" class="invalid-feedback"
+					 th:errors="*{fullName}">
+				</div>
+			</div>
+		</div>
+		<div th:if="${!self}" class="row mb-3">
+			<label class="col-2 form-check-label" for="isAdmin">Is administrator?</label>
+			<div class="col-4">
+				<input class="form-check-input" type="checkbox" id="isAdmin" th:field="*{admin}">
+			</div>
+		</div>
+		<div class="row mb-3">
+			<label for="password" class="col-2 col-form-label">Password</label>
+			<div class="col-5">
+				<input type="password" class="form-control" id="password"
+						th:field="*{password}" th:errorclass="is-invalid"
+						th:placeholder="*{oid}? 'Leave blank to keep current password' : 'Set password for user'">
+				<div id="invalidPwdMsg" th:if="${#fields.hasErrors('password')}" class="invalid-feedback"
+					 th:errors="*{password}">
+				</div>
+			</div>
+		</div>
+	</div>
+
+</body>

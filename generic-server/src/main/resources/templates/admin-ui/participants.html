@@ -1,0 +1,67 @@
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin-ui/layouts/main-layout}"
+>
+<body>
+<section layout:fragment="dynamic-content">
+	<div class="row">
+		<div class="container">
+			<div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+				<h5 class="d-flex align-items-center mb-2 me-3 mb-lg-0 text-dark text-decoration-none">
+					List of Participants
+				</h5>
+				<a th:href="@{/participants/edit/-1}" class="btn btn-sm btn-outline-primary col-lg-auto me-lg-auto justify-content-center  ">Add new Participant</a>
+			</div>
+		</div>
+	</div>
+		<table class="table table-striped">
+			<thead>
+				<tr>
+					<th >Particpant ID</th>
+					<th >Name</th>
+					<th class="text-center">#Services</th>
+					<th ></th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="p : ${participants}">
+					<td th:text="${p.id.toString()}">9999:hb2b-simon</td>
+					<td th:text="${p.name}">Simon's Electric Ltd.</td>
+					<td th:text="${p.bindings.size()}" class="text-center">1</td>
+					<td>
+						<a th:href="@{/participants/edit/{oid}(oid=${p.oid})}" class="btn btn-sm btn-outline-dark">Edit</a>
+							<button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#confirmDelete"
+									th:attr="data-bs-participant=${p.oid}">Delete</button>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+
+	<div class="modal fade" id="confirmDelete" tabindex="-1" aria-labelledby="gridModalLabel" style="display: none;" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Delete participant?</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<p>Are you sure you want to delete participant registration?</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+					<a id="delConfirmed"><button type="button" class="btn btn-danger">Delete participant</button></a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script>
+		$('#confirmDelete').on('show.bs.modal', function (event) {
+		  $('#delConfirmed').attr('href', "/participants/delete/" +
+												event.relatedTarget.getAttribute('data-bs-participant'));
+		})
+	</script>
+
+</section>
+</body>
+</html>

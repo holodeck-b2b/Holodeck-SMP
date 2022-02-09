@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+>
+<head>
+	<meta charset="UTF-8"/>
+	<title>Holodeck SMP Server Administration</title>
+
+	<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+		<symbol id="people-circle" viewBox="0 0 16 16">
+			<path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"></path>
+			<path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"></path>
+		</symbol>
+		<symbol id="search" viewBox="0 0 16 16">
+			<path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+		</symbol>
+	</svg>
+	<link th:rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css} "/>
+	<link th:rel="stylesheet" th:href="@{/css/main.css} "/>
+	<script th:src="@{/webjars/jquery/3.1.1/jquery.min.js}"></script>
+	<script th:src="@{/webjars/popper.js/umd/popper.min.js}"></script>
+	<script th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
+</head>
+<body>
+<header class="p-3 mb-3 border-bottom">
+    <div class="container">
+      <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+        <a href="/" class="d-flex align-items-center col-md-3 mb-2 mb-lg-0 mb-md-0 text-dark text-decoration-none">
+          <img th:src='@{/img/logo.png}' height="60em" role="img" aria-label="Holodeck B2B SMP Server"/>
+        </a>
+       	<ul class="nav fs-6 col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0"
+			th:with="baseURL=@{/}">
+		  <li><a th:href="|${baseURL}main|" th:class="|nav-link px-2 ${{#request.getRequestURI().startsWith({baseURL}+'main')}? 'link-secondary' : 'link-dark'}|">Overview</a></li>
+		  <li><a th:href="|${baseURL}participants|" th:class="|nav-link px-2 ${{#request.getRequestURI().startsWith({baseURL}+'participants')}? 'link-secondary' : 'link-dark'}|">Participants</a></li>
+		  <li><a th:href="|${baseURL}endpoints|" th:class="|nav-link px-2 ${{#request.getRequestURI().startsWith({baseURL}+'endpoints')}? 'link-secondary' : 'link-dark'}|">Endpoints</a></li>
+          <li><a th:href="|${baseURL}smd/services|" th:class="|nav-link px-2 ${{#request.getRequestURI().startsWith({baseURL}+'smd')}? 'link-secondary' : 'link-dark'}|">Service Metadata</a></li>
+          <li><a th:href="|${baseURL}settings/transports|" th:class="|nav-link px-2 ${{#request.getRequestURI().startsWith({baseURL}+'settings')}? 'link-secondary' : 'link-dark'}|">Settings</a></li>
+          <li><a th:href="|${baseURL}about|" class="nav-link px-2 link-dark">About</a></li>
+		</ul>
+	    <div class="dropdown text-end">
+          <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
+            <svg class="bi me-2" width="28" height="28" role="img" aria-label="Bootstrap"><use xlink:href="#people-circle"></use></svg>
+          </a>
+          <ul class="text-small dropdown-menu" aria-labelledby="dropdownUser1">
+			  <li><span class="dropdown-header" th:text="${#authentication.principal.fullName}">User's name</span></li>
+            <li><a class="dropdown-item " th:href="@{/account/update}">Account settings</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item " th:href="@{/logout}">Log out</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </header>
+
+	<div class="container">
+ 		<div class="row mt-2">
+			<section layout:fragment="dynamic-content"></section>
+		</div>
+	</div>
+
+	<div class="m-4"></div>
+
+
+</body>
+</html>
