@@ -6,19 +6,26 @@ The current version supports the OASIS Standard [Service Metadata Publishing (SM
 **NOTE:** This is a pre-release version suitable for use in test environments. As it still under development, it is not recommended for use in production environments yet. 
 
 __________________
-Lead developer: Sander Fieten
-Code hosted at https://github.com/holodeck-b2b/bdxr-smp-server
-Issue tracker https://github.com/holodeck-b2b/bdxr-smp-server/issues
+Lead developer: Sander Fieten  
+Code hosted at https://github.com/holodeck-b2b/bdxr-smp-server  
+Issue tracker https://github.com/holodeck-b2b/bdxr-smp-server/issues  
 
 ## Deployment
-To run the Holodeck SMP Server you will need a Java 16 run-time environment. The application itself consists of a single executable jar file. It can be ran out of the box in which case it will use the default configuration that will make the SMP server available for querying on port 80, the administration UI on port 8080, stores the meta-data in a file in the current directory and logs to the console. 
+To run the Holodeck SMP Server you will need a Java 16 run-time environment.  
+The application itself consists of a single executable jar file. It can be run out of the box in which case it will use the default configuration that will  
+- make the SMP server available for querying on port 80,  
+- make the administration UI available on port 8080,  
+- store the meta-data in a file in the current directory and  
+- log to the console. 
 
 ### Configuration
 #### Working directory
-When run out of the box the SMP server will use the current directory as its working directory where it will store its data and expects any configuration files. To specify the working directory set the Java system property `smp.home` to the path of the directory to use by adding the `-Dsmp.home=«path to working dir»` command line argument when starting the server.  
+When run out of the box the SMP server will use the current directory as its working directory where it will store its data and expect any configuration files. 
+To specify a different working directory set the Java system property `smp.home` to the path of the directory to use by adding the `-Dsmp.home=«path to working dir»` command line argument when starting the server.  
 
 #### HTTPS
-Both the servers for querying the SMP server and the administration UI can be secured using HTTPS. To set up the secure connections a configuration file must be created in the server's working directory, `query-api.properties` to configure the "query server" and `admin-ui.properties` for the administration UI. These are Java properties files which must contain the following properties to setup the HTTPS connections:
+Both the servers for querying the SMP server and the administration UI can be secured using HTTPS. 
+To set up the secure connections a configuration file must be created in the server's working directory, `query-api.properties` to configure the "query server" and `admin-ui.properties` for the administration UI. These are Java properties files which must contain the following properties to setup the HTTPS connections:
 
 - `server.port`: the port on which the server is listening.
 - `server.ssl.key-store`: the path to the key store that contains the TLS key and certificate. You can use _${smp.home}_ to specify the SMP's working directory.
