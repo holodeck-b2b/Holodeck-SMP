@@ -28,7 +28,7 @@ bin/
 *.sql
 *.sqlite
 *.db
-keypair*
+signkeypair*
 db/
 
 # IDE Config files   #
