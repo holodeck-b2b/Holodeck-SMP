@@ -27,7 +27,7 @@ public class LoginController {
     @GetMapping("login")
     public String getLogin(@AuthenticationPrincipal UserDetails user) {
         if (isLoggedIn(user)) {
-            return "redirect:/main";
+            return "redirect:/";
         }
         return "admin-ui/login";
     }

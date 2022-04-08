@@ -33,9 +33,9 @@ public class AdminViewController {
 		return buildProperties;
 	}
 
-    @GetMapping({"/", "main"})
+    @GetMapping({"/"})
     public String getMainView() {
-        return "admin-ui/mainview";
+        return "redirect:/participants";
     }
 
 	@GetMapping("about")

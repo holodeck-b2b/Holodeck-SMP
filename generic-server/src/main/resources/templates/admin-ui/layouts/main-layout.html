@@ -31,10 +31,10 @@
         </a>
        	<ul class="nav fs-6 col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0"
 			th:with="baseURL=@{/}">
-		  <li><a th:href="|${baseURL}main|" th:class="|nav-link px-2 ${{#request.getRequestURI().startsWith({baseURL}+'main')}? 'link-secondary' : 'link-dark'}|">Overview</a></li>
+<!--		  <li><a th:href="|${baseURL}main|" th:class="|nav-link px-2 ${{#request.getRequestURI().startsWith({baseURL}+'main')}? 'link-secondary' : 'link-dark'}|">Overview</a></li> -->
 		  <li><a th:href="|${baseURL}participants|" th:class="|nav-link px-2 ${{#request.getRequestURI().startsWith({baseURL}+'participants')}? 'link-secondary' : 'link-dark'}|">Participants</a></li>
-		  <li><a th:href="|${baseURL}endpoints|" th:class="|nav-link px-2 ${{#request.getRequestURI().startsWith({baseURL}+'endpoints')}? 'link-secondary' : 'link-dark'}|">Endpoints</a></li>
           <li><a th:href="|${baseURL}smd/services|" th:class="|nav-link px-2 ${{#request.getRequestURI().startsWith({baseURL}+'smd')}? 'link-secondary' : 'link-dark'}|">Service Metadata</a></li>
+		  <li><a th:href="|${baseURL}endpoints|" th:class="|nav-link px-2 ${{#request.getRequestURI().startsWith({baseURL}+'endpoints')}? 'link-secondary' : 'link-dark'}|">Endpoints</a></li>
           <li><a th:href="|${baseURL}settings/transports|" th:class="|nav-link px-2 ${{#request.getRequestURI().startsWith({baseURL}+'settings')}? 'link-secondary' : 'link-dark'}|">Settings</a></li>
           <li><a th:href="|${baseURL}about|" class="nav-link px-2 link-dark">About</a></li>
 		</ul>
