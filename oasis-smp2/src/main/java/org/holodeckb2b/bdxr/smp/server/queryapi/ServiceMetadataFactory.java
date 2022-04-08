@@ -24,7 +24,7 @@ import org.holodeckb2b.bdxr.smp.datamodel.EndpointInfo;
 import org.holodeckb2b.bdxr.smp.datamodel.Identifier;
 import org.holodeckb2b.bdxr.smp.datamodel.ProcessGroup;
 import org.holodeckb2b.bdxr.smp.datamodel.ProcessInfo;
-import org.holodeckb2b.bdxr.smp.datamodel.Redirection;
+import org.holodeckb2b.bdxr.smp.datamodel.RedirectionV2;
 import org.holodeckb2b.bdxr.smp.datamodel.impl.CertificateImpl;
 import org.holodeckb2b.bdxr.smp.server.datamodel.ServiceMetadataBinding;
 import org.holodeckb2b.bdxr.smp.server.datamodel.ServiceMetadataTemplate;
@@ -90,7 +90,7 @@ public class ServiceMetadataFactory extends AbstractResponseFactory {
 			pmd.getProcess().add(createProcess(p));
 		for(EndpointInfo ep : pg.getEndpoints())
 			pmd.getEndpoint().add(createEndpoint(ep));
-		pmd.setRedirect(createRedirect(pg.getRedirection()));
+		pmd.setRedirect(createRedirect((RedirectionV2) pg.getRedirection()));
 		return pmd;
 	}
 
@@ -140,7 +140,7 @@ public class ServiceMetadataFactory extends AbstractResponseFactory {
 		return c;
 	}
 
-	private RedirectType createRedirect(Redirection redirection) throws InstantiationException {
+	private RedirectType createRedirect(RedirectionV2 redirection) throws InstantiationException {
 		if (redirection == null)
 			return null;
 		RedirectType r = new RedirectType();
