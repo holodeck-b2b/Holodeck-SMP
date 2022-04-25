@@ -29,7 +29,7 @@ bin/
 *.sqlite
 *.db
 signkeypair*
-db/
+
 
 # IDE Config files   #
 ######################
