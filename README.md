@@ -34,10 +34,6 @@ To set up the secure connections a configuration file must be created in the ser
 - `server.ssl.key-alias`: the alias that identifies the key in the key store.
 - `server.ssl.key-password`: the password used to access the key in the key store.
 
-## Usage
-
-
-
 ## Contributing
 As initial development has not yet finished, the internal architecture is not stable yet and can still change. If you would like to contribute to this project please contact us.
 
