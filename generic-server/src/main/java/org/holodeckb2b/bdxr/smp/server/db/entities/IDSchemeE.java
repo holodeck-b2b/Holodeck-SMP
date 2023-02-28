@@ -24,7 +24,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.holodeckb2b.bdxr.smp.datamodel.IDScheme;
-import org.holodeckb2b.bdxr.smp.datamodel.util.Comparator;
+import org.holodeckb2b.commons.util.Utils;
 
 /**
  * Is the JPA entity for {@link IDScheme}. To simplify handling of identifiers the schemes are immutable so identifier
@@ -65,7 +65,10 @@ public class IDSchemeE implements IDScheme {
 	public boolean equals(Object o) {
 		if (o == null || !(o instanceof IDScheme))
 			return false;
-		else
-			return Comparator.equalIDSchemes(this, (IDScheme) o);
+		else {
+			IDScheme other = (IDScheme) o;
+			return this.isCaseSensitive() == other.isCaseSensitive()
+				&& Utils.nullSafeEqual(this.getSchemeId(), other.getSchemeId());
+		}
 	}
 }

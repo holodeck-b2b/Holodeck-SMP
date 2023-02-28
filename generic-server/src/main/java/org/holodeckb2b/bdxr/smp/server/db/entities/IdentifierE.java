@@ -27,7 +27,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.holodeckb2b.bdxr.smp.datamodel.Identifier;
-import org.holodeckb2b.bdxr.smp.datamodel.util.Comparator;
+import org.holodeckb2b.commons.util.Utils;
 
 /**
  * Is the JPA entity for {@link Identifier}. As identifiers always belong to a specific <i>Participant</i>, <i>Process
@@ -45,7 +45,7 @@ public class IdentifierE implements Identifier {
 	@Setter
 	protected IDSchemeE		scheme;
 
-	@Column(nullable = false)
+	@Column(name="idvalue", nullable = false)
 	@NotBlank(message = "An identifier value must be specified")
 	protected String		value;
 
@@ -101,9 +101,14 @@ public class IdentifierE implements Identifier {
 
 	@Override
 	public boolean equals(Object o) {
-		if (o == null || !(o instanceof IdentifierE))
+		if (o == null || !(o instanceof Identifier))
 			return false;
-		else
-			return Comparator.equalIDs(this, (Identifier) o);
+		else {
+			Identifier other = (Identifier) o;
+			return this.scheme.equals(other.getScheme())
+				&& this.scheme.isCaseSensitive() ? Utils.nullSafeEqual(this.value.toLowerCase(),
+																	   other.getValue().toLowerCase())
+												 : Utils.nullSafeEqual(this.value, other.getValue());
+		}
 	}
 }

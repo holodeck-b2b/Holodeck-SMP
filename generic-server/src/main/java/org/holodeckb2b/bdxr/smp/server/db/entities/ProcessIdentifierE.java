@@ -20,7 +20,6 @@ import javax.persistence.Embeddable;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.holodeckb2b.bdxr.smp.datamodel.ProcessIdentifier;
-import org.holodeckb2b.bdxr.smp.datamodel.util.Comparator;
 
 /**
  * Is the JPA entity for {@link ProcessIdentifier}. Uses the "normal" {@link IdentifierE} entity as base class and add
@@ -74,9 +73,11 @@ public class ProcessIdentifierE extends IdentifierE implements ProcessIdentifier
 
 	@Override
 	public boolean equals(Object o) {
-		if (o == null || !(o instanceof ProcessIdentifierE))
+		if (o == null || !(o instanceof ProcessIdentifier))
 			return false;
-		else
-			return Comparator.equalProcIDs(this, (ProcessIdentifier) o);
+		else {
+			ProcessIdentifier other = (ProcessIdentifier) o;
+			return (this.isNoProcess() && other.isNoProcess()) || super.equals(other);
+		}
 	}
 }

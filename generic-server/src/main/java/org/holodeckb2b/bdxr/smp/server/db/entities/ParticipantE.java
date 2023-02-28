@@ -58,9 +58,17 @@ public class ParticipantE implements Participant {
 	@Setter
 	protected String	contactInfo;
 
+	@Column
+	@Setter
+	protected Boolean	isRegisteredSML;
+
 	@OneToMany(mappedBy = "participant", cascade = CascadeType.ALL, orphanRemoval = true)
 	@Setter
 	protected List<ServiceMetadataBindingE>	bindings = new ArrayList<>();
+
+	public boolean isRegisteredSML() {
+		return isRegisteredSML != null ? isRegisteredSML : false;
+	}
 
 	@Override
 	public boolean equals(Object o) {
