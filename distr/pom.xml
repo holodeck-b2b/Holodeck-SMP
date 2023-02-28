@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.holodeckb2b.bdxr</groupId>
         <artifactId>smp-server-parent</artifactId>
-        <version>0.1.0</version>
+        <version>1.0.0</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>smp-server-app</artifactId>
@@ -37,8 +37,15 @@
             <artifactId>oasis-smp2-responder</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+			<artifactId>peppol-smp-responder</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
+
 	<build>
+		<finalName>holodeck-smp-server-${project.version}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
@@ -47,6 +54,12 @@
                     <mainClass>org.holodeckb2b.bdxr.smp.server.SMPServerApplication</mainClass>
                 </configuration>
 				<executions>
+					<execution>
+						<id>build-info</id>
+						<goals>
+							<goal>build-info</goal>
+						</goals>
+					</execution>
 					<execution>
 						<goals>
 							<goal>repackage</goal>
