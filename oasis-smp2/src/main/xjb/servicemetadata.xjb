@@ -4,7 +4,7 @@ xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc" jxb:extensionBindingPrefixes="xj
 		<jxb:bindings node=".//xs:complexType[@name='BinaryObjectType']">
 			<jxb:property>
 				<jxb:baseType>
-					<xjc:javaType name="byte[]" adapter="org.holodeckb2b.bdxr.smp.server.queryapi.PEMAdapter"/>
+					<xjc:javaType name="byte[]" adapter="org.holodeckb2b.bdxr.smp.server.queryapi.oasisv2.PEMAdapter"/>
 				</jxb:baseType>
 			</jxb:property>
 		</jxb:bindings>

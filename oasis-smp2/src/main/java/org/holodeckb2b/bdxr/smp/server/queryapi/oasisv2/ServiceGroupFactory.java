@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.holodeckb2b.bdxr.smp.server.queryapi;
+package org.holodeckb2b.bdxr.smp.server.queryapi.oasisv2;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -23,7 +23,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.holodeckb2b.bdxr.smp.datamodel.Identifier;
 import org.holodeckb2b.bdxr.smp.datamodel.ProcessGroup;
 import org.holodeckb2b.bdxr.smp.datamodel.ProcessInfo;
-import org.holodeckb2b.bdxr.smp.datamodel.util.Comparator;
 import org.holodeckb2b.bdxr.smp.server.datamodel.ServiceMetadataBinding;
 import org.holodeckb2b.bdxr.smp.server.datamodel.ServiceMetadataTemplate;
 import org.oasis_open.docs.bdxr.ns.smp._2.aggregatecomponents.ProcessType;
@@ -68,7 +67,7 @@ public class ServiceGroupFactory extends AbstractResponseFactory {
 		// Only add unique Process element, i.e. that represent the same Process and collection of Roles
 		pg.forEach(g -> procs.addAll(g.getProcessInfo().parallelStream()
 													   .filter(p1 -> procs.parallelStream()
-																.noneMatch(p2 -> Comparator.equalProcessInfos(p1, p2)))
+																.noneMatch(p2 -> p1.equals(p2)))
 													   .toList()));
 		for(ProcessInfo p : procs)
 			r.getProcess().add(createProcess(p));

@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.holodeckb2b.bdxr.smp.server.queryapi;
+package org.holodeckb2b.bdxr.smp.server.queryapi.oasisv2;
 
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
@@ -25,7 +25,12 @@ import javax.xml.crypto.dsig.XMLSignatureException;
 import lombok.extern.slf4j.Slf4j;
 import org.holodeckb2b.bdxr.smp.datamodel.Identifier;
 import org.holodeckb2b.bdxr.smp.server.db.entities.ServiceMetadataBindingE;
+import org.holodeckb2b.bdxr.smp.server.db.repos.ParticipantRepository;
 import org.holodeckb2b.bdxr.smp.server.db.repos.ServiceMetadataBindingRepository;
+import org.holodeckb2b.bdxr.smp.server.queryapi.IQueryResponder;
+import org.holodeckb2b.bdxr.smp.server.queryapi.QueryResponse;
+import org.holodeckb2b.bdxr.smp.server.queryapi.QueryUtils;
+import org.holodeckb2b.bdxr.smp.server.queryapi.XMLResponseSigner;
 import org.holodeckb2b.commons.util.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -53,6 +58,8 @@ public class OASISv2QueryResponder implements IQueryResponder {
 	protected QueryUtils	queryUtils;
 	@Autowired
 	protected XMLResponseSigner	signer;
+	@Autowired
+	protected ParticipantRepository participants;
 	@Autowired
 	protected ServiceMetadataBindingRepository bindings;
 	@Value("${smp.smp2_cert_mime-type:application/pkix-cert}")
@@ -126,6 +133,11 @@ public class OASISv2QueryResponder implements IQueryResponder {
 			partID = queryUtils.parseIDString(pidString);
 		} catch (NoSuchElementException unknownScheme) {
 			log.debug("ID Scheme of queried Participant ID ({}) not found!", pidString);
+			return new QueryResponse(HttpStatus.NOT_FOUND, null, null);
+		}
+		log.trace("Check if Participant with ID={} exists", partID.toString());
+		if (participants.findByIdentifier(partID).isEmpty()) {
+			log.debug("Queried Participant ID ({}) not found!", pidString);
 			return new QueryResponse(HttpStatus.NOT_FOUND, null, null);
 		}
 		log.trace("Retrieve SMB for Participant={}", partID.toString());
