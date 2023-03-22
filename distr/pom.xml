@@ -18,18 +18,19 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>org.holodeckb2b.bdxr</groupId>
-        <artifactId>smp-server-parent</artifactId>
+        <groupId>org.holodeckb2b.bdxr.smp.server</groupId>
+        <artifactId>parent</artifactId>
         <version>1.0.0</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>smp-server-app</artifactId>
-    <name>Holodeck SMP Distribution Packaging</name>
-    <description>This project creates one executable JAR for the Holodeck SMP Server application</description>
+    <name>Holodeck SMP Server Packaging</name>
+    <description>This project creates one executable JAR for the Holodeck SMP Server application that includes support for both the OASIS V2 SMP Stanard
+    as well as the Peppol Specification. It also supports integration with the Pepppol SML.</description>
 	<dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>smp-server</artifactId>
+            <artifactId>smp-server-generic</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -39,7 +40,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-			<artifactId>peppol-smp-responder</artifactId>
+			<artifactId>peppol-smp-server-comp</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

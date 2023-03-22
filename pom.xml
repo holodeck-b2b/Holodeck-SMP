@@ -3,8 +3,8 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.holodeckb2b.bdxr</groupId>
-	<artifactId>smp-server-parent</artifactId>
+	<groupId>org.holodeckb2b.bdxr.smp.server</groupId>
+	<artifactId>parent</artifactId>
 	<version>1.0.0</version>
 	<packaging>pom</packaging>
 	<properties>
@@ -14,8 +14,11 @@
 		<jaxb.version>2.3.1</jaxb.version>
 	</properties>
 	<name>Holodeck SMP Server</name>
-	<description>This project contains a SMP Server that support the SMP specifications
-    developed by the OASIS BDXR Technical Committee and its predecessor developed within PEPPOL.</description>
+	<description>This project contains a SMP Server that support the SMP specifications developed by the 
+		OASIS BDXR Technical Committee and its predecessor developed within PEPPOL.
+	</description>
+	<inceptionYear>2022</inceptionYear>
+	<url>http://www.holodeck-b2b.org/</url>
 	<scm>
 		<url>https://github.com/holodeck-b2b/Holodeck-SMP.git</url>
 		<connection>scm:git:https://github.com/holodeck-b2b/Holodeck-SMP.git</connection>
@@ -40,6 +43,17 @@
 			</roles>
 			<timezone>Europe/Amsterdam</timezone>
 		</developer>
+		<developer>
+			<name>Renate Slebe</name>
+			<organization>Chasquis</organization>
+			<organizationUrl>http://chasquis-consulting.com/holodeck-b2b-support/</organizationUrl>
+			<email>renate at chasquis-consulting.com</email>
+			<roles>
+				<role>Product manager</role>
+				<role>QA and documentation</role>
+			</roles>
+			<timezone>Europe/Amsterdam</timezone>
+		</developer>		
 	</developers>
 
 	<licenses>

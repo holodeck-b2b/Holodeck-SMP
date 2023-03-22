@@ -2,14 +2,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>org.holodeckb2b.bdxr</groupId>
-		<artifactId>smp-server-parent</artifactId>
+		<groupId>org.holodeckb2b.bdxr.smp.server</groupId>
+		<artifactId>parent</artifactId>
 		<version>1.0.0</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
-	<artifactId>peppol-smp-responder</artifactId>
-	<name>PEPPOL SMP query responder</name>
-	<description>This project contains the classes to create the responses to SMP query according to the PEPPOL SMP specification</description>
+	<artifactId>peppol-smp-server-comp</artifactId>
+	<name>PEPPOL SMP Server Components</name>
+	<description>This project contains the classes to create the responses to SMP query according to the PEPPOL SMP specification
+		and for the integration with the Peppol SML.</description>
 	<packaging>jar</packaging>
 
 	<properties>
@@ -24,7 +25,7 @@
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>smp-server</artifactId>
+			<artifactId>smp-server-generic</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
@@ -34,20 +35,18 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web-services</artifactId>
-<!--			<exclusions>
+			<exclusions>
 				<exclusion>
 					<groupId>org.springframework.boot</groupId>
 					<artifactId>spring-boot-starter-tomcat</artifactId>
 				</exclusion>
 			</exclusions>
--->
 		</dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<scope>provided</scope>
 		</dependency>
-		<!-- JAXB -->
 		<dependency>
 			<groupId>javax.xml.bind</groupId>
 			<artifactId>jaxb-api</artifactId>
