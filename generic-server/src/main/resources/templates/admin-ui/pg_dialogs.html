@@ -48,9 +48,15 @@
 							<div style='min-height: fit-content; max-height: 200px; overflow-y: scroll'>
 							<ul id="roleList" class="list-group">
 								<li th:each="r : *{roles}"
-									th:text="$[r.id.value}"
 									class="list-group-item d-flex justify-content-between align-items-center"
-									></li>
+									>
+									<span th:text="${r.value}"></span>
+									<a href="#" onclick="$(this).parent().remove()">
+										<svg class="bi text-danger" fill="currentColor" width="16" height="16" role="img" aria-label="Remove from list">
+											<use xlink:href="#x"></use>
+										</svg>
+									</a>
+								</li>
 							</ul>
 							</div>
 							<div id="roleEditor" class="input-group mb-3">

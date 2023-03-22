@@ -28,7 +28,7 @@
 			<div class="card-body">
 				<form method="POST" enctype="multipart/form-data" th:action="@{/settings/smpcert/upload}">
 				<div class="row mb-3">
-					<label for="formFile" class="col-2 col-form-label">Keypair file</label>
+					<label for="formFile" class="col-2 col-form-label">Key pair file</label>
 					<div class="col-9">
 					<div class="input-group">
 						<input type="file" class="form-control" id="keypairFile" name="keypair">
@@ -37,7 +37,7 @@
 					</div>
 				</div>
 				<div class="row mb-4">
-					<label for="serviceID" class="col-2 col-form-label">Keypair password</label>
+					<label for="serviceID" class="col-2 col-form-label">Key pair password</label>
 					<div class="col-4">
 						<input type="password" class="form-control" id="password" name="password"/>
 					</div>
@@ -107,6 +107,6 @@
 			   class="col-auto col-form-label text-danger">EXPIRED</label>
 	</div>
 </div>
-	
+
 </body>
 </html>

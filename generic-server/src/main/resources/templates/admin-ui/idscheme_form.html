@@ -16,7 +16,7 @@
 			<label for="schemeID" class="col-2 col-form-label">Scheme identifier</label>
 			<div class="col-7">
 				<input type="text" class="form-control" th:errorclass="is-invalid"
-					   th:readonly="*{schemeId != null}"
+					   th:readonly="!${#strings.isEmpty(scheme.schemeId)}"
 					   id="schemeID" th:field="*{schemeId}"
 					   placeholder="Scheme identifier" />
 				<div id="invalidIdentifierMsg"
