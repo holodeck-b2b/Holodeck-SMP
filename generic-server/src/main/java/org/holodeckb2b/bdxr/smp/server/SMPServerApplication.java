@@ -30,7 +30,8 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 public class SMPServerApplication {
 
 	public static void main(String[] args) {
-		new SpringApplicationBuilder().parent(CommonServerConfig.class)
+		new SpringApplicationBuilder().properties("spring.config.name=common")
+									.sources(CommonServerConfig.class)
 						            .child(QueryAppConfig.class)
 						            .web(WebApplicationType.SERVLET)
 									.sibling(AdminUIConfig.class)
