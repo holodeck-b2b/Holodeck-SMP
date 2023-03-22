@@ -26,7 +26,7 @@
 				</tr>
 			</thead>
 			<tbody>
-				<tr th:each="ep : ${endpoints}">
+				<tr th:each="ep : ${endpoints}" class="align-middle">
 					<td th:text="${ep.name}">Endpoint name</td>
 					<td th:text="${ep.transportProfile}">transport-profile-id</td>
 					<td th:text="${ep.endpointURL.toString()}">https://demo.goes.no.where/as4</td>

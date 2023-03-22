@@ -16,21 +16,24 @@
 				<div class="col-3">
 					<label for="inputIdScheme" class="form-label">Identifier Scheme</label>
 					<select class="form-select" th:errorclass="is-invalid"
-							id="inputIdScheme" th:field="*{id.scheme}">
+							id="inputIdScheme" th:field="*{id.scheme}" th:disabled="*{isRegisteredSML}">
 						<option value="-1">Without scheme</option>
 						<option th:each="ids : ${idSchemes}" th:value="${ids.schemeId}"
 								th:text="${ids.schemeId}">Wireframe</option>
 					</select>
+					<input th:if="*{isRegisteredSML}" type="hidden" th:field="*{id.scheme}">
 				</div>
 				<div class="col-6">
 					<label for="inputIdValue" class="form-label">Identifier Value</label>
 					<input type="text" class="form-control" th:errorclass="is-invalid"
-						   id="inputIdValue" th:field="*{id.value}"
+						   id="inputIdValue" th:field="*{id.value}" th:disabled="*{isRegisteredSML}"
 						   placeholder="Participant identifier" />
 					<div id="invalidIdentifierMsg"
 						 th:if="${#fields.hasErrors('id.value')}" class="invalid-feedback"
 						 th:errors="*{id.value}">
 					</div>
+					<input th:if="*{isRegisteredSML}" type="hidden" th:field="*{id.value}">
+					<div th:if="*{isRegisteredSML}" class="small">The identifier cannot be changed when the Participant is registered in the SML</div>
 				</div>
 				<div class="col-9">
 					<label for="inputName" class="form-label">Name</label>
@@ -45,6 +48,14 @@
 				<div class="col-9">
 					<label for="inputContactInfo" class="form-label">Contact Info</label>
 					<textarea class="form-control" id="inputContactInfo" rows="2" th:field="*{contactInfo}"></textarea>
+				</div>
+				<div th:if="${smlAvailable}" class="col-9">
+					<label class="form-check-label me-5">Register in SML?</label>
+					<input class="form-check-input" type="checkbox" th:field="*{isRegisteredSML}">
+					<div id="smlWarning"
+						 th:if="${#fields.hasErrors('isRegisteredSML')}" class="invalid-feedback"
+						 th:errors="*{isRegisteredSML}">
+					</div>
 				</div>
 			</div>
 			<div class="card-header">

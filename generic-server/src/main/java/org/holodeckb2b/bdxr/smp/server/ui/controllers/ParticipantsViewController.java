@@ -26,6 +26,7 @@ import org.holodeckb2b.bdxr.smp.server.db.repos.IDSchemeRepository;
 import org.holodeckb2b.bdxr.smp.server.db.repos.ParticipantRepository;
 import org.holodeckb2b.bdxr.smp.server.db.repos.ServiceMetadataBindingRepository;
 import org.holodeckb2b.bdxr.smp.server.db.repos.ServiceMetadataTemplateRepository;
+import org.holodeckb2b.bdxr.smp.server.svc.SMLIntegrationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -36,6 +37,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 @RequestMapping("participants")
@@ -50,10 +52,18 @@ public class ParticipantsViewController {
 	protected ServiceMetadataTemplateRepository templates;
 	@Autowired
 	protected ServiceMetadataBindingRepository bindings;
+	@Autowired
+	protected SMLIntegrationService	smlService;
+
 
 	@ModelAttribute("idSchemes")
 	public Collection<IDSchemeE> populdateSchemes() {
 		return idschemes.findAll();
+	}
+
+	@ModelAttribute("smlAvailable")
+	public boolean setSMLAvailability() {
+		return smlService.isSMLIntegrationAvailable();
 	}
 
 	@GetMapping()
@@ -69,26 +79,65 @@ public class ParticipantsViewController {
 	}
 
 	@GetMapping(value = "/delete/{oid}")
-	public String deleteParticipant(@PathVariable("oid") Long oid) {
-		participants.deleteById(oid);
-		return "redirect:/participants";
+	public ModelAndView deleteParticipant(@PathVariable("oid") Long oid) {
+		ModelAndView mv;
+		try {
+			ParticipantE p = participants.getReferenceById(oid);
+			if (smlService.isSMLIntegrationAvailable() && p.isRegisteredSML())
+				smlService.unregisterParticipant(p);
+			participants.delete(p);
+			mv = new ModelAndView("redirect:/participants");
+		} catch (Exception removeFailed) {
+			mv = new ModelAndView("admin-ui/participants", "participants", participants.findAll());
+			mv.addObject("errorMessage", "An error occurred while removing the participant registration: " +
+										 removeFailed.getMessage());
+		}
+		return mv;
 	}
 
 	@PostMapping(value = "/update", params = { "save" })
 	public String saveParticipant(@ModelAttribute(P_ATTR) @Valid ParticipantE input, BindingResult br, Model m, HttpSession s) {
-		ParticipantE updated = updateBasics(input, s);
+		ParticipantE update = updateBasics(input, s);
 
-		if (!br.hasErrors() && !participants.findByIdentifier(input.getId()).stream().allMatch(p -> p.equals(updated))) {
+		if (!br.hasErrors() && !participants.findByIdentifier(input.getId()).stream().allMatch(p -> p.equals(update))) {
 			br.rejectValue("id.value", "ID_EXISTS", "There already exists another Participant with the same Identifier");
 			br.rejectValue("id.scheme", "ID_EXISTS");
 		}
 
+		ParticipantE saved;
+		boolean smlUpdRequired = false;
 		if (!br.hasErrors()) {
-			participants.save(updated);
-			return "redirect:/participants";
-		} else {
-			return toForm(m, s);
+			if (smlService.isSMLIntegrationAvailable() && update.getOid() != 0) {
+				// Update to an existing registration, check if the SML registration changed
+				ParticipantE current = participants.getReferenceById(update.getOid());
+				smlUpdRequired = current.isRegisteredSML() != update.isRegisteredSML();
+			} else
+				smlUpdRequired = smlService.isSMLIntegrationAvailable() && update.isRegisteredSML();
+
+			// Save data
+			saved = participants.save(update);
+			// Update SML registration if needed
+			if (smlUpdRequired)
+				try {
+					if (update.isRegisteredSML())
+						smlService.registerParticipant(update);
+					else
+						smlService.unregisterParticipant(update);
+				} catch (Exception smlUpdateFailed) {
+					saved.setIsRegisteredSML(!update.isRegisteredSML());
+					saved = participants.save(saved);
+					s.setAttribute(P_ATTR, saved);
+					m.addAttribute(P_ATTR, saved);
+					m.addAttribute("errorMessage", "There was an error updating the Participant's registration in the SML ("
+									+ smlUpdateFailed.getMessage() + ")");
+					return toForm(m, s);
+				}
 		}
+
+		if (!br.hasErrors())
+			return "redirect:/participants";
+		else
+			return toForm(m, s);
 	}
 
 	@PostMapping(value = "/update", params = {"addBinding", "template2add"})
@@ -124,6 +173,7 @@ public class ParticipantsViewController {
 			stored.setId(input.getId());
 			stored.setName(input.getName());
 			stored.setContactInfo(input.getContactInfo());
+			stored.setIsRegisteredSML(input.getIsRegisteredSML());
 		}
 		return stored;
 	}

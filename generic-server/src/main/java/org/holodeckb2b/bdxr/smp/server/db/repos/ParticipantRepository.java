@@ -20,8 +20,10 @@ import java.util.List;
 import org.holodeckb2b.bdxr.smp.datamodel.Identifier;
 import org.holodeckb2b.bdxr.smp.server.db.entities.ParticipantE;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * The Spring JPA repository for participant meta-data.
@@ -35,4 +37,9 @@ public interface ParticipantRepository extends JpaRepository<ParticipantE, Long>
 		and ( p.id.scheme = :#{#id.scheme} or p.id.scheme is null and :#{#id.scheme} is null )
         """)
 	List<ParticipantE> findByIdentifier(@Param("id") Identifier id);
+
+	@Modifying
+	@Transactional
+	@Query("update Participant p set p.isRegisteredSML = false")
+	void unregisterAllFromSML();
 }
