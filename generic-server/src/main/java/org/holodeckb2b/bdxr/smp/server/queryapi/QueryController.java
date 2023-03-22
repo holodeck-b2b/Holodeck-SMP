@@ -71,7 +71,7 @@ public class QueryController  {
 			try {
 				r = responder.processQuery(queryPath, hdrs);
 			} catch (Throwable t) {
-				log.error("An exception occurred handling the query: ", Utils.getExceptionTrace(t));
+				log.error("An exception occurred handling the query: {}", Utils.getExceptionTrace(t));
 				r = new QueryResponse(HttpStatus.INTERNAL_SERVER_ERROR, null, null);
 			}
 		}
