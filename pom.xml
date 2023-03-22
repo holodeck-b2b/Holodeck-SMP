@@ -17,12 +17,11 @@
 	<description>This project contains a SMP Server that support the SMP specifications
     developed by the OASIS BDXR Technical Committee and its predecessor developed within PEPPOL.</description>
 	<scm>
-		<url>https://github.com/holodeck-b2b/bdxr-smp-server</url>
-		<connection>scm:git:https://github.com/holodeck-b2b/bdxr-smp-server.git</connection>
-		<developerConnection>scm:git:git@github.com:holodeck-b2b/bdxr-smp-server.git</developerConnection>
+		<url>https://github.com/holodeck-b2b/Holodeck-SMP.git</url>
+		<connection>scm:git:https://github.com/holodeck-b2b/Holodeck-SMP.git</connection>
 	</scm>
 	<issueManagement>
-		<url>https://github.com/holodeck-b2b/bdxr-smp-server/issues</url>
+		<url>https://github.com/holodeck-b2b/Holodeck-SMP/issues</url>
 	</issueManagement>
 
 	<organization>
