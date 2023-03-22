@@ -53,13 +53,14 @@ import org.w3c.dom.Document;
 @Service
 public class XMLResponseSigner {
 
-	private static final String EXC_C14N_ALG = "http://www.w3.org/2001/10/xml-exc-c14n#";
+	private static final String DEFAULT_C14N_ALG = "http://www.w3.org/2001/10/xml-exc-c14n#";
 
 	@Autowired
 	protected SMPCertificateService certSvc;
 
 	/**
-	 * Signs the SMP XML response using the specified signing and digest algorithms.
+	 * Signs the SMP XML response using the specified signing and digest algorithms. The exclusive canonicalisation
+	 * algorithm is used.
 	 * <p>Both algorithms should be specified using the algorithm names as defined in the <a href="https://www.w3.org/TR/xmldsig-core1/">
 	 * XML Signature Syntax and Processing Version 1.1</a> standard.
 	 *
@@ -67,9 +68,26 @@ public class XMLResponseSigner {
 	 * @param signingAlg	signing algorithm to use
 	 * @param digestAlg		digest algorithm to use
 	 * @return				signed XML document
-	 * @throws XMLSignatureException
+	 * @throws XMLSignatureException when an error occurs during the signing of the response document
 	 */
 	public Document signResponse(Document response, String signingAlg, String digestAlg) throws XMLSignatureException {
+		return this.signResponse(response, signingAlg, digestAlg, DEFAULT_C14N_ALG);
+	}
+
+	/**
+	 * Signs the SMP XML response using the specified signing, digest and canonicalisation algorithms.
+	 * <p>Both algorithms should be specified using the algorithm names as defined in the <a href="https://www.w3.org/TR/xmldsig-core1/">
+	 * XML Signature Syntax and Processing Version 1.1</a> standard.
+	 *
+	 * @param response		XML response document to sign
+	 * @param signingAlg	signing algorithm to use
+	 * @param digestAlg		digest algorithm to use
+	 * @param c14nAlg		canonicalisation algorithm to use
+	 * @return				signed XML document
+	 * @throws XMLSignatureException when an error occurs during the signing of the response document
+	 */
+	public Document signResponse(Document response, String signingAlg, String digestAlg, String c14nAlg)
+																						throws XMLSignatureException {
 		KeyStore.PrivateKeyEntry keyPair;
 		try {
 			 keyPair = certSvc.getKeyPair();
@@ -98,7 +116,7 @@ public class XMLResponseSigner {
 		try {
 			r = f.newReference("", dm, Arrays.asList(new Transform[] {
 													f.newTransform(Transform.ENVELOPED, (TransformParameterSpec) null),
-													f.newTransform(EXC_C14N_ALG, (TransformParameterSpec) null)
+													f.newTransform(c14nAlg, (TransformParameterSpec) null)
 												}), null, null);
 		} catch (NoSuchAlgorithmException | InvalidAlgorithmParameterException unsupportedTransform) {
 			throw new XMLSignatureException("Enveloped signature not supported");
@@ -117,7 +135,7 @@ public class XMLResponseSigner {
 
 		SignedInfo si;
 		try {
-			si = f.newSignedInfo(f.newCanonicalizationMethod(EXC_C14N_ALG, (C14NMethodParameterSpec) null),
+			si = f.newSignedInfo(f.newCanonicalizationMethod(c14nAlg, (C14NMethodParameterSpec) null),
 								 sm, Collections.singletonList(r));
 		} catch (NoSuchAlgorithmException | InvalidAlgorithmParameterException ex) {
 			throw new XMLSignatureException("Error creating SignedInfo element", ex);
