@@ -70,5 +70,6 @@ public class CertificateFormData {
 		ZonedDateTime expiration = c.getExpirationDate();
 		expirationDate = expiration != null ? expiration.toLocalDate() : null;
 		expirationTime = expiration != null ? expiration.toLocalTime() : null;
+		usage = c.getUsage();
 	}
 }
