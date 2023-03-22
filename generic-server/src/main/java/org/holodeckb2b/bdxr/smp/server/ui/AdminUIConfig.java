@@ -38,7 +38,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 @EnableAutoConfiguration
 public class AdminUIConfig {
 	private static final String DEFAULT_UID = "admin@smp.holodeck-b2b.org";
-	private static final String DEFAULT_PWD = "Ch@nge1tN0w!";
 
 	@Bean
 	@Autowired
@@ -49,11 +48,12 @@ public class AdminUIConfig {
 				UserAccount admin = new UserAccount();
 				admin.setEmailAddress(DEFAULT_UID);
 				admin.setFullName("Default admin account");
-				admin.setPassword(new BCryptPasswordEncoder().encode(DEFAULT_PWD));
+				String password = "p-" + Long.toHexString(Double.doubleToLongBits(Math.random()));
+				admin.setPassword(new BCryptPasswordEncoder().encode(password));
 				admin.getRoles().add(UserRole.ADMIN);
 				try {
 					users.save(admin);
-					log.info("Added default admin account: ({}/{})", DEFAULT_UID, DEFAULT_PWD);
+					log.info("Added default admin account: ({}/{})", DEFAULT_UID, password);
 				} catch (Throwable t) {
 					log.error("Could not add a default admin account. Administration UI may not be available!");
 				}
