@@ -117,7 +117,7 @@ public class SMTViewController {
 			}
 		}
 		if (br.hasErrors()) {
-			//((ServiceMetadataTemplateE) br.getTarget()).setProcessMetadata(smt.getProcessMetadata());
+			((ServiceMetadataTemplateE) br.getTarget()).setProcessMetadata(smt.getProcessMetadata());
 			return "admin-ui/smt_form";
 		} else {
 			templates.save(smt);
@@ -287,7 +287,8 @@ public class SMTViewController {
 		ServiceMetadataTemplateE stored = (ServiceMetadataTemplateE) s.getAttribute(SMT_ATTR);
 		if (input != null) {
 			stored.setService(input.getService());
-			stored.setName(!Utils.isNullOrEmpty(input.getName()) ? input.getName() : input.getService().getName());
+			stored.setName(!Utils.isNullOrEmpty(input.getName()) ? input.getName() :
+													input.getService() != null ? input.getService().getName() : null);
 		}
 		return stored;
 	}
