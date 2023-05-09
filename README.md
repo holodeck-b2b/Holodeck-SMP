@@ -5,9 +5,9 @@ The current version supports the OASIS Standard [Service Metadata Publishing (SM
 The server contains two separated interfaces, a REST based API for responding to queries and a web-based user interface for managing of the Participant's capabilities. By separating the query and management interfaces it is easy to manage access to them independently.
 
 __________________
-Lead developer: Sander Fieten
-Code hosted at https://github.com/holodeck-b2b/Holodeck-SMP
-Issue tracker https://github.com/holodeck-b2b/Holodeck-SMP/issues
+Lead developer: Sander Fieten  
+Code hosted at https://github.com/holodeck-b2b/Holodeck-SMP  
+Issue tracker https://github.com/holodeck-b2b/Holodeck-SMP/issues  
 
 ## Usage
 For more information about installing and using the server, please see the documentation at our website.
