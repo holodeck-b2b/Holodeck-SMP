@@ -16,39 +16,13 @@
  */
 package org.holodeckb2b.bdxr.smp.server.db.repos;
 
-import java.util.List;
-import org.holodeckb2b.bdxr.smp.datamodel.Identifier;
 import org.holodeckb2b.bdxr.smp.server.db.entities.ServiceMetadataBindingE;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 /**
  * The Spring JPA repository for service meta-data bindings.
  *
  * @author Sander Fieten (sander at holodeck-b2b.org)
  */
-public interface ServiceMetadataBindingRepository extends JpaRepository<ServiceMetadataBindingE, Long> {
-
-	@Query("""
-			select smb
-			from ServiceMetadataBinding smb
-			where smb.participant.id.value = :#{#id.value}
-			and ( smb.participant.id.scheme = :#{#id.scheme}
-				or  smb.participant.id.scheme is null and :#{#id.scheme} is null )
-			""")
-	List<ServiceMetadataBindingE> findByParticipantId(@Param("id") Identifier partID);
-
-	@Query("""
-			select smb
-			from ServiceMetadataBinding smb
-			where smb.participant.id.value = :#{#pid.value}
-			and ( smb.participant.id.scheme = :#{#pid.scheme}
-				or  smb.participant.id.scheme is null and :#{#pid.scheme} is null )
-            and smb.template.service.id.value = :#{#sid.value}
-			and ( smb.template.service.id.scheme = :#{#sid.scheme}
-				or  smb.template.service.id.scheme is null and :#{#sid.scheme} is null )
-		""")
-	List<ServiceMetadataBindingE> findByParticipantAndServiceIds(@Param("pid") Identifier partID, @Param("sid") Identifier serviceID);
-
+public interface ServiceMetadataBindingRepository extends JpaRepository<ServiceMetadataBindingE, Long>, SMBSchemeBasedQueryingRepository {
 }

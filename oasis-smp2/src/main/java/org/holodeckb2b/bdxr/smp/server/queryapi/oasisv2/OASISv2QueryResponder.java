@@ -100,15 +100,15 @@ public class OASISv2QueryResponder implements IQueryResponder {
 			return new QueryResponse(HttpStatus.NOT_FOUND, null, null);
 		}
 		log.trace("Retrieve SMB for Participant={} and Service={}", partID.toString(), svcID.toString());
-		List<ServiceMetadataBindingE> smb = bindings.findByParticipantAndServiceIds(partID, svcID);
-		if (smb.isEmpty()) {
+		ServiceMetadataBindingE smb = bindings.findByParticipantAndServiceId(partID, svcID);
+		if (smb == null) {
 			log.debug("No SMB found for Participant={} and Service={}", partID.toString(), svcID.toString());
 			return new QueryResponse(HttpStatus.NOT_FOUND, null, null);
 		}
 		log.trace("Create ServiceMetadata response document");
 		Document response, signed;
 		try {
-			response = getSmdFactory().newResponse(smb.get(0));
+			response = getSmdFactory().newResponse(smb);
 		} catch (InstantiationException ex) {
 			log.error("Error occurred creating the ServiceMetadata response: {}", ex.getMessage());
 			return new QueryResponse(HttpStatus.INTERNAL_SERVER_ERROR, null, null);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 The Holodeck B2B Team
+ * Copyright (C) 2023 The Holodeck B2B Team
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the Affero GNU General Public License as published by
@@ -16,21 +16,16 @@
  */
 package org.holodeckb2b.bdxr.smp.server.db.repos;
 
-import org.holodeckb2b.bdxr.smp.server.db.entities.ParticipantE;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.transaction.annotation.Transactional;
+import java.util.List;
+import org.holodeckb2b.bdxr.smp.datamodel.Identifier;
+import org.springframework.data.repository.query.Param;
 
 /**
- * The Spring JPA repository for participant meta-data.
+ * Abstract definition of the Identifier based search capability.
  *
  * @author Sander Fieten (sander at holodeck-b2b.org)
  */
-public interface ParticipantRepository extends JpaRepository<ParticipantE, Long>, ParticipantSearchByIdRepo {
+public interface AbstractIDBasedRepo<T extends Identifier, R> {
 
-	@Modifying
-	@Transactional
-	@Query("update Participant p set p.isRegisteredSML = false")
-	void unregisterAllFromSML();
+	List<R> findByIdentifier(@Param("id") T id);
 }

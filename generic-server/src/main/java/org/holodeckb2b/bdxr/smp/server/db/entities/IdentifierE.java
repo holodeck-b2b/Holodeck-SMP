@@ -66,7 +66,7 @@ public class IdentifierE implements Identifier {
 	 */
 	public IdentifierE(String value, IDSchemeE idScheme) {
 		this.scheme = idScheme;
-		setValue(value);
+		this.value = value;
 	}
 
 	/**
@@ -75,7 +75,7 @@ public class IdentifierE implements Identifier {
 	 * @param value the new id
 	 */
 	public void setValue(String value) {
-		this.value = value == null ? null : scheme != null && scheme.isCaseSensitive() ? value : value.toLowerCase();
+		this.value = value;
 	}
 
     /**

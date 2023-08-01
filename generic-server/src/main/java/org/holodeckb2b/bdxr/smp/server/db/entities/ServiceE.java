@@ -21,6 +21,8 @@ import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Index;
+import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
@@ -32,6 +34,7 @@ import org.holodeckb2b.bdxr.smp.server.datamodel.Service;
  * @author Sander Fieten (sander at holodeck-b2b.org)
  */
 @Entity(name = "Service")
+@Table(indexes = {@Index(columnList = "name")})
 @Getter
 @Setter
 public class ServiceE implements Service {

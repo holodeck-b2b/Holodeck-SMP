@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 The Holodeck B2B Team
+ * Copyright (C) 2023 The Holodeck B2B Team
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the Affero GNU General Public License as published by
@@ -16,21 +16,18 @@
  */
 package org.holodeckb2b.bdxr.smp.server.db.repos;
 
-import org.holodeckb2b.bdxr.smp.server.db.entities.ParticipantE;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.transaction.annotation.Transactional;
+import org.holodeckb2b.bdxr.smp.datamodel.Identifier;
+import org.holodeckb2b.bdxr.smp.server.db.entities.ServiceE;
 
 /**
- * The Spring JPA repository for participant meta-data.
+ * Implements the Identifier based search capability for the {@link ServiceE} entity.
  *
  * @author Sander Fieten (sander at holodeck-b2b.org)
  */
-public interface ParticipantRepository extends JpaRepository<ParticipantE, Long>, ParticipantSearchByIdRepo {
-
-	@Modifying
-	@Transactional
-	@Query("update Participant p set p.isRegisteredSML = false")
-	void unregisterAllFromSML();
+public class ServiceSearchByIdRepoImpl extends AbstractIDBasedRepoImpl<Identifier, ServiceE>
+										implements ServiceSearchByIdRepo {
+	@Override
+	protected Class getResultClass() {
+		return ServiceE.class;
+	}
 }

@@ -16,8 +16,6 @@
  */
 package org.holodeckb2b.bdxr.smp.server.db.repos;
 
-import java.util.List;
-import org.holodeckb2b.bdxr.smp.server.db.entities.IdentifierE;
 import org.holodeckb2b.bdxr.smp.server.db.entities.ServiceE;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -28,13 +26,7 @@ import org.springframework.data.repository.query.Param;
  *
  * @author Sander Fieten (sander at holodeck-b2b.org)
  */
-public interface ServiceRepository extends JpaRepository<ServiceE, Long> {
-
-	@Query("""
-        select s from Service s where s.id.value = :#{#id.value}
-        		and ( s.id.scheme = :#{#id.scheme} or s.id.scheme is null and :#{#id.scheme} is null )
-		""")
-	List<ServiceE> findByIdentifier(@Param("id") IdentifierE id);
+public interface ServiceRepository extends JpaRepository<ServiceE, Long>, ServiceSearchByIdRepo {
 
 	@Query("select count(*) from ServiceMetadataTemplate smt where smt.service = :svc")
 	Integer getNumberOfTemplates(@Param("svc") ServiceE svc);

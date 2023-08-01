@@ -16,9 +16,7 @@
  */
 package org.holodeckb2b.bdxr.smp.server.db.repos;
 
-import java.util.List;
 import org.holodeckb2b.bdxr.smp.server.db.entities.ProcessE;
-import org.holodeckb2b.bdxr.smp.server.db.entities.ProcessIdentifierE;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -28,13 +26,7 @@ import org.springframework.data.repository.query.Param;
  *
  * @author Sander Fieten (sander at holodeck-b2b.org)
  */
-public interface ProcessRepository extends JpaRepository<ProcessE, Long> {
-
-	@Query("""
-        select p from Process p where p.id.value = :#{#id.value}
-		and ( p.id.scheme = :#{#id.scheme} or p.id.scheme is null and :#{#id.scheme} is null )
-		""")
-	List<ProcessE> findByIdentifier(@Param("id") ProcessIdentifierE id);
+public interface ProcessRepository extends JpaRepository<ProcessE, Long>, ProcessSearchByIdRepo {
 
 	@Query("""
 			select count(*)

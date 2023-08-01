@@ -24,7 +24,9 @@ import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import javax.validation.Valid;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -37,6 +39,7 @@ import org.holodeckb2b.bdxr.smp.server.datamodel.Participant;
  * @author Sander Fieten (sander at holodeck-b2b.org)
  */
 @Entity(name = "Participant")
+@Table(indexes = {@Index(columnList = "name")})
 @Getter
 @NoArgsConstructor
 public class ParticipantE implements Participant {
