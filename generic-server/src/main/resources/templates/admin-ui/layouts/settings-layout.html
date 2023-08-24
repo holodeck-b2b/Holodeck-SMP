@@ -23,11 +23,12 @@
 	  </li>
 	  <li sec:authorize="hasRole('ADMIN')" class="nav-item">
 		<a th:href="|${baseURL}smpcert|"
-		   th:class="|nav-link ${{#request.getRequestURI().startsWith({baseURL}+'smpcert')}? 'active' : _}|">SMP Certificate</a>
+		   th:class="|nav-link ${certPage != null? 'active' : _}|">SMP Certificate</a>
 	  </li>
 	  <li th:if="${@environment.getProperty('sml.enabled')}" sec:authorize="hasRole('ADMIN')" class="nav-item">
 		<a th:href="|${baseURL}sml|"
-		   th:class="|nav-link ${{#request.getRequestURI().startsWith({baseURL}+'sml')}? 'active' : _}|">SML Integration</a>
+		   th:class="|nav-link ${{(certPage == null || !certPage) &&
+								  #request.getRequestURI().startsWith({baseURL}+'sml')}? 'active' : _}|">SML Integration</a>
 	  </li>
 	  <li sec:authorize="hasRole('ADMIN')" class="nav-item">
 		<a th:href="|${baseURL}users|"

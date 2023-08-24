@@ -16,6 +16,7 @@
  */
 package org.holodeckb2b.bdxr.smp.server.svc.peppol;
 
+import ec.services.wsdl.bdmsl.data._1.PrepareChangeCertificateType;
 import java.io.File;
 import java.io.IOException;
 import java.security.KeyManagementException;
@@ -25,6 +26,9 @@ import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.util.GregorianCalendar;
 import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -32,6 +36,9 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLKeyException;
 import javax.xml.bind.JAXBElement;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
@@ -49,6 +56,7 @@ import org.busdox.servicemetadata.locator._1.ServiceMetadataPublisherServiceForP
 import org.busdox.servicemetadata.locator._1.ServiceMetadataPublisherServiceType;
 import org.busdox.transport.identifiers._1.ParticipantIdentifierType;
 import org.holodeckb2b.bdxr.smp.server.datamodel.Participant;
+import org.holodeckb2b.bdxr.smp.server.db.CertificateUpdate;
 import org.holodeckb2b.bdxr.smp.server.db.SMLRegistration;
 import org.holodeckb2b.bdxr.smp.server.db.SMLRegistrationRepository;
 import org.holodeckb2b.bdxr.smp.server.db.repos.ParticipantRepository;
@@ -97,6 +105,11 @@ public class SMLClient implements ISMLIntegrator {
 	@Override
 	public boolean isSMPRegistered() {
 		return smlRegs.count() > 0;
+	}
+
+	@Override
+	public boolean requiresSMPCertRegistration() {
+		return true;
 	}
 
 	/**
@@ -151,6 +164,43 @@ public class SMLClient implements ISMLIntegrator {
 		} catch (CertificateException regMissing) {
 			throw new IllegalStateException();
 		}
+	}
+
+	/**
+	 * Registers the new SMP certificate in the SML and saves the pending update to the database.
+	 *
+	 * @param kp			the new key pair to activate
+	 * @param activation	date on which the certificate will be activated
+	 * @throws CertificateException when the given certificate or activation date cannot be encoded correctly
+	 * @throws SSLException	if the key pair or trust store to use for the mutual TLS authentication to the SML cannot
+	 *						be loaded
+	 * @throws SoapFaultClientException when the SML responded with an error message to the certificate update request
+	 * @since 1.1.0
+	 */
+	public void registerSMPCertificate(KeyStore.PrivateKeyEntry kp, LocalDate activation) throws CertificateException,
+																				SSLException, SoapFaultClientException {
+
+		if (!isSMPRegistered())
+			throw new IllegalStateException("SMP is not registred in SML");
+
+		try {
+			PrepareChangeCertificateType certUpdate = new PrepareChangeCertificateType();
+			XMLGregorianCalendar xmlDate = DatatypeFactory.newInstance()
+														  .newXMLGregorianCalendar(GregorianCalendar.from(
+																  activation.atStartOfDay(ZoneOffset.UTC)));
+			certUpdate.setMigrationDate(xmlDate);
+			certUpdate.setNewCertificatePublicKey(CertificateUtils.getPEMEncoded((X509Certificate) kp.getCertificate()));
+
+			webServiceTemplate().marshalSendAndReceive(baseURL() + "/bdmslservice",
+						new ec.services.wsdl.bdmsl.data._1.ObjectFactory().createPrepareChangeCertificate(certUpdate),
+						new SoapActionCallback("ec:services:wsdl:BDMSL:1.0:prepareChangeCertificateIn"));
+		} catch (DatatypeConfigurationException dex) {
+			throw new CertificateException("Could not convert activation date", dex);
+		}
+
+		SMLRegistration reg = getSMLRegistration();
+		reg.setPendingCertUpdate(new CertificateUpdate(kp, activation));
+		smlRegs.save(reg);
 	}
 
 	/**

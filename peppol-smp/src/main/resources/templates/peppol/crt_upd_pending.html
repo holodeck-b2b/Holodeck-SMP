@@ -1,112 +1,27 @@
 <html lang="en"
       xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{admin-ui/layouts/settings-layout}"
+      layout:decorate="~{admin-ui/layouts/smpcert-layout}"
 >
 <body>
-<section layout:fragment="settings-content">
-	<!--<form id="smtForm" method="post" th:action="@{/settings/smpcert/update}" th:object="${profile}">-->
-	<div class="row">
-	<div class="container">
-		<div class="card">
+<section layout:fragment="smpcert-content">
+	<div class="card">
 		<div class="card-header">
-			Certificate of key pair currently used
+			Pending certificate update
 		</div>
 		<div class="card-body">
-		<div th:if="${currentCert}">
-			<div th:replace="::certinfo (cert=${currentCert})"></div>
-		</div>
-		<div th:unless="${currentCert}">
-			There currently is no SMP certificate set up.
-		</div>
-		</div>
-		</div>
-		<div class="card">
-			<div class="card-header">
-				Install new key pair
+			<div class="row mb-3">
+				<span>
+				The following certificate update is already registered with the Peppol SML service.
+				</span>
 			</div>
-			<div class="card-body">
-				<form method="POST" enctype="multipart/form-data" th:action="@{/settings/smpcert/upload}">
-				<div class="row mb-3">
-					<label for="formFile" class="col-2 col-form-label">Key pair file</label>
-					<div class="col-9">
-					<div class="input-group">
-						<input type="file" class="form-control" id="keypairFile" name="keypair">
-						<label for="keypairFile" class="input-group-text">Supported formats: PKCS#12, JKS or JCEKS</label>
-					</div>
-					</div>
-				</div>
-				<div class="row mb-4">
-					<label for="serviceID" class="col-2 col-form-label">Key pair password</label>
-					<div class="col-4">
-						<input type="password" class="form-control" id="password" name="password"/>
-					</div>
-				  <div class="col-auto "><button type='submit' class="btn btn-primary">Upload key pair</button></div>
-				  <div th:if="${keyFileError}" class="offset-2 mt-1 text-danger"
-					   th:text="${keyFileError}">Errors go here</div>
-				</div>
-				</form>
-				<div th:if="${newCert}">
-				<div class="row mb-3">
-					<strong>Overview of key pair to be installed</strong>
-				</div>
-					<div th:replace="::certinfo (cert=${newCert})"></div>
-				</div>
+			<div class="row mb-3">
+				<label class="col-2 col-form-label">Activation date</label>
+				<label class="col-2 col-form-label" th:text='${activationDate}'></label>
 			</div>
+			<div th:replace="::certinfo (cert=${newCert})"></div>
 		</div>
 	</div>
-	</div>
-	<div th:if="${newCert != null}" class="row justify-content-center mt-3">
-		<div class="col-auto " th:with="valid=${newCert.notAfter.after(#dates.createNow())} and ${newCert.notBefore.before(#dates.createNow())}">
-			<a th:class="${!valid?'pe-none':_}" th:href="@{/settings/smpcert/change}"><button th:disabled="${!valid}" type='submit' class="btn btn-primary">Use uploaded key pair</button></a></div>
-		<div class="col-auto "><a th:href="@{/settings/smpcert}"><button type="button" class="btn btn-secondary">Discard uploaded key pair</button></div>
-	</div>
-
 </section>
-
-<div th:fragment="certinfo (cert)">
-	<div class="row mb-3">
-		<label for="serviceID" class="col-2 col-form-label">Subject name</label>
-		<div class="col-9">
-			<input type="text" class="form-control-plaintext" readonly
-				   th:value="${cert.subjectName}">
-		</div>
-	</div>
-	<div class="row mb-3">
-		<label for="serviceID" class="col-2 col-form-label">Issuer name</label>
-		<div class="col-9">
-			<input type="text" class="form-control-plaintext" readonly
-				   th:value="${cert.issuerName}">
-		</div>
-	</div>
-	<div class="row mb-3">
-		<label for="serviceID" class="col-2 col-form-label">Serial number</label>
-		<div class="col-2">
-			<input type="text" class="form-control-plaintext" readonly
-				   th:value="${cert.serialNo.toString()}">
-		</div>
-	</div>
-	<div class="row mb-3">
-		<label for="serviceID" class="col-2 col-form-label">Not valid before</label>
-		<div class="col-3">
-			<input type="text" class="form-control-plaintext" readonly
-				   th:classappend="${cert.notBefore.after(#dates.createNow())} ? 'text-danger'"
-				   th:value="${cert.notBefore}">
-		</div>
-		<label th:if="${cert.notBefore.after(#dates.createNow())}"
-			   class="col-2 col-form-label text-danger">NOT VALID YET</label>
-	</div>
-	<div class="row mb-3">
-		<label for="serviceID" class="col-2 col-form-label">Not valid after</label>
-		<div class="col-3">
-			<input type="text" class="form-control-plaintext" readonly
-				   th:classappend="${cert.notAfter.before(#dates.createNow())} ? 'text-danger'"
-				   th:value="${cert.notAfter}">
-		</div>
-		<label th:if="${cert.notAfter.before(#dates.createNow())}"
-			   class="col-auto col-form-label text-danger">EXPIRED</label>
-	</div>
-</div>
-
 </body>
 </html>

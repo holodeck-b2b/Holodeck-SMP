@@ -101,5 +101,4 @@ public class SMLViewController {
 			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
-
 }

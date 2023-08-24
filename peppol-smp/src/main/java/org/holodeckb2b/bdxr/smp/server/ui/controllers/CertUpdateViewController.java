@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 The Holodeck B2B Team
+ * Copyright (C) 2023 The Holodeck B2B Team
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the Affero GNU General Public License as published by
@@ -16,90 +16,136 @@
  */
 package org.holodeckb2b.bdxr.smp.server.ui.controllers;
 
-import java.net.Inet4Address;
-import java.net.UnknownHostException;
+import java.io.IOException;
+import java.security.KeyStore;
 import java.security.cert.CertificateException;
+import java.security.cert.CertificateExpiredException;
+import java.security.cert.CertificateNotYetValidException;
+import java.security.cert.X509Certificate;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 import javax.net.ssl.SSLException;
-import javax.validation.Valid;
+import javax.servlet.http.HttpSession;
+import org.holodeckb2b.bdxr.smp.server.db.CertificateUpdate;
 import org.holodeckb2b.bdxr.smp.server.db.SMLRegistration;
+import org.holodeckb2b.bdxr.smp.server.svc.SMPCertificateService;
 import org.holodeckb2b.bdxr.smp.server.svc.peppol.SMLClient;
+import org.holodeckb2b.bdxr.smp.server.ui.viewmodels.X509CertificateData;
+import org.holodeckb2b.commons.security.CertificateUtils;
+import org.holodeckb2b.commons.security.KeystoreUtils;
 import org.holodeckb2b.commons.util.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.ws.soap.client.SoapFaultClientException;
 
 @Controller
-@RequestMapping("settings/sml")
-public class SMLViewController {
+@RequestMapping("settings/sml/smpcert")
+public class CertUpdateViewController {
+	private static final String M_KP_ERROR_ATTR = "keyFileError";
+	private static final String M_ACTIVATION_ERROR_ATTR = "activationError";
+	private static final String S_KEYPAIR = "newKeyPair";
 
 	@Autowired
 	protected SMLClient smlClient;
+	@Autowired
+	protected SMPCertificateService		certService;
 
-	@GetMapping()
-    private ModelAndView getOverview(String infoMsg) {
-		return createOverview(null);
+	@ModelAttribute("currentCert")
+	public X509CertificateData populateCurrentCert() {
+		try {
+			KeyStore.PrivateKeyEntry keyPair = certService.getKeyPair();
+			if (keyPair != null)
+				return new X509CertificateData((X509Certificate) keyPair.getCertificate());
+		} catch (CertificateException ex) {
+			return new X509CertificateData("There was an error reading the key pair. Please provide a new key pair.");
+		}
+		return null;
 	}
 
-    private ModelAndView createOverview(String infoMsg) {
-		try {
-			ModelAndView mv = new ModelAndView("peppol/sml", "registration", smlClient.getSMLRegistration());
-			if (!Utils.isNullOrEmpty(infoMsg))
-				mv.addObject("infoMessage", infoMsg);
+	@GetMapping()
+	public ModelAndView prepareCertUpdate() throws CertificateException {
+		SMLRegistration smlReg = smlClient.getSMLRegistration();
+		CertificateUpdate pu = smlReg != null ? smlReg.getPendingCertUpdate() : null;
+		if (pu != null) {
+			ModelAndView mv = new ModelAndView("peppol/crt_upd_pending", "newCert",
+										new X509CertificateData((X509Certificate) pu.getKeyPair().getCertificate()));
+			mv.addObject("activationDate", pu.getActivation());
 			return mv;
-		} catch (CertificateException certIssue) {
-			return new ModelAndView("peppol/unavailable", "errorTxt", certIssue.getMessage());
-		}
-    }
+		} else
+			return new ModelAndView("peppol/cert_update");
+	}
 
-	@PostMapping("/update")
-	public ModelAndView saveRegistration(@ModelAttribute("registration") @Valid SMLRegistration input, BindingResult br) {
-		ModelAndView mv = new ModelAndView("peppol/sml");
-		try {
-			if (!input.getIpAddress().equals(Inet4Address.getByName(input.getHostname()).getHostAddress())) {
-				br.rejectValue("ipAddress", "NO_MATCH", "");
-				br.rejectValue("hostname", "NO_MATCH", "The hostname is not registered with the specified IP address");
-			}
-		} catch (UnknownHostException unknownHost) {
-			br.rejectValue("hostname", "UNKNOWN_HOST", "The specified hostname is not registered in the DNS");
-		}
+	@PostMapping(value = "/upload")
+	public ModelAndView uploadKeypair(@RequestParam("keypair") MultipartFile kpFile, @RequestParam("password") String pwd,
+								HttpSession s) throws CertificateException {
+		ModelAndView mv = new ModelAndView("peppol/cert_update");
 
-		if (!br.hasErrors()) {
+		if (kpFile.isEmpty())
+			mv.addObject(M_KP_ERROR_ATTR, "You must provide a file containing the key pair");
+		else {
+			SMLRegistration smlReg = smlClient.getSMLRegistration();
 			try {
-				smlClient.saveSMPRegistration(input, input.getOid() != 0);
-				mv.addObject("infoMessage", "Successfully updated the registration in the SML");
-			} catch (SoapFaultClientException smlError) {
-				mv.addObject("errorMessage", "There was an error updating the registration in the SML : "
-											 + smlError.getMessage());
-			} catch (SSLException smpKeyIssue) {
-				throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
+				KeyStore.PrivateKeyEntry kp = KeystoreUtils.readKeyPairFromKeystore(kpFile.getInputStream(), pwd);
+				X509Certificate cert = (X509Certificate) kp.getCertificate();
+
+				String issuerName = CertificateUtils.getIssuerName(cert).toLowerCase();
+				if (!issuerName.contains("peppol service metadata publisher"))
+					mv.addObject(M_KP_ERROR_ATTR, "The uploaded certificate is not a Peppol SMP certificate");
+				else if ("SMK".equals(smlReg.getEnvironment()) && !issuerName.contains("test"))
+					mv.addObject(M_KP_ERROR_ATTR, "The uploaded SMP certificate is not valid for the ");
+				else {
+					mv.addObject("newCert", new X509CertificateData(cert));
+					LocalDate certStart = LocalDate.ofInstant(((X509Certificate) kp.getCertificate()).getNotBefore()
+																									 .toInstant(), ZoneOffset.UTC);
+					LocalDate today = LocalDate.now();
+					mv.addObject("activationDate", certStart.isAfter(today) ? certStart : today.plusDays(1));
+					s.setAttribute(S_KEYPAIR, kp);
+				}
+			} catch (CertificateNotYetValidException | CertificateExpiredException invalid) {
+				mv.addObject(M_KP_ERROR_ATTR, "The uploaded key pair is not valid on the activation date");
+			} catch (IOException | CertificateException ex) {
+				mv.addObject(M_KP_ERROR_ATTR, "Could not read the key pair from the uploaded file");
 			}
 		}
-
 		return mv;
 	}
 
-	@GetMapping("/remove")
-	public ModelAndView removeRegistration(Model m) {
-		try {
-			smlClient.removeSMPRegistration();
-			return createOverview("Successfully removed the registration from the SML");
-		} catch (SoapFaultClientException smlError) {
-			ModelAndView mv = createOverview(null);
-			mv.addObject("errorMessage", "There was an error removing the registration from the SML : "
-										+ smlError.getMessage());
-			return mv;
-		} catch (SSLException smpKeyIssue) {
-			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
+	@PostMapping("/activate")
+	public ModelAndView activateKeypair(@RequestParam("activationDate") String activation, HttpSession s) {
+		ModelAndView mv = new ModelAndView("peppol/cert_update");
+
+		KeyStore.PrivateKeyEntry kp = (KeyStore.PrivateKeyEntry) s.getAttribute(S_KEYPAIR);
+		LocalDate certStart = LocalDate.ofInstant(((X509Certificate) kp.getCertificate()).getNotBefore()
+																						 .toInstant(), ZoneOffset.UTC);
+		LocalDate activationDate = !Utils.isNullOrEmpty(activation) ? LocalDate.parse(activation) : certStart;
+		LocalDate tomorrow = LocalDate.now().plusDays(1);
+		if (activationDate.isBefore(tomorrow))
+			mv.addObject(M_ACTIVATION_ERROR_ATTR, "You must specify an activation date after today");
+		else if (certStart.isAfter(activationDate))
+			mv.addObject(M_ACTIVATION_ERROR_ATTR, "The activation date cannot be before the certificate's start date");
+		else {
+			try {
+				smlClient.registerSMPCertificate(kp, activationDate);
+				mv.addObject("newCert", new X509CertificateData((X509Certificate) kp.getCertificate()));
+				mv.addObject("activationDate", activationDate);
+				mv.setViewName("peppol/crt_upd_pending");
+			} catch (SoapFaultClientException smlError) {
+				mv.addObject("errorMessage", "There was an error registering the certificate update in the SML : "
+											 + smlError.getMessage());
+			} catch (SSLException | CertificateException ex) {
+				throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
+			}
 		}
+		return mv;
 	}
 
 }

@@ -50,11 +50,9 @@ public interface ISMLIntegrator {
 	void unregisterParticipant(Participant p) throws Exception;
 
 	/**
-	 * Registers the new SMP certificate in the SML.
+	 * Indicates whether the SMP Certificate needs to be registered in the SML
 	 *
-	 * @param newCert	the new certificate used by the SMP
-	 * @param newCert	the new certificate used by the SMP
-	 * @throws Exception when the new certificate could not be registered in the SML
+	 * @return <code>true</code> if the certificate needs to be registred in the SML, <code>false</code> if not
 	 */
-//	void registerSMPCertChange(X509Certificate oldCert, X509Certificate newCert) throws Exception;
+	boolean requiresSMPCertRegistration();
 }

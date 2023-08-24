@@ -18,6 +18,7 @@ package org.holodeckb2b.bdxr.smp.server.db;
 
 import java.io.Serializable;
 import javax.persistence.Column;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -58,6 +59,9 @@ public class SMLRegistration implements Serializable {
 	@NotBlank(message = "The hostname must be specified")
 	protected String	hostname;
 
+	@Embedded
+	protected CertificateUpdate pendingCertUpdate;
+	
 	public SMLRegistration(String env) {
 		this.environment = env;
 	}

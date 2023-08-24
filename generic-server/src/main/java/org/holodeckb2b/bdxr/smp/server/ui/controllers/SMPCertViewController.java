@@ -21,6 +21,7 @@ import java.security.KeyStore;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import javax.servlet.http.HttpSession;
+import org.holodeckb2b.bdxr.smp.server.svc.SMLIntegrationService;
 import org.holodeckb2b.bdxr.smp.server.svc.SMPCertificateService;
 import org.holodeckb2b.bdxr.smp.server.ui.viewmodels.X509CertificateData;
 import org.holodeckb2b.commons.security.KeystoreUtils;
@@ -42,6 +43,8 @@ public class SMPCertViewController {
 	private static final String S_PASSWORD = "password";
 
 	@Autowired
+	protected SMLIntegrationService		smlIntegration;
+	@Autowired
 	protected SMPCertificateService		certService;
 
 	@ModelAttribute("currentCert")
@@ -57,7 +60,10 @@ public class SMPCertViewController {
 	}
 
 	@GetMapping()
-    public String getOverview(Model m, HttpSession s) {
+    public String getOverview(HttpSession s) throws Exception {
+		if (smlIntegration.requiresSMPCertRegistration())
+			return "redirect:/settings/sml/smpcert";
+
 		s.removeAttribute(S_KEYPAIR);
 	    return "admin-ui/smpcert";
     }

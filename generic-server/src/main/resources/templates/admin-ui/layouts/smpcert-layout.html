@@ -1,0 +1,74 @@
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin-ui/layouts/settings-layout}"
+>
+<body th:with="certPage=true">
+<section layout:fragment="settings-content">
+<div class="row">
+	<div class="container">
+		<div class="card">
+			<div class="card-header">
+				Certificate of key pair currently used
+			</div>
+			<div class="card-body">
+				<div th:if="${currentCert}">
+					<div th:replace="::certinfo (cert=${currentCert})"></div>
+				</div>
+				<div th:unless="${currentCert}">
+					There currently is no SMP certificate set up.
+				</div>
+			</div>
+		</div>
+
+		<section layout:fragment="smpcert-content"></section>
+	</div>
+</div>
+</section>
+
+<div th:fragment="certinfo (cert)">
+	<div class="row mb-2">
+		<label class="col-2 col-form-label">Subject name</label>
+		<div class="col-9">
+			<input type="text" class="form-control-plaintext" readonly
+				   th:value="${cert.subjectName}">
+		</div>
+	</div>
+	<div class="row mb-2">
+		<label class="col-2 col-form-label">Issuer name</label>
+		<div class="col-9">
+			<input type="text" class="form-control-plaintext" readonly
+				   th:value="${cert.issuerName}">
+		</div>
+	</div>
+	<div class="row mb-2">
+		<label class="col-2 col-form-label">Serial number</label>
+		<div class="col-2">
+			<input type="text" class="form-control-plaintext" readonly
+				   th:value="${cert.serialNo.toString()}">
+		</div>
+	</div>
+	<div class="row mb-2">
+		<label class="col-2 col-form-label">Not valid before</label>
+		<div class="col-3">
+			<input type="text" class="form-control-plaintext" readonly
+				   th:classappend="${cert.notBefore.after(#dates.createNow())} ? 'text-danger'"
+				   th:value="${cert.notBefore}">
+		</div>
+		<label th:if="${cert.notBefore.after(#dates.createNow())}"
+			   class="col-2 col-form-label text-danger">NOT VALID YET</label>
+	</div>
+	<div class="row mb-2">
+		<label class="col-2 col-form-label">Not valid after</label>
+		<div class="col-3">
+			<input type="text" class="form-control-plaintext" readonly
+				   th:classappend="${cert.notAfter.before(#dates.createNow())} ? 'text-danger'"
+				   th:value="${cert.notAfter}">
+		</div>
+		<label th:if="${cert.notAfter.before(#dates.createNow())}"
+			   class="col-auto col-form-label text-danger">EXPIRED</label>
+	</div>
+</div>
+
+</body>
+</html>

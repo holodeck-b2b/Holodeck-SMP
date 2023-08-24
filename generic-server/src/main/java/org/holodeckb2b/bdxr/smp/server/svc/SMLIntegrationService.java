@@ -17,6 +17,7 @@
 package org.holodeckb2b.bdxr.smp.server.svc;
 
 import org.holodeckb2b.bdxr.smp.server.db.entities.ParticipantE;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,7 +33,7 @@ public class SMLIntegrationService {
 	@Value("${sml.enabled:false}")
 	protected boolean	smlEnabled;
 	@Value("${sml.implementatation:PEPPOLSMLClient}")
-	protected String	implClass;
+	protected String	implSvcName;
 	@Autowired
 	protected BeanFactory smlServiceFactory;
 
@@ -50,17 +51,39 @@ public class SMLIntegrationService {
 		}
 	}
 
+	/**
+	 * Registers a Participant in the SML.
+	 *
+	 * @param p	the meta-data of the Participant to register
+	 * @throws Exception when the Participant could not be registered in the SML
+	 */
 	public void registerParticipant(ParticipantE p) throws Exception {
 		smlIntegrator().registerParticipant(p);
 	}
 
+	/**
+	 * Remove the registration of a Participant from the SML.
+	 *
+	 * @param p	the meta-data of the Participant to remove from the SML
+	 * @throws Exception when the Participant could not be removed in the SML
+	 */
 	public void unregisterParticipant(ParticipantE p) throws Exception {
 		smlIntegrator().unregisterParticipant(p);
 	}
 
-	private ISMLIntegrator smlIntegrator() throws Exception {
+	/**
+	 * Indicates whether the SMP Certificate needs to be registered in the SML
+	 *
+	 * @return <code>true</code> if the SML integration is active and the certificate needs to be registered in the SML,
+	 *		   <code>false</code> otherwise
+	 */
+	public boolean requiresSMPCertRegistration() throws BeansException {
+		return isSMLIntegrationAvailable() && smlIntegrator().requiresSMPCertRegistration();
+	}
+
+	private ISMLIntegrator smlIntegrator() throws BeansException {
 		if (smlService == null)
-			smlService = smlServiceFactory.getBean(implClass, ISMLIntegrator.class);
+			smlService = smlServiceFactory.getBean(implSvcName, ISMLIntegrator.class);
 
 		return smlService;
 	}
