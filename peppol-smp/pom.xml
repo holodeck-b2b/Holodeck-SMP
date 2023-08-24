@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.holodeckb2b.bdxr.smp.server</groupId>
 		<artifactId>parent</artifactId>
-		<version>1.0.0</version>
+		<version>1.0.1</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<artifactId>peppol-smp-server-comp</artifactId>

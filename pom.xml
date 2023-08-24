@@ -5,16 +5,17 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.holodeckb2b.bdxr.smp.server</groupId>
 	<artifactId>parent</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.1</version>
 	<packaging>pom</packaging>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>16</maven.compiler.source>
 		<maven.compiler.target>16</maven.compiler.target>
+		<utils.version>1.2.1</utils.version>
 		<jaxb.version>2.3.1</jaxb.version>
 	</properties>
 	<name>Holodeck SMP Server</name>
-	<description>This project contains a SMP Server that support the SMP specifications developed by the 
+	<description>This project contains a SMP Server that support the SMP specifications developed by the
 		OASIS BDXR Technical Committee and its predecessor developed within PEPPOL.
 	</description>
 	<inceptionYear>2022</inceptionYear>
@@ -53,7 +54,7 @@
 				<role>QA and documentation</role>
 			</roles>
 			<timezone>Europe/Amsterdam</timezone>
-		</developer>		
+		</developer>
 	</developers>
 
 	<licenses>
@@ -68,7 +69,7 @@
 			<dependency>
 				<groupId>org.holodeckb2b.commons</groupId>
 				<artifactId>generic-utils</artifactId>
-				<version>1.2.1</version>
+				<version>${utils.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.holodeckb2b.bdxr</groupId>
@@ -93,6 +94,13 @@
 				<groupId>com.sun.xml.bind</groupId>
 				<artifactId>jaxb-impl</artifactId>
 				<version>${jaxb.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.holodeckb2b.commons</groupId>
+				<artifactId>generic-utils</artifactId>
+				<type>test-jar</type>
+				<scope>test</scope>
+				<version>${utils.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
