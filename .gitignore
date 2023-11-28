@@ -40,7 +40,9 @@ nbactions.xml
 nbproject/
 *.iml
 .idea
+.factorypath
 .classpath
+
 
 # OS generated files #
 ######################
@@ -55,3 +57,4 @@ Thumbs.db
 # Temp files #
 ######################
 *.swp
+
