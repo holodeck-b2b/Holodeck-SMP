@@ -65,6 +65,7 @@
 				<artifactId>jaxb2-maven-plugin</artifactId>
 				<executions>
 					<execution>
+						<id>sml-wsdl</id>
 						<configuration>
 							<sourceType>WSDL</sourceType>
 							<sources>
@@ -76,6 +77,7 @@
 						</configuration>						
 					</execution>
 					<execution>
+						<id>buscard-xsd</id>
 						<configuration>
 							<sourceType>XSD</sourceType>
 							<sources>
