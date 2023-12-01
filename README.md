@@ -10,7 +10,7 @@ Code hosted at https://github.com/holodeck-b2b/Holodeck-SMP
 Issue tracker https://github.com/holodeck-b2b/Holodeck-SMP/issues  
 
 ## Usage
-For more information about installing and using the server, please see the documentation at our website.
+For more information about installing and using the server, please see the documentation at [our website](https://holodeck-smp.org/).
 
 ## Contributing
 We are still working on improvements and addition of features. This may result in changes to the internal architecture of the server. If you would like to contribute to this project please contact us, so we ensure efficient cooperation.
