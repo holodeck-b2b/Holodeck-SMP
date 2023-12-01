@@ -51,22 +51,16 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <mainClass>org.holodeckb2b.bdxr.smp.server.SMPServerApplication</mainClass>
-                </configuration>
-				<executions>
-					<execution>
-						<id>build-info</id>
-						<goals>
-							<goal>build-info</goal>
-						</goals>
-					</execution>
+                <executions>
 					<execution>
 						<goals>
 							<goal>repackage</goal>
 						</goals>
 					</execution>
-				</executions>
+                </executions>
+                <configuration>
+                    <mainClass>org.holodeckb2b.bdxr.smp.server.SMPServerApplication</mainClass>
+                </configuration>
             </plugin>
 		</plugins>
 	</build>

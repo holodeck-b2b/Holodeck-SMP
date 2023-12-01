@@ -113,5 +113,25 @@
 			<scope>test</scope>
         </dependency>
 	</dependencies>
+	
+	<build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>org.holodeckb2b.bdxr.smp.server.SMPServerApplication</mainClass>
+                </configuration>
+				<executions>
+					<execution>
+						<id>build-info</id>
+						<goals>
+							<goal>build-info</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+        </plugins>		
+	</build>
 
 </project>
