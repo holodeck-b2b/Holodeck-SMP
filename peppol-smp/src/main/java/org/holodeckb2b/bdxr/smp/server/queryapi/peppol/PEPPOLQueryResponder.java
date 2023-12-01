@@ -135,7 +135,7 @@ public class PEPPOLQueryResponder implements IQueryResponder {
 			return new QueryResponse(HttpStatus.NOT_FOUND, null, null);
 		}
 		log.trace("Check if Participant with ID={} exists", partID.toString());
-		if (participants.findByIdentifier(partID).isEmpty()) {
+		if (participants.findByIdentifier(partID) == null) {
 			log.debug("Queried Participant ID ({}) not found!", pidString);
 			return new QueryResponse(HttpStatus.NOT_FOUND, null, null);
 		}

@@ -27,7 +27,7 @@ import org.holodeckb2b.bdxr.smp.server.db.entities.ServiceE;
 public class ServiceSearchByIdRepoImpl extends AbstractIDBasedRepoImpl<Identifier, ServiceE>
 										implements ServiceSearchByIdRepo {
 	@Override
-	protected Class getResultClass() {
+	protected Class<ServiceE> getResultClass() {
 		return ServiceE.class;
 	}
 }

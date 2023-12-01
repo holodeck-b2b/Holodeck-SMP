@@ -27,7 +27,7 @@ import org.holodeckb2b.bdxr.smp.server.db.entities.ParticipantE;
 public class ParticipantSearchByIdRepoImpl extends AbstractIDBasedRepoImpl<Identifier, ParticipantE>
 										implements ParticipantSearchByIdRepo {
 	@Override
-	protected Class getResultClass() {
+	protected Class<ParticipantE> getResultClass() {
 		return ParticipantE.class;
 	}
 }

@@ -40,6 +40,20 @@ public interface Participant {
 	String getName();
 
 	/**
+	 * Gets the country where the Participant is located
+	 *
+	 * @return the Participant's country 
+	 */
+	String getCountry();
+		
+	/**
+	 * Gets the additional address info where the Participant is located
+	 *
+	 * @return the Participant's address information
+	 */
+	String getAddressInfo();
+	
+	/**
 	 * Gets the information how the Participant can be contacted.
 	 *
 	 * @return	the contact data of the Participant

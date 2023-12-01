@@ -17,17 +17,23 @@
 package org.holodeckb2b.bdxr.smp.server.svc;
 
 import org.holodeckb2b.bdxr.smp.server.db.entities.ParticipantE;
+import org.holodeckb2b.commons.util.Utils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import lombok.extern.log4j.Log4j2;
+
 /**
+ * Is a proxy to the {@link ISMLIntegrator} implementation so different implementations can be used depending on the 
+ * network in which the SMP Server operates.
  *
- * @author safi
+ * @author Sander Fieten (sander at holodeck-b2b.org)
  */
 @Service
+@Log4j2
 public class SMLIntegrationService {
 
 	@Value("${sml.enabled:false}")
@@ -46,7 +52,7 @@ public class SMLIntegrationService {
 	public boolean isSMLIntegrationAvailable() {
 		try {
 			return smlEnabled && smlIntegrator().isSMPRegistered();
-		} catch (Exception ex) {
+		} catch (BeansException ex) {
 			return false;
 		}
 	}
@@ -58,7 +64,12 @@ public class SMLIntegrationService {
 	 * @throws Exception when the Participant could not be registered in the SML
 	 */
 	public void registerParticipant(ParticipantE p) throws Exception {
-		smlIntegrator().registerParticipant(p);
+		try {
+			smlIntegrator().registerParticipant(p);
+		} catch (Exception e) {
+			log.error("Error registering participant (PID={}) in SML : {}", p.getId().toString(), Utils.getExceptionTrace(e));
+			throw e;
+		}
 	}
 
 	/**
@@ -68,7 +79,12 @@ public class SMLIntegrationService {
 	 * @throws Exception when the Participant could not be removed in the SML
 	 */
 	public void unregisterParticipant(ParticipantE p) throws Exception {
-		smlIntegrator().unregisterParticipant(p);
+		try {
+			smlIntegrator().unregisterParticipant(p);
+		} catch (Exception e) {
+			log.error("Error registering participant (PID={}) in SML : {}", p.getId().toString(), Utils.getExceptionTrace(e));
+			throw e;
+		}
 	}
 
 	/**
@@ -83,7 +99,12 @@ public class SMLIntegrationService {
 
 	private ISMLIntegrator smlIntegrator() throws BeansException {
 		if (smlService == null)
-			smlService = smlServiceFactory.getBean(implSvcName, ISMLIntegrator.class);
+			try {
+				smlService = smlServiceFactory.getBean(implSvcName, ISMLIntegrator.class);
+			} catch (BeansException svcUnavailable) {
+				log.fatal("Error loading the SML Client implementation {} : {}", implSvcName, Utils.getExceptionTrace(svcUnavailable));
+				throw svcUnavailable;
+			}
 
 		return smlService;
 	}

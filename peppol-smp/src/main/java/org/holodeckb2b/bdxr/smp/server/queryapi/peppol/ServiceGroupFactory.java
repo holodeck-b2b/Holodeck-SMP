@@ -31,7 +31,6 @@ import org.w3c.dom.Document;
  *
  * @author Sander Fieten (sander at holodeck-b2b.org)
  */
-@Slf4j
 public class ServiceGroupFactory extends AbstractResponseFactory {
 
 

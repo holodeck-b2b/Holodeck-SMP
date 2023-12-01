@@ -64,7 +64,8 @@ public class ServicesViewController {
 
 	@PostMapping(value = "/update")
 	public String saveService(@ModelAttribute(S_ATTR) @Valid ServiceE input, BindingResult br) {
-		if (!br.hasErrors() && !services.findByIdentifier(input.getId()).stream().allMatch(s -> s.equals(input))) {
+		ServiceE existing = services.findByIdentifier(input.getId());
+		if (!br.hasErrors() && existing != null && existing.getOid() != input.getOid()) {
 			br.rejectValue("id.value", "ID_EXISTS", "There already exists another Process with the same Identifier");
 			br.rejectValue("id.scheme", "ID_EXISTS");
 		}

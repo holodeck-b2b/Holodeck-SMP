@@ -27,5 +27,5 @@ import org.springframework.data.repository.query.Param;
  */
 public interface AbstractIDBasedRepo<T extends Identifier, R> {
 
-	List<R> findByIdentifier(@Param("id") T id);
+	R findByIdentifier(@Param("id") T id);
 }

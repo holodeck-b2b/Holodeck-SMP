@@ -53,17 +53,29 @@ public class ParticipantE implements Participant {
 	@Valid
 	protected IdentifierE	id;
 
-	@Column(nullable = false)
+	@Column
 	@Setter
 	protected String	name;
+	
+	@Column(length=2)
+	@Setter
+	protected String	country;
 
 	@Column
 	@Setter
 	protected String	contactInfo;
 
+	@Column(length=1024)
+	@Setter
+	protected String	addressInfo;
+
 	@Column
 	@Setter
 	protected Boolean	isRegisteredSML;
+
+	@Column
+	@Setter
+	protected Boolean	publishedInDirectory;
 
 	@OneToMany(mappedBy = "participant", cascade = CascadeType.ALL, orphanRemoval = true)
 	@Setter
@@ -71,6 +83,10 @@ public class ParticipantE implements Participant {
 
 	public boolean isRegisteredSML() {
 		return isRegisteredSML != null ? isRegisteredSML : false;
+	}
+
+	public boolean publishedInDirectory() {
+		return publishedInDirectory != null ? publishedInDirectory : false;
 	}
 
 	@Override

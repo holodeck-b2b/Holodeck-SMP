@@ -63,15 +63,27 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>jaxb2-maven-plugin</artifactId>
-				<configuration>
-					<sourceType>WSDL</sourceType>
-					<sources>
-						<source>src/main/xsd/peppol-smp-1.0.xsd</source>
-						<source>src/main/wsdl/BDMSLService-1.0.wsdl</source>
-						<source>src/main/wsdl/ManageBusinessIdentifierService-1.0.wsdl</source>
-						<source>src/main/wsdl/ManageServiceMetadataService-1.0.wsdl</source>
-					</sources>
-				</configuration>
+				<executions>
+					<execution>
+						<configuration>
+							<sourceType>WSDL</sourceType>
+							<sources>
+								<source>src/main/xsd/peppol-smp-1.0.xsd</source>
+								<source>src/main/wsdl/BDMSLService-1.0.wsdl</source>
+								<source>src/main/wsdl/ManageBusinessIdentifierService-1.0.wsdl</source>
+								<source>src/main/wsdl/ManageServiceMetadataService-1.0.wsdl</source>
+							</sources>
+						</configuration>						
+					</execution>
+					<execution>
+						<configuration>
+							<sourceType>XSD</sourceType>
+							<sources>
+								<source>src/main/xsd/peppol-directory-business-card-20161123.xsd</source>
+							</sources>
+						</configuration>
+					</execution>					
+				</executions>
 			</plugin>
 		</plugins>
 	</build>

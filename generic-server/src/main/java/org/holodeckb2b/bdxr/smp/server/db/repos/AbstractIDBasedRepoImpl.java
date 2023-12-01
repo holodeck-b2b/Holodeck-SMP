@@ -40,7 +40,7 @@ public abstract class AbstractIDBasedRepoImpl<T extends Identifier, R> implement
 	private EntityManager	em;
 
 	@Override
-	public List<R> findByIdentifier(T id) {
+	public R findByIdentifier(T id) {
 		final IDScheme scheme = id.getScheme();
 
 		CriteriaBuilder cb = em.getCriteriaBuilder();
@@ -60,8 +60,8 @@ public abstract class AbstractIDBasedRepoImpl<T extends Identifier, R> implement
 		q.where(p.toArray(new Predicate[p.size()]));
 
 		TypedQuery<R> tq = em.createQuery(q);
-		return tq.getResultList();
+		return tq.getResultList().stream().findFirst().orElse(null);
 	}
 
-	abstract protected Class getResultClass();
+	abstract protected Class<R> getResultClass();
 }

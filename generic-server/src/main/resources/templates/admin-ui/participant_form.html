@@ -10,9 +10,9 @@
 		<h5 th:text="(*{oid} ? 'Edit' : 'Add') + ' Participant'">Add new Participant</h5>
 		<div class="card">
 			<div class="card-header">
-				Identification
+				Network Identification
 			</div>
-			<div class="card-body row g-2">
+			<div class="card-body row g-3">
 				<div class="col-3">
 					<label for="inputIdScheme" class="form-label">Identifier Scheme</label>
 					<select class="form-select" th:errorclass="is-invalid"
@@ -35,7 +35,25 @@
 					<input th:if="*{isRegisteredSML}" type="hidden" th:field="*{id.value}">
 					<div th:if="*{isRegisteredSML}" class="small">The identifier cannot be changed when the Participant is registered in the SML</div>
 				</div>
-				<div class="col-9">
+				<div th:if="${smlAvailable}" class="col-9">
+					<label class="form-check-label me-5">Register participant in SML?</label>
+					<input class="form-check-input" type="checkbox" th:field="*{isRegisteredSML}">
+				</div>				
+			</div>
+			<div class="card-header">
+				Business Entity Information
+			</div>	
+			<div class="card-body row g-2">
+				<div th:if="${smlAvailable && directoryAvailable}" class="col-9">
+					<label class="form-check-label me-5">Publish in Peppol directory?</label>
+					<input class="form-check-input" type="checkbox" th:field="*{publishedInDirectory}"
+					  th:errorclass="is-invalid"/>
+					<div id="invalidDirectoryMsg"
+						 th:if="${#fields.hasErrors('publishedInDirectory')}" class="invalid-feedback"
+						 th:errors="*{publishedInDirectory}">
+					</div>					
+				</div>				
+				<div class="col-6">
 					<label for="inputName" class="form-label">Name</label>
 					<input type="text" class="form-control" id="inputName" th:field="*{name}"
 						   th:errorclass="is-invalid"
@@ -45,17 +63,16 @@
 						 th:errors="*{name}">
 					</div>
 				</div>
-				<div class="col-9">
-					<label for="inputContactInfo" class="form-label">Contact Info</label>
-					<textarea class="form-control" id="inputContactInfo" rows="2" th:field="*{contactInfo}"></textarea>
+				<div class="col-3">
+					<label for="country" class="form-label">Country</label>
+					<select class="form-select" th:field="*{country}" th:include="admin-ui/country_select::iso2"
+						th:errorclass="is-invalid"></select> 
+					<div id="invalidNameMsg" th:if="${#fields.hasErrors('country')}" class="invalid-feedback"
+						 th:errors="*{country}">Please select the country where the business entity is located</div>					
 				</div>
-				<div th:if="${smlAvailable}" class="col-9">
-					<label class="form-check-label me-5">Register in SML?</label>
-					<input class="form-check-input" type="checkbox" th:field="*{isRegisteredSML}">
-					<div id="smlWarning"
-						 th:if="${#fields.hasErrors('isRegisteredSML')}" class="invalid-feedback"
-						 th:errors="*{isRegisteredSML}">
-					</div>
+				<div class="col-9">
+					<label for="inputAddrInfo" class="form-label">Additional address information (optional)</label>
+					<textarea class="form-control" id="inputAddrInfo" rows="2" th:field="*{addressInfo}"></textarea>
 				</div>
 			</div>
 			<div class="card-header">

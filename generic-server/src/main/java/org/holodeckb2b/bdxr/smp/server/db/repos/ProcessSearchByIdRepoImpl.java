@@ -27,7 +27,7 @@ import org.holodeckb2b.bdxr.smp.server.db.entities.ProcessE;
 public class ProcessSearchByIdRepoImpl extends AbstractIDBasedRepoImpl<Identifier, ProcessE>
 										implements ProcessSearchByIdRepo {
 	@Override
-	protected Class getResultClass() {
+	protected Class<ProcessE> getResultClass() {
 		return ProcessE.class;
 	}
 }

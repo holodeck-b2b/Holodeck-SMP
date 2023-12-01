@@ -44,7 +44,7 @@ public class ProcessesViewController {
 	protected IDSchemeRepository	idschemes;
 
 	@ModelAttribute("idSchemes")
-	public Collection<IDSchemeE> populdateSchemes() {
+	public Collection<IDSchemeE> populateSchemes() {
 		return idschemes.findAll();
 	}
 
@@ -64,7 +64,8 @@ public class ProcessesViewController {
 
 	@PostMapping(value = "/update")
 	public String saveProcess(@ModelAttribute(P_ATTR) @Valid ProcessE input, BindingResult br) {
-		if (!br.hasErrors() && !procesess.findByIdentifier(input.getId()).stream().allMatch(p -> p.equals(input))) {
+		ProcessE existing = procesess.findByIdentifier(input.getId());
+		if (!br.hasErrors() && existing != null && existing.getOid() != input.getOid()) {
 			br.rejectValue("id.value", "ID_EXISTS", "There already exists another Process with the same Identifier");
 			br.rejectValue("id.scheme", "ID_EXISTS");
 		}

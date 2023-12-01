@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.regex.Pattern;
@@ -65,7 +66,7 @@ public class QueryMapper {
 	 * Contains the mapping of URL pattern to the QueryResponder responsible for answering the query represented by a
 	 * URL that matches the pattern.
 	 */
-	private static Map<Pattern, IQueryResponder>	queryMap;
+	private static LinkedHashMap<Pattern, IQueryResponder>	queryMap;
 
 	/**
 	 * Gets the {@link IQueryResponder} that should handle the request.
@@ -88,7 +89,7 @@ public class QueryMapper {
 		if (!Utils.isNullOrEmpty(queryMap))
 			return;
 
-		queryMap = new HashMap<>();
+		queryMap = new LinkedHashMap<>();
 
 		InputStream is = null;
 		if (Files.isReadable(Path.of(cfgFilePath))) {
