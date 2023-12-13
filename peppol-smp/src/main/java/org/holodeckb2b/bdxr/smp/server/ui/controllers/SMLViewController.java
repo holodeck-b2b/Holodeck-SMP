@@ -76,11 +76,9 @@ public class SMLViewController {
 			try {
 				smlClient.saveSMPRegistration(input, input.getOid() != 0);
 				mv.addObject("infoMessage", "Successfully updated the registration in the SML");
-			} catch (SoapFaultClientException smlError) {
+			} catch (Exception smlError) {
 				mv.addObject("errorMessage", "There was an error updating the registration in the SML : "
 											 + smlError.getMessage());
-			} catch (SSLException smpKeyIssue) {
-				throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
 			}
 		}
 

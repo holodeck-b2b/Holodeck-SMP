@@ -37,17 +37,17 @@ public interface ISMLIntegrator {
 	 * Registers a Participant in the SML.
 	 *
 	 * @param p	the meta-data of the Participant to register
-	 * @throws Exception when the Participant could not be registered in the SML
+	 * @throws SMLException when the Participant could not be registered in the SML
 	 */
-	void registerParticipant(Participant p) throws Exception;
+	void registerParticipant(Participant p) throws SMLException;
 
 	/**
 	 * Remove the registration of a Participant from the SML.
 	 *
 	 * @param p	the meta-data of the Participant to remove from the SML
-	 * @throws Exception when the Participant could not be removed in the SML
+	 * @throws SMLException when the Participant could not be removed in the SML
 	 */
-	void unregisterParticipant(Participant p) throws Exception;
+	void unregisterParticipant(Participant p) throws SMLException;
 
 	/**
 	 * Indicates whether the SMP Certificate needs to be registered in the SML

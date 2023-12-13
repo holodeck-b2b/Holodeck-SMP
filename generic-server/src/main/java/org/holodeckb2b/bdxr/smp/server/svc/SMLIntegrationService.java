@@ -24,7 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Is a proxy to the {@link ISMLIntegrator} implementation so different implementations can be used depending on the 
@@ -33,7 +33,7 @@ import lombok.extern.log4j.Log4j2;
  * @author Sander Fieten (sander at holodeck-b2b.org)
  */
 @Service
-@Log4j2
+@Slf4j
 public class SMLIntegrationService {
 
 	@Value("${sml.enabled:false}")
@@ -61,12 +61,12 @@ public class SMLIntegrationService {
 	 * Registers a Participant in the SML.
 	 *
 	 * @param p	the meta-data of the Participant to register
-	 * @throws Exception when the Participant could not be registered in the SML
+	 * @throws SMLException when the Participant could not be registered in the SML
 	 */
-	public void registerParticipant(ParticipantE p) throws Exception {
+	public void registerParticipant(ParticipantE p) throws SMLException {
 		try {
 			smlIntegrator().registerParticipant(p);
-		} catch (Exception e) {
+		} catch (SMLException e) {
 			log.error("Error registering participant (PID={}) in SML : {}", p.getId().toString(), Utils.getExceptionTrace(e));
 			throw e;
 		}
@@ -78,10 +78,10 @@ public class SMLIntegrationService {
 	 * @param p	the meta-data of the Participant to remove from the SML
 	 * @throws Exception when the Participant could not be removed in the SML
 	 */
-	public void unregisterParticipant(ParticipantE p) throws Exception {
+	public void unregisterParticipant(ParticipantE p) throws SMLException {
 		try {
 			smlIntegrator().unregisterParticipant(p);
-		} catch (Exception e) {
+		} catch (SMLException e) {
 			log.error("Error registering participant (PID={}) in SML : {}", p.getId().toString(), Utils.getExceptionTrace(e));
 			throw e;
 		}
@@ -93,8 +93,12 @@ public class SMLIntegrationService {
 	 * @return <code>true</code> if the SML integration is active and the certificate needs to be registered in the SML,
 	 *		   <code>false</code> otherwise
 	 */
-	public boolean requiresSMPCertRegistration() throws BeansException {
-		return isSMLIntegrationAvailable() && smlIntegrator().requiresSMPCertRegistration();
+	public boolean requiresSMPCertRegistration() throws SMLException {
+		try {
+			return isSMLIntegrationAvailable() && smlIntegrator().requiresSMPCertRegistration();
+		} catch (BeansException missingSMLComp) {
+			throw new SMLException(missingSMLComp);
+		}
 	}
 
 	private ISMLIntegrator smlIntegrator() throws BeansException {
@@ -102,7 +106,7 @@ public class SMLIntegrationService {
 			try {
 				smlService = smlServiceFactory.getBean(implSvcName, ISMLIntegrator.class);
 			} catch (BeansException svcUnavailable) {
-				log.fatal("Error loading the SML Client implementation {} : {}", implSvcName, Utils.getExceptionTrace(svcUnavailable));
+				log.error("Error loading the SML Client implementation {} : {}", implSvcName, Utils.getExceptionTrace(svcUnavailable));
 				throw svcUnavailable;
 			}
 

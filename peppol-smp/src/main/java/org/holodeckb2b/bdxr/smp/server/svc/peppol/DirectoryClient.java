@@ -44,6 +44,7 @@ import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.ssl.SSLContexts;
 import org.holodeckb2b.bdxr.smp.server.datamodel.Participant;
 import org.holodeckb2b.bdxr.smp.server.db.repos.ParticipantRepository;
+import org.holodeckb2b.bdxr.smp.server.svc.DirectoryException;
 import org.holodeckb2b.bdxr.smp.server.svc.IDirectoryIntegrator;
 import org.holodeckb2b.bdxr.smp.server.svc.SMPCertificateService;
 import org.holodeckb2b.commons.security.CertificateUtils;
@@ -82,24 +83,24 @@ public class DirectoryClient implements IDirectoryIntegrator {
 	private URI targetURL;
 	
 	@Override
-	public void publishParticipantInfo(Participant p) throws Exception {		
+	public void publishParticipantInfo(Participant p) throws DirectoryException {		
 		try {
 			restTemplate().put(targetURL(), p.getId().toString());
-		} catch (RestClientException failedRequest) {
+		} catch (Exception failedRequest) {
 			Logger.getLogger(DirectoryClient.class.getName()).log(Level.SEVERE,
-					"Error registering participant in directory : {0}", failedRequest.getMessage());
-			throw failedRequest;
+					"Error registering participant in directory : {0}", Utils.getExceptionTrace(failedRequest));
+			throw new DirectoryException(failedRequest);
 		}
 	}
 
 	@Override
-	public void removeParticipantInfo(Participant p) throws Exception {
+	public void removeParticipantInfo(Participant p) throws DirectoryException {
 		try {
 			restTemplate().delete(targetURL() + "/" + p.getId().getURLEncoded());
-		} catch (RestClientException failedRequest) {
+		} catch (Exception failedRequest) {
 			Logger.getLogger(DirectoryClient.class.getName()).log(Level.SEVERE,
-					"Error registering participant in directory : {0}", failedRequest.getMessage());
-			throw failedRequest;
+					"Error registering participant in directory : {0}", Utils.getExceptionTrace(failedRequest));
+			throw new DirectoryException(failedRequest);
 		}
 	}
 

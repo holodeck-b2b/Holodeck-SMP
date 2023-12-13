@@ -30,15 +30,15 @@ public interface IDirectoryIntegrator {
 	 * Publishes the particpant's business card information to the directory. 
 	 *
 	 * @param p	the meta-data of the Participant whose business card needs to be published
-	 * @throws Exception when the Participant's business card could not be published in the directory
+	 * @throws DirectoryException when the Participant's business card could not be published in the directory
 	 */
-	void publishParticipantInfo(Participant p) throws Exception;
+	void publishParticipantInfo(Participant p) throws DirectoryException;
 
 	/**
 	 * Remove the Participant's business card from the directory.
 	 *
 	 * @param p	the meta-data of the Participant to remove from the directory
-	 * @throws Exception when the Participant's business card could not be removed from the directory
+	 * @throws DirectoryException when the Participant's business card could not be removed from the directory
 	 */
-	void removeParticipantInfo(Participant p) throws Exception;	
+	void removeParticipantInfo(Participant p) throws DirectoryException;	
 }

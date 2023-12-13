@@ -6,6 +6,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ##### 
 ### Added
 * Support for Peppol Directory Business Cards
+* Specific exceptions for errors in communication with SML and directory
 
 ### Changed
 * Renamed `org.holodeckb2b.bdxr.smp.server.queryapi.QueryUtils`  to `org.holodeckb2b.bdxr.smp.server.svc.IdUtils`

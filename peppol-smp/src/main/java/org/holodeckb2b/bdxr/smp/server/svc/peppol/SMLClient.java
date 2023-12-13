@@ -61,6 +61,7 @@ import org.holodeckb2b.bdxr.smp.server.db.SMLRegistration;
 import org.holodeckb2b.bdxr.smp.server.db.SMLRegistrationRepository;
 import org.holodeckb2b.bdxr.smp.server.db.repos.ParticipantRepository;
 import org.holodeckb2b.bdxr.smp.server.svc.ISMLIntegrator;
+import org.holodeckb2b.bdxr.smp.server.svc.SMLException;
 import org.holodeckb2b.bdxr.smp.server.svc.SMPCertificateService;
 import org.holodeckb2b.commons.security.CertificateUtils;
 import org.holodeckb2b.commons.util.Utils;
@@ -207,10 +208,10 @@ public class SMLClient implements ISMLIntegrator {
 	 * Registers the Participant in the SML.
 	 *
 	 * @param p	the meta-data on the Participant to register
-	 * @throws Exception when the Participant could not be registered in the SML
+	 * @throws SMLException when the Participant could not be registered in the SML
 	 */
 	@Override
-	public void registerParticipant(Participant p) throws Exception {
+	public void registerParticipant(Participant p) throws SMLException {
 		updateParticipant(p, (pi) -> new ObjectFactory().createCreateParticipantIdentifier(pi),
 						  "http://busdox.org/serviceMetadata/ManageBusinessIdentifierService/1.0/         :createIn");
 	}
@@ -219,10 +220,10 @@ public class SMLClient implements ISMLIntegrator {
 	 * Removes the Participant's registration from the SML.
 	 *
 	 * @param p	the meta-data on the Participant whose registration should be removed
-	 * @throws Exception when the Participant's registration could not be removed in the SML
+	 * @throws SMLException when the Participant's registration could not be removed in the SML
 	 */
 	@Override
-	public void unregisterParticipant(Participant p) throws Exception {
+	public void unregisterParticipant(Participant p) throws SMLException {
 		updateParticipant(p, (pi) -> new ObjectFactory().createDeleteParticipantIdentifier(pi),
 						  "http://busdox.org/serviceMetadata/ManageBusinessIdentifierService/1.0/         :deleteIn");
 	}
@@ -233,14 +234,19 @@ public class SMLClient implements ISMLIntegrator {
 	 * @param p	the meta-data on the Participant
 	 * @param f	function to create the correct root element, given the content
 	 * @param action	the SOAP action to use
-	 * @throws Exception	when there is an error executing the update to the SML
+	 * @throws SMLException	when there is an error executing the update to the SML
 	 */
 	private void updateParticipant(Participant p,
 								   Function<ServiceMetadataPublisherServiceForParticipantType, JAXBElement> f,
-								   String action) throws Exception {
-		SMLRegistration smlReg = getSMLRegistration();
-		if (Utils.isNullOrEmpty(smlReg.getIdentifier()))
-			throw new Exception("The SMP is not registered in the SML");
+								   String action) throws SMLException {
+		SMLRegistration smlReg;
+		try {
+			smlReg = getSMLRegistration();
+		} catch (CertificateException inavlidSMLReg) {
+			smlReg = null;
+		}
+		if (smlReg == null || Utils.isNullOrEmpty(smlReg.getIdentifier()))
+			throw new SMLException("The SMP is not registered in the SML");
 
 		ServiceMetadataPublisherServiceForParticipantType pInfo = new ServiceMetadataPublisherServiceForParticipantType();
 		pInfo.setServiceMetadataPublisherID(smlReg.getIdentifier());
@@ -249,8 +255,12 @@ public class SMLClient implements ISMLIntegrator {
 		partID.setValue(p.getId().getValue());
 		pInfo.setParticipantIdentifier(partID);
 
-		webServiceTemplate().marshalSendAndReceive(baseURL() + "/manageparticipantidentifier", f.apply(pInfo),
+		try {
+			webServiceTemplate().marshalSendAndReceive(baseURL() + "/manageparticipantidentifier", f.apply(pInfo),
 													new SoapActionCallback(action));
+		} catch (Exception requestFailed) {
+			throw new SMLException(requestFailed);
+		}
 	}
 
 	/**

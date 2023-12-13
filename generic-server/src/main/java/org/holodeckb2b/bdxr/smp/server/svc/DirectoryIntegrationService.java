@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Is a proxy to the {@link IDirectoryIntegrator} implementation so different implementations can be used depending on the 
@@ -33,7 +34,7 @@ import lombok.extern.log4j.Log4j2;
  * @author Sander Fieten (sander at holodeck-b2b.org)
  */
 @Service
-@Log4j2
+@Slf4j
 public class DirectoryIntegrationService {
 
 	@Value("${directory.enabled:false}")
@@ -57,12 +58,12 @@ public class DirectoryIntegrationService {
 	 * Publishes the particpant's business card information to the directory. 
 	 *
 	 * @param p	the meta-data of the Participant whose business card needs to be published
-	 * @throws Exception when the Participant's business card could not be published in the directory
+	 * @throws DirectoryException when the Participant's business card could not be published in the directory
 	 */
-	public void publishParticipantInfo(Participant p) throws Exception {
+	public void publishParticipantInfo(Participant p) throws DirectoryException {
 		try {
 			integrator().publishParticipantInfo(p);
-		} catch (Exception e) {
+		} catch (DirectoryException e) {
 			log.error("Error publishing participant info (PID={}) : {}", p.getId().toString(), Utils.getExceptionTrace(e));
 			throw e;
 		}
@@ -73,25 +74,24 @@ public class DirectoryIntegrationService {
 	 * Remove the Participant's business card from the directory.
 	 *
 	 * @param p	the meta-data of the Participant to remove from the directory
-	 * @throws Exception when the Participant's business card could not be removed from the directory
+	 * @throws DirectoryException when the Participant's business card could not be removed from the directory
 	 */
-	public void removeParticipantInfo(Participant p) throws Exception {
+	public void removeParticipantInfo(Participant p) throws DirectoryException {
 		try {
 			integrator().removeParticipantInfo(p);
-		} catch (Exception e) {
+		} catch (DirectoryException e) {
 			log.error("Error removing participant info (PID={}) : {}", p.getId().toString(), Utils.getExceptionTrace(e));
 			throw e;
 		}
 		
 	}
 
-
 	private IDirectoryIntegrator integrator() throws BeansException {
 		if (directoryService == null) 
 			try {
 				directoryService = serviceFactory.getBean(implSvcName, IDirectoryIntegrator.class);
 			} catch (BeansException svcUnavailable) {
-				log.fatal("Error loading the Directory Client implementation {} : {}", implSvcName, Utils.getExceptionTrace(svcUnavailable));
+				log.error("Error loading the Directory Client implementation {} : {}", implSvcName, Utils.getExceptionTrace(svcUnavailable));
 				throw svcUnavailable;
 			}
 
