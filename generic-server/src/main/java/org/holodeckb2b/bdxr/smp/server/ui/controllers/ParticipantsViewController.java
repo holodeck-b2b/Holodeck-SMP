@@ -42,11 +42,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 
 @Controller
-@Log4j2
+@Slf4j
 @RequestMapping("participants")
 public class ParticipantsViewController {
 	private static final String P_ATTR = "participant";
