@@ -31,7 +31,7 @@ import org.holodeckb2b.bdxr.smp.server.db.entities.ParticipantE;
 import org.holodeckb2b.bdxr.smp.server.db.repos.ParticipantRepository;
 import org.holodeckb2b.bdxr.smp.server.queryapi.IQueryResponder;
 import org.holodeckb2b.bdxr.smp.server.queryapi.QueryResponse;
-import org.holodeckb2b.bdxr.smp.server.queryapi.QueryUtils;
+import org.holodeckb2b.bdxr.smp.server.svc.IdUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -53,7 +53,7 @@ import lombok.extern.slf4j.Slf4j;
 public class BusinessCardResponder implements IQueryResponder {
 	
 	@Autowired
-	protected QueryUtils	queryUtils;
+	protected IdUtils	queryUtils;
 	@Autowired
 	protected ParticipantRepository participants;
 		

@@ -17,9 +17,7 @@
 package org.holodeckb2b.bdxr.smp.server.queryapi.peppol;
 
 import java.net.InetAddress;
-import java.net.URLDecoder;
 import java.net.UnknownHostException;
-import java.nio.charset.Charset;
 import java.security.cert.CertificateException;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -33,8 +31,8 @@ import org.holodeckb2b.bdxr.smp.server.db.repos.ParticipantRepository;
 import org.holodeckb2b.bdxr.smp.server.db.repos.ServiceMetadataBindingRepository;
 import org.holodeckb2b.bdxr.smp.server.queryapi.IQueryResponder;
 import org.holodeckb2b.bdxr.smp.server.queryapi.QueryResponse;
-import org.holodeckb2b.bdxr.smp.server.queryapi.QueryUtils;
 import org.holodeckb2b.bdxr.smp.server.queryapi.XMLResponseSigner;
+import org.holodeckb2b.bdxr.smp.server.svc.IdUtils;
 import org.holodeckb2b.bdxr.smp.server.svc.peppol.SMLClient;
 import org.holodeckb2b.commons.util.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,14 +50,12 @@ import org.w3c.dom.Document;
 @Slf4j
 public class PEPPOLQueryResponder implements IQueryResponder {
 
-	private static final Charset UTF8 = Charset.forName("UTF-8");
-
 	private static final String SIGNING_ALG = "http://www.w3.org/2000/09/xmldsig#rsa-sha1";
 	private static final String DIGEST_ALG = "http://www.w3.org/2000/09/xmldsig#sha1";
 	private static final String C14N_ALG = "http://www.w3.org/TR/2001/REC-xml-c14n-20010315";
 
 	@Autowired
-	protected QueryUtils	queryUtils;
+	protected IdUtils	queryUtils;
 	@Autowired
 	protected XMLResponseSigner	signer;
 	@Autowired
@@ -84,8 +80,8 @@ public class PEPPOLQueryResponder implements IQueryResponder {
 		log.trace("Process a ServiceMetadata query");
 		Identifier partID, svcID;
 		int pidEnd = query.indexOf('/', 1);
-		String pidString = URLDecoder.decode(pidEnd < 0 ? query : query.substring(0, pidEnd), UTF8);
-		String sidString = URLDecoder.decode(query.substring(query.indexOf("/services/") + 10), UTF8);
+		String pidString = pidEnd < 0 ? query : query.substring(0, pidEnd);
+		String sidString = query.substring(query.indexOf("/services/") + 10);
 		try {
 			partID = queryUtils.parseIDString(pidString);
 		} catch (NoSuchElementException unknownScheme) {
@@ -127,16 +123,15 @@ public class PEPPOLQueryResponder implements IQueryResponder {
 	private QueryResponse processServiceGroupQuery(String query) {
 		log.trace("Process a ServiceGroup query");
 		Identifier partID;
-		String pidString = URLDecoder.decode(query, UTF8);
 		try {
-			partID = queryUtils.parseIDString(pidString);
+			partID = queryUtils.parseIDString(query);
 		} catch (NoSuchElementException unknownScheme) {
-			log.debug("ID Scheme of queried Participant ID ({}) not found!", pidString);
+			log.debug("ID Scheme of queried Participant ID ({}) not found!", query);
 			return new QueryResponse(HttpStatus.NOT_FOUND, null, null);
 		}
 		log.trace("Check if Participant with ID={} exists", partID.toString());
 		if (participants.findByIdentifier(partID) == null) {
-			log.debug("Queried Participant ID ({}) not found!", pidString);
+			log.debug("Queried Participant ID ({}) not found!", query);
 			return new QueryResponse(HttpStatus.NOT_FOUND, null, null);
 		}
 		log.trace("Retrieve SMB for Participant={}", partID.toString());
