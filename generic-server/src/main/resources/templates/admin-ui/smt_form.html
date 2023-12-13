@@ -41,6 +41,13 @@
 						id="invalidServiceMsg" class="invalid-feedback"></div>
 				</div>
 			</div>
+			<div class="row mb-3" th:if="${apiEnabled}">
+				<label for="inputName" class="col-sm-3 col-form-label">Template ID</label>
+				<div class="col-sm-7">
+				<input type="text" class="form-control" readonly
+					th:value="*{oid > 0 ? oid : 'A default template ID will be generated'}" >
+				</div>
+			</div>
 			<div class="row mb-3">
 				<label for="inputName" class="col-sm-3 col-form-label">Name</label>
 				<div class="col-sm-7">

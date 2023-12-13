@@ -61,7 +61,7 @@ public class ServiceMetadataFactory extends AbstractResponseFactory {
 	 */
 	private String certMimeType;
 
-	ServiceMetadataFactory(String certMimeType) {
+	public ServiceMetadataFactory(String certMimeType) {
 		this.certMimeType = certMimeType;
 	}
 
@@ -84,7 +84,7 @@ public class ServiceMetadataFactory extends AbstractResponseFactory {
 		return jaxb2dom(smd);
 	}
 
-	private ProcessMetadataType createProcessMetadata(ProcessGroup pg) throws InstantiationException {
+	public ProcessMetadataType createProcessMetadata(ProcessGroup pg) throws InstantiationException {
 		ProcessMetadataType pmd = new ProcessMetadataType();
 		for(ProcessInfo p : pg.getProcessInfo())
 			pmd.getProcess().add(createProcess(p));

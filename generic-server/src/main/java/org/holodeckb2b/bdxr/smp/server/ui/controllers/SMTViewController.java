@@ -44,6 +44,7 @@ import org.holodeckb2b.commons.Pair;
 import org.holodeckb2b.commons.security.CertificateUtils;
 import org.holodeckb2b.commons.util.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -59,6 +60,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class SMTViewController {
 	private static final String SMT_ATTR = "serviceMetadataTemplateE";
 
+	@Value("${api.enabled:false}")
+	protected boolean	mgmtAPIenabled;
+	
 	@Autowired
 	protected ServiceMetadataTemplateRepository	templates;
 	@Autowired
@@ -92,6 +96,7 @@ public class SMTViewController {
 		}
 		s.setAttribute(SMT_ATTR, smt);
 		m.addAttribute(SMT_ATTR, smt);
+		m.addAttribute("apiEnabled", mgmtAPIenabled);
 		return "admin-ui/smt_form";
 	}
 

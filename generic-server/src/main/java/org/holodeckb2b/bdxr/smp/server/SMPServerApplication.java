@@ -16,6 +16,7 @@
  */
 package org.holodeckb2b.bdxr.smp.server;
 
+import org.apache.commons.logging.LogFactory;
 import org.holodeckb2b.bdxr.smp.server.queryapi.QueryAppConfig;
 import org.holodeckb2b.bdxr.smp.server.ui.AdminUIConfig;
 import org.springframework.boot.Banner;
@@ -30,13 +31,50 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 public class SMPServerApplication {
 
 	public static void main(String[] args) {
-		new SpringApplicationBuilder().properties("spring.config.name=common")
-									.sources(CommonServerConfig.class)
-						            .child(QueryAppConfig.class)
-						            .web(WebApplicationType.SERVLET)
-									.sibling(AdminUIConfig.class)
-									.web(WebApplicationType.SERVLET)
-									.bannerMode(Banner.Mode.OFF)
-									.run(args);
+		boolean queryApi = false, adminUI = false, mgmtApi = false;
+		if (args.length >= 0) {			
+			queryApi = adminUI = mgmtApi = false;
+			for (String a : args) {
+				queryApi |= "-query".equals(a);
+				adminUI |= "-admin".equals(a);
+				mgmtApi |= "-api".equals(a);
+			}
+		}	
+		// If no specific server mode(s) have been specified, run all 
+		if (!queryApi && !adminUI && !mgmtApi) {
+			queryApi = true; 
+			adminUI = true;
+			mgmtApi = true;
+		}
+			
+		SpringApplicationBuilder app = new SpringApplicationBuilder(CommonServerConfig.class)
+																.properties("spring.config.name=common");
+																	 
+		if (queryApi)
+			app = app.child(QueryAppConfig.class).web(WebApplicationType.SERVLET);
+		if (adminUI) {
+			if (queryApi)
+				app = app.sibling(AdminUIConfig.class);
+			else
+				app = app.child(AdminUIConfig.class);
+			app = app.web(WebApplicationType.SERVLET).bannerMode(Banner.Mode.OFF);
+		}		
+		if (mgmtApi) {
+			try {
+				Class mgmtAppClass = Class.forName("org.holodeckb2b.bdxr.smp.server.mgmtapi.MgmtAppConfig");
+				if (queryApi || adminUI)
+					app = app.sibling(mgmtAppClass);
+				else
+					app = app.child(mgmtAppClass);
+				app = app.web(WebApplicationType.SERVLET).bannerMode(Banner.Mode.OFF);
+			} catch (ClassNotFoundException noMgmtApi) {
+				if (mgmtApi) {
+					LogFactory.getLog(SMPServerApplication.class).fatal("The required management API module cannot be loaded!");
+					System.exit(-1);
+				}
+			}					
+		}
+			
+		app.run(args);
 	}
 }
