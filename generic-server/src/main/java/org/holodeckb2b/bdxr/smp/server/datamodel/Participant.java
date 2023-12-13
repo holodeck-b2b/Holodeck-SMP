@@ -59,4 +59,23 @@ public interface Participant {
 	 * @return	the contact data of the Participant
 	 */
 	String getContactInfo();
+	
+	/**
+	 * Indicates whether this Participant is registered in the SML. Note that the actual registration in the
+	 * SML depends on whether this SMP is linked with an SML.   
+	 * 
+	 * @return	<code>true</code> if this Participant is (or should be) registered in the SML, 
+	 * 			<code>false</code> if not
+	 */
+	boolean registeredInSML();
+	
+	/**
+	 * Indicates whether the business entity information of this Participant is published in the network directory. 
+	 * Note that the actual publication in the directory depends on whether this SMP is linked with a directory service.   
+	 * 
+	 * @return	<code>true</code> if the business entity info of this Participant is (or should be) published in the 
+	 * 			network's directory, 
+	 * 			<code>false</code> if not
+	 */
+	boolean publishedInDirectory();
 }

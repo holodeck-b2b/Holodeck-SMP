@@ -81,10 +81,12 @@ public class ParticipantE implements Participant {
 	@Setter
 	protected List<ServiceMetadataBindingE>	bindings = new ArrayList<>();
 
-	public boolean isRegisteredSML() {
+	@Override
+	public boolean registeredInSML() {
 		return isRegisteredSML != null ? isRegisteredSML : false;
 	}
 
+	@Override
 	public boolean publishedInDirectory() {
 		return publishedInDirectory != null ? publishedInDirectory : false;
 	}

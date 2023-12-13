@@ -98,7 +98,7 @@ public class ParticipantsViewController {
 		ParticipantE p = null;
 		try {
 			p = participants.getReferenceById(oid);
-			if (smlService.isSMLIntegrationAvailable() && p.isRegisteredSML()) {
+			if (smlService.isSMLIntegrationAvailable() && p.registeredInSML()) {
 				if (p.publishedInDirectory())
 					directoryService.removeParticipantInfo(p);
 				smlService.unregisterParticipant(p);
@@ -127,10 +127,10 @@ public class ParticipantsViewController {
 			br.rejectValue("id.scheme", "ID_EXISTS");
 		}
 		if (input.publishedInDirectory()) {
-			if (!input.isRegisteredSML()) {
+			if (!input.registeredInSML()) {
 				br.rejectValue("publishedInDirectory", "SML_REG_REQD", 
 								"To publish the business information in the directory, the participant must also be registered in the SML");
-				input.setIsRegisteredSML(prev.isRegisteredSML());
+				input.setIsRegisteredSML(prev.registeredInSML());
 			}
 			if (Utils.isNullOrEmpty(input.getName()))
 				br.rejectValue("name", "NAME_REQD", "Name is required when publishing to the directory");
@@ -142,8 +142,8 @@ public class ParticipantsViewController {
 			return toForm(m, s);
 
 		boolean smlUpdRequired = smlService.isSMLIntegrationAvailable() &&
-								( (current != null && current.isRegisteredSML() != input.isRegisteredSML())
-								|| (current == null && input.isRegisteredSML()) );
+								( (current != null && current.registeredInSML() != input.registeredInSML())
+								|| (current == null && input.registeredInSML()) );
 		ParticipantE updated = updateSessionBasics(input, s); 
 		try {
 			// Save data
@@ -152,12 +152,12 @@ public class ParticipantsViewController {
 			// Update SML registration if needed
 			if (smlUpdRequired)
 				try {
-					if (updated.isRegisteredSML())
+					if (updated.registeredInSML())
 						smlService.registerParticipant(updated);
 					else
 						smlService.unregisterParticipant(updated);
 				} catch (Exception smlUpdateFailed) {
-					updated.setIsRegisteredSML(!updated.isRegisteredSML());
+					updated.setIsRegisteredSML(!updated.registeredInSML());
 					updated = participants.save(updated);
 					m.addAttribute("errorMessage", "There was an error updating the Participant's registration in the SML ("
 									+ smlUpdateFailed.getMessage() + ")");
@@ -169,7 +169,7 @@ public class ParticipantsViewController {
 					m.addAttribute("errorMessage", "There was an error publishing the Participant's info to the directory ("
 									+ dirUpdatedFailed.getMessage() + ")");
 				}
-			else if (current.publishedInDirectory()) 
+			else if (current != null && current.publishedInDirectory()) 
 				try {
 					directoryService.removeParticipantInfo(updated);
 				} catch (Exception dirUpdatedFailed) {
