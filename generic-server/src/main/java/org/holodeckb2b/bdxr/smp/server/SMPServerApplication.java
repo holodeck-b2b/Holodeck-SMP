@@ -20,8 +20,10 @@ import org.apache.commons.logging.LogFactory;
 import org.holodeckb2b.bdxr.smp.server.queryapi.QueryAppConfig;
 import org.holodeckb2b.bdxr.smp.server.ui.AdminUIConfig;
 import org.springframework.boot.Banner;
+import org.springframework.boot.ResourceBanner;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.core.io.ClassPathResource;
 
 /**
  * Is the main application class responsible for starting the both the Admin UI and Query servers.
@@ -41,32 +43,33 @@ public class SMPServerApplication {
 			}
 		}	
 		// If no specific server mode(s) have been specified, run all 
-		if (!queryApi && !adminUI && !mgmtApi) {
-			queryApi = true; 
-			adminUI = true;
-			mgmtApi = true;
-		}
-			
-		SpringApplicationBuilder app = new SpringApplicationBuilder(CommonServerConfig.class)
-																.properties("spring.config.name=common");
-																	 
-		if (queryApi)
-			app = app.child(QueryAppConfig.class).web(WebApplicationType.SERVLET);
-		if (adminUI) {
-			if (queryApi)
+		boolean runAll = (!queryApi && !adminUI && !mgmtApi);
+		
+		SpringApplicationBuilder root = new SpringApplicationBuilder(CommonServerConfig.class)
+													.properties("spring.config.name=common");
+		SpringApplicationBuilder app = root;
+		if (queryApi || runAll)
+			app = app.child(QueryAppConfig.class).web(WebApplicationType.SERVLET)
+					 .banner(new ResourceBanner(new ClassPathResource("banners/query_banner.txt")));
+		root.banner(new ResourceBanner(new ClassPathResource("banners/main_banner.txt")))
+					.bannerMode(Banner.Mode.CONSOLE);
+		if (adminUI || runAll) {
+			if (queryApi || runAll)
 				app = app.sibling(AdminUIConfig.class);
 			else
 				app = app.child(AdminUIConfig.class);
-			app = app.web(WebApplicationType.SERVLET).bannerMode(Banner.Mode.OFF);
+			app = app.web(WebApplicationType.SERVLET)
+					 .banner(new ResourceBanner(new ClassPathResource("banners/adminui_banner.txt")));
 		}		
-		if (mgmtApi) {
+		if (mgmtApi || runAll) {
 			try {
 				Class mgmtAppClass = Class.forName("org.holodeckb2b.bdxr.smp.server.mgmtapi.MgmtAppConfig");
-				if (queryApi || adminUI)
+				if (queryApi || adminUI || runAll)
 					app = app.sibling(mgmtAppClass);
 				else
 					app = app.child(mgmtAppClass);
-				app = app.web(WebApplicationType.SERVLET).bannerMode(Banner.Mode.OFF);
+				app = app.web(WebApplicationType.SERVLET)
+						 .banner(new ResourceBanner(new ClassPathResource("banners/mgmtapi_banner.txt")));
 			} catch (ClassNotFoundException noMgmtApi) {
 				if (mgmtApi) {
 					LogFactory.getLog(SMPServerApplication.class).fatal("The required management API module cannot be loaded!");
