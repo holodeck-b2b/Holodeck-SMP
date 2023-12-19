@@ -15,7 +15,7 @@
         schemaLocation="../../../../oasis-smp2/src/main/xsd/common/SMP-ExtensionComponents-2.0.xsd"/>
     <xs:element name="ServiceMetadataTemplates">
         <xs:annotation>
-            <xs:documentation>Contains a list of Service Metatdata Templates</xs:documentation>
+            <xs:documentation>Contains a list of Service Metatdata Templates and is the root element of the response to the GET request for /templates</xs:documentation>
         </xs:annotation>
         <xs:complexType>
             <xs:sequence>
@@ -30,7 +30,7 @@
     </xs:element>
     <xs:element name="ServiceMetadataBindings" type="ServiceMetadataBindingsType">
         <xs:annotation>
-            <xs:documentation>Represents the bindings of Service Metadata Templates to a Participant.</xs:documentation>
+            <xs:documentation>Represents the bindings of Service Metadata Templates to a Participant. This is the root element of the response to the GET request for /participants/«Participant ID»/bindings</xs:documentation>
         </xs:annotation>
     </xs:element>
     <xs:element name="TemplateId" type="xs:unsignedLong"/>
