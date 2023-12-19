@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.holodeckb2b.bdxr.smp.server</groupId>
         <artifactId>parent</artifactId>
-        <version>1.0.1</version>
+        <version>2.0.0</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>smp-server-app</artifactId>
@@ -51,6 +51,10 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+					<layout>ZIP</layout>
+                    <mainClass>org.holodeckb2b.bdxr.smp.server.SMPServerApplication</mainClass>
+                </configuration>
                 <executions>
 					<execution>
 						<goals>
@@ -58,9 +62,6 @@
 						</goals>
 					</execution>
                 </executions>
-                <configuration>
-                    <mainClass>org.holodeckb2b.bdxr.smp.server.SMPServerApplication</mainClass>
-                </configuration>
             </plugin>
 		</plugins>
 	</build>
