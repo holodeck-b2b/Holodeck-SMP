@@ -82,6 +82,7 @@ public class SMTViewController {
 		m.addAttribute("templates", templates.findAll().parallelStream()
 							.map(t -> new Pair<ServiceMetadataTemplateE, Integer>(t, templates.getNumberOfBindings(t)))
 							.toList());
+		m.addAttribute("apiEnabled", mgmtAPIenabled);
 	    return "admin-ui/smt";
     }
 
