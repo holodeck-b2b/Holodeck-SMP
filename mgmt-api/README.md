@@ -14,8 +14,8 @@ Participant registrations are managed using the `/participants` resource.
 A new Participant registration is added by executing a PUT request with the Participant Identifier added to the URL, i.e. `/participants/«PartID»`. The identifier should be in URL encoded format specified in [section 3.6.3](https://docs.oasis-open.org/bdxr/bdx-smp/v2.0/os/bdx-smp-v2.0-os.html#_Toc62566898) of the OASIS SMP Version 2.0 specification.
 The server will respond with following HTTP response codes to indicate how the request was processed:
 
-|-----------------------------|-----------------|
-| HTTP status                 | Indicates       |
+| HTTP status                 | Indicates      |
+| :-------------------------- | :------------- | 
 | 201 (Created)               | The Participant Identifier was successfully registered and when SML integration is enabled added to the SML. | 
 | 409 (Conflict)              | The specified Participant Identifier already exists |
 | 400 (Bad Request)           | The specified Participant Identifier could not be parsed or the specified scheme does not exist. |
@@ -24,8 +24,8 @@ The server will respond with following HTTP response codes to indicate how the r
 
 To delete a Participant registration a DELETE request with the Participant Identifier added to the URL, i.e. `/participants/«PartID»` should be executed. NOTE that when there exist bindings to Service Metadata Templates, these are removed. The server indicates the result of the deletion request using the following HTTP status codes:
 
-|-----------------------------|-----------------|
-| HTTP status                 | Indicates       |
+| HTTP status                 | Indicates      |
+| :-------------------------- | :------------- | 
 | 202 (Accepted)              | The Participant was successfully deleted and, if applicable removed from the SML and directory |
 | 424 (Failed dependency)     | An error in removing the Participant from the SML or directory which prevents that the Participant can be removed from the SMP. | 
 | 400 (Bad Request)           | The specified Participant Identifier could not be parsed or the specified scheme does not exist. |
@@ -40,8 +40,8 @@ To retrieve a summary of all Service Metadata Templates that are bound to a Part
 
 Binding a Service Metadata Template to a Participant is done by executing a PUT request for `/participants/«ParticipentID»/bindings/«template_id»`. Again the Participant Identifier must be formatted as specifie din the OASIS SMP specification. As the template id is just a simple long there is no need for encoding. 
 
-|-------------------|-----------------|
-| HTTP status       | Indicates       |
+| HTTP status       | Indicates      |
+| :---------------- | :------------- | 
 | 201 (Created)     | The Service Metadata Template was succesfully bound to the Participant | 
 | 400 (Bad Request) | The specified Participant Identifier could not be parsed or the specified scheme does not exist. |
 | 404 (Not Found)   | Either no Participant or Service Metadata Template with the specified identifier could be found. |
@@ -49,8 +49,8 @@ Binding a Service Metadata Template to a Participant is done by executing a PUT 
 
 Removing a binding between Service Metadata Template and Participant is done by a DELETE request for `/participants/«ParticipentID»/bindings/«template_id»`. The HTTP response codes are:
 
-|-------------------|-----------------|
-| HTTP status       | Indicates       |
+| HTTP status       | Indicates      |
+| :---------------- | :------------- | 
 | 202 (Accepted)    | The binding between Service Metadata Template and Participant was succesfully removed | 
 | 400 (Bad Request) | The specified Participant Identifier could not be parsed or the specified scheme does not exist. |
 | 404 (Not Found)   | No Participant with the specified identifier could be found. |
@@ -60,8 +60,8 @@ Removing a binding between Service Metadata Template and Participant is done by 
 The information about the business entity to be included in the Business Card of a Participant and published in the Directory is managed through the `/participants/«ParticipantID»/businesscard` resource. Currently only one business entity can be added to the Business Card.  
 The information is created or updated by executing a PUT request on the resource which should contain the an XML document containing the business information in the HTTP entity body. The root element of the XML document must be a `BusinessEntity` element as specified in the XML Schema used by the Peppol Directory: _[http://www.peppol.eu/schema/pd/businesscard/20161123/](../peppol-smp/src/main/xsd/peppol-directory-business-card-20161123.xsd)_. The server repsonds with the following HTTP status codes to indicate the processing result:
 
-|-----------------------|-----------------|
-| HTTP status           | Indicates       |
+| HTTP status           | Indicates      |
+| :-------------------- | :------------- | 
 | 202 (Accepted)        | The Business Card of the Participant was succesfully updated and published to the Directory | 
 | 206 (Partial Content) | The Business Card of the Participant was succesfully updated, but there was an error publishing to the Directory. When this happens publishing can be retried by executing the update again either through the API or UI. | 
 | 400 (Bad Request)     | The provided data is invalid. It could be that the specified Participant Identifier could not be parsed or its specified scheme does not exist or required business entity information is missing. |
@@ -70,8 +70,8 @@ The information is created or updated by executing a PUT request on the resource
 
 Removing the Bussiness Card from a Participant can be done by executing a DELETE request on the resource. The following HTTP response status codes are used to indicate the processing result:
 
-|-----------------------------|-----------------|
-| HTTP status                 | Indicates       |
+| HTTP status                 | Indicates      |
+| :-------------------------- | :------------- | 
 | 202 (Accepted)              | The Business Card was successfully deleted and, if applicable removed from the directory |
 | 404 (Not Found)             | No Participant with the specified identifier could be found. |
 | 424 (Failed dependency)     | An error in removing the Business Card from the directory which prevents the action to be completed. When this happen the request should be retried. | 
