@@ -24,6 +24,8 @@ import java.security.cert.CertificateNotYetValidException;
 import java.security.cert.X509Certificate;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
+import java.util.UUID;
+
 import javax.net.ssl.SSLException;
 import javax.servlet.http.HttpSession;
 import org.holodeckb2b.bdxr.smp.server.db.CertificateUpdate;
@@ -53,7 +55,8 @@ public class CertUpdateViewController {
 	private static final String M_KP_ERROR_ATTR = "keyFileError";
 	private static final String M_ACTIVATION_ERROR_ATTR = "activationError";
 	private static final String S_KEYPAIR = "newKeyPair";
-
+	private static final String REVERTID = "revertId";
+	
 	@Autowired
 	protected SMLClient smlClient;
 	@Autowired
@@ -148,4 +151,36 @@ public class CertUpdateViewController {
 		return mv;
 	}
 
+	@GetMapping("/revert")
+	public ModelAndView confirmRevertChange(HttpSession s) throws CertificateException {
+		SMLRegistration registration = smlClient.getSMLRegistration();
+		CertificateUpdate update = registration.getPendingCertUpdate();
+		if (update == null)
+			return new ModelAndView("redirect:/settings/sml/smpcert");
+		else {
+			final String revertId = UUID.randomUUID().toString();
+			s.setAttribute(REVERTID, revertId);
+			return new ModelAndView("peppol/crt_upd_revert", REVERTID, revertId);
+		}
+	}
+	
+	@PostMapping("/revert")
+	public String revertChange(@RequestParam("revertId") String revertId, HttpSession s) throws CertificateException {
+		SMLRegistration registration = smlClient.getSMLRegistration();
+		CertificateUpdate update = registration.getPendingCertUpdate();
+		if (update == null)
+			return "redirect:/settings/sml/smpcert";
+		
+		final String expRevertId = (String) s.getAttribute(REVERTID);
+		
+		if (Utils.isNullOrEmpty(expRevertId) || !expRevertId.equals(revertId)) 		
+			throw new ResponseStatusException(HttpStatus.PRECONDITION_FAILED);
+		
+		try {
+			smlClient.clearPendingUpdate();
+			return "redirect:/settings/sml/smpcert";
+		} catch (SoapFaultClientException e) {
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
 }
