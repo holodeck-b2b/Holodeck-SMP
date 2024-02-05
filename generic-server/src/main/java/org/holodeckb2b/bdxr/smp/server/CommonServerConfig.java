@@ -21,6 +21,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.annotation.PropertySources;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  * Configures the common components of the SMP server used by both the query responder and the administration UI.
@@ -33,6 +34,7 @@ import org.springframework.context.annotation.PropertySources;
 	@PropertySource("classpath:/common-defaults.properties"),
 	@PropertySource(value = "file:${smp.home:.}/common.properties", ignoreResourceNotFound = true)})
 @EnableAutoConfiguration
+@EnableScheduling
 public class CommonServerConfig {
 
 }
