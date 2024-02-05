@@ -101,7 +101,7 @@ public class CertUpdateViewController {
 				if (!issuerName.contains("peppol service metadata publisher"))
 					mv.addObject(M_KP_ERROR_ATTR, "The uploaded certificate is not a Peppol SMP certificate");
 				else if ("SMK".equals(smlReg.getEnvironment()) && !issuerName.contains("test"))
-					mv.addObject(M_KP_ERROR_ATTR, "The uploaded SMP certificate is not valid for the ");
+					mv.addObject(M_KP_ERROR_ATTR, "The uploaded SMP certificate cannot be used with the " + smlReg.getEnvironment());
 				else {
 					mv.addObject("newCert", new X509CertificateData(cert));
 					LocalDate certStart = LocalDate.ofInstant(((X509Certificate) kp.getCertificate()).getNotBefore()
@@ -134,7 +134,7 @@ public class CertUpdateViewController {
 			mv.addObject(M_ACTIVATION_ERROR_ATTR, "The activation date cannot be before the certificate's start date");
 		else {
 			try {
-				smlClient.registerSMPCertificate(kp, activationDate);
+				smlClient.registerNewSMPCertificate(kp, activationDate);
 				mv.addObject("newCert", new X509CertificateData((X509Certificate) kp.getCertificate()));
 				mv.addObject("activationDate", activationDate);
 				mv.setViewName("peppol/crt_upd_pending");
