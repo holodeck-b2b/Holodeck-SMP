@@ -6,6 +6,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ##### 
 ### Added
 * Support for Peppol Directory Business Cards
+* Support to automatically register the certificate update in the Peppol SML
 * REST API to manage Participants
 * Option to select which servers (Query/AdminUI/REST API) are started
 * Specific exceptions for errors in communication with SML and directory
