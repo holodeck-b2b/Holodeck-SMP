@@ -178,7 +178,7 @@ public class SMLClient implements ISMLIntegrator {
 	 * @throws SoapFaultClientException when the SML responded with an error message to the certificate update request
 	 * @since 1.1.0
 	 */
-	public void registerSMPCertificate(KeyStore.PrivateKeyEntry kp, LocalDate activation) throws CertificateException,
+	public void registerNewSMPCertificate(KeyStore.PrivateKeyEntry kp, LocalDate activation) throws CertificateException,
 																				SSLException, SoapFaultClientException {
 
 		if (!isSMPRegistered())
@@ -202,6 +202,23 @@ public class SMLClient implements ISMLIntegrator {
 		SMLRegistration reg = getSMLRegistration();
 		reg.setPendingCertUpdate(new CertificateUpdate(kp, activation));
 		smlRegs.save(reg);
+	}
+	
+	/**
+	 * Removes the pending certificate update.
+	 */
+	public void clearPendingUpdate() {		
+		SMLRegistration registration;
+		try {
+			registration = getSMLRegistration();
+		} catch (CertificateException invalidConfig) {
+			registration = null;
+		}
+		if (registration == null)
+			throw new IllegalStateException("SMP is not registred in SML");
+
+		registration.setPendingCertUpdate(null);
+		smlRegs.save(registration);
 	}
 
 	/**
