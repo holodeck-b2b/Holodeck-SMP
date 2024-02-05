@@ -89,16 +89,16 @@ public class SMPCertificateService {
 	 * Saves a new key pair to be used by the SMP server for signing of the query responses.
 	 *
 	 * @param kp		the new key pair
-	 * @param password	password to secure the key pair
-	 * @throws CertificateException
+	 * @throws CertificateException when the key pair could not be saved.
 	 */
-	public synchronized void setKeyPair(KeyStore.PrivateKeyEntry kp, String password) throws CertificateException {
+	public synchronized void setKeyPair(KeyStore.PrivateKeyEntry kp) throws CertificateException {
 		final Path ksPath = Paths.get(ksLocation);
 		Path pwdPath = ksPath.resolveSibling(ksPath.getFileName().toString() + ".pwd");
 		FileOutputStream fos = null;
 		try {
 			log.trace("Write new key pair and password to temp files");
 			fos = new FileOutputStream(ksPath.toFile());
+			String password = "kpp-" + Long.toHexString(Double.doubleToLongBits(Math.random()));
 			KeystoreUtils.saveKeyPairToPKCS12(kp, fos, password);
 			fos.close();
 			fos = new FileOutputStream(pwdPath.toFile());

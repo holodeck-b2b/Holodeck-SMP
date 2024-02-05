@@ -40,7 +40,6 @@ import org.springframework.web.multipart.MultipartFile;
 public class SMPCertViewController {
 	private static final String M_ERROR_ATTR = "keyFileError";
 	private static final String S_KEYPAIR = "keypair";
-	private static final String S_PASSWORD = "password";
 
 	@Autowired
 	protected SMLIntegrationService		smlIntegration;
@@ -77,7 +76,6 @@ public class SMPCertViewController {
 			try {
 				KeyStore.PrivateKeyEntry kp = KeystoreUtils.readKeyPairFromKeystore(kpFile.getInputStream(), pwd);
 				s.setAttribute(S_KEYPAIR, kp);
-				s.setAttribute(S_PASSWORD, pwd);
 				ra.addAttribute("newCert", new X509CertificateData((X509Certificate) kp.getCertificate()));
 			} catch (IOException ex) {
 				ra.addAttribute(M_ERROR_ATTR, "An error occured reading the uploaded file");
@@ -93,7 +91,7 @@ public class SMPCertViewController {
 		KeyStore.PrivateKeyEntry kp = (KeyStore.PrivateKeyEntry) s.getAttribute(S_KEYPAIR);
 		if (kp != null) {
 			try {
-				certService.setKeyPair(kp, (String) s.getAttribute(S_PASSWORD));
+				certService.setKeyPair(kp);
 			} catch (CertificateException e) {
 				m.addAttribute(M_ERROR_ATTR, "An error occurred updating the SMP certificate. Try again later.");
 				m.addAttribute("newCert", new X509CertificateData((X509Certificate) kp.getCertificate()));
