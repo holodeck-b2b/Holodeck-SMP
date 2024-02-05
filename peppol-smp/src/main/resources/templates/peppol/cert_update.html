@@ -11,11 +11,16 @@
 	</div>
 	<div class="card-body">
 		<div class="row mb-3">
-			<span>
+			<span th:unless='${newCert}'>
 			When integrated with the Peppol SML service, the new SMP certificate must also be activated in the SML.
-			Activation in the SML can only be done on a future date. Therefore you will have to provide the activation
-			date after uploading the new key pair.
+			Activation in the SML can however only be done on a future date, therefore the new certificate cannot be used
+			directly and you will have to provide the activation date. This will be done after uploading the new key pair.
 			</span>
+			<span th:if='${newCert}'>
+			Please provide the date at which the new key pair, shown below, must be activated. Once registered in the SML the server will
+			automatically change the used key pair at the specified date. NOTE: Once registered in the SML <b>the change cannot be reverted</b>
+			 without manual intervention! 			
+			</span>			
 		</div>
 		<form th:unless='${newCert}' id="newCertForm" method="POST" enctype="multipart/form-data" th:action="@{/settings/sml/smpcert/upload}">
 		<div class="row mb-3">
@@ -37,12 +42,8 @@
 		</div>
 		</form>
 		<div th:if="${newCert}">
-			<div class="row mb-3">
-				<strong>Overview of key pair to be registered in the SML</strong>
-			</div>
-			<div th:replace="::certinfo (cert=${newCert})"></div>
 			<form id="activateForm" method="POST" th:action="@{/settings/sml/smpcert/activate}">
-			<div class="row mb-4">
+			<div class="row mb-3">
 				<label for="activation" class="col-2 col-form-label">Activate on</label>
 				<div class="col-sm-4">
 					<div>
@@ -55,6 +56,10 @@
 				</div>
 			</div>
 			</form>
+			<div class="row mb-3">
+				<strong>Overview of key pair to be registered in the SML</strong>
+			</div>
+			<div th:replace="::certinfo (cert=${newCert})"></div>
 		</div>
 	</div>
 </div>
