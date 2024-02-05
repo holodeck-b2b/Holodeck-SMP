@@ -49,11 +49,10 @@ public class CertificateUpdate {
 	@Setter
 	@Getter
 	@Column
-	@Temporal(TemporalType.DATE)
-	protected Date	activation;
+	protected LocalDate	activation;
 
 	public CertificateUpdate(KeyStore.PrivateKeyEntry kp, LocalDate activation) {
-		this.activation = new Date(activation.atStartOfDay().toEpochSecond(ZoneOffset.UTC));
+		this.activation = activation;
 		setKeyPair(kp);
 	}
 
