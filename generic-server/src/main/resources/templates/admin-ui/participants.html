@@ -32,7 +32,8 @@
 				<tr>
 					<th >Particpant ID</th>
 					<th >Name</th>
-					<th th:if="${@environment.getProperty('sml.enabled')}" class="text-center">In SML?</th>
+					<th th:if="${smlAvailable}" class="text-center">In SML?</th>
+					<th th:if="${directoryAvailable}" class="text-center">In Directory?</th>
 					<th class="text-center">#Services</th>
 					<th ></th>
 				</tr>
@@ -41,10 +42,16 @@
 				<tr th:each="p : ${participants}">
 					<td th:text="${p.id.toString()}">9999:hb2b-simon</td>
 					<td th:text="${p.name}">Simon's Electric Ltd.</td>
-					<td th:if="${@environment.getProperty('sml.enabled')}" class="text-center">
+					<td th:if="${smlAvailable}" class="text-center">
 						<svg class="bi me-2" width="20" height="20" role="img">
 							<use th:if="${p.isRegisteredSML}" xlink:href="#checked"></use>
 							<use th:unless="${p.isRegisteredSML}" xlink:href="#unchecked"></use>
+						</svg>
+					</td>
+					<td th:if="${directoryAvailable}" class="text-center">
+						<svg class="bi me-2" width="20" height="20" role="img">
+							<use th:if="${p.publishedInDirectory}" xlink:href="#checked"></use>
+							<use th:unless="${p.publishedInDirectory}" xlink:href="#unchecked"></use>
 						</svg>
 					</td>
 					<td th:text="${p.bindings.size()}" class="text-center">1</td>
