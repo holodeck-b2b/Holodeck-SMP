@@ -38,7 +38,7 @@ Bindings are managed using an identifier that is generated for each registered S
 
 To retrieve a summary of all Service Metadata Templates that are bound to a Participant a GET request can be executed to the resource. When a Participant is registered with the given Identifier, the server will respond with an XML document that contains the list of templates bound to that Participant. The structure of the XML document is specified in the XML Schema _http://holodeck-b2b.org/schemas/2023/12/bdxr/smp/smt_ which can be found in [/src/main/xsd/smt.xsd](/src/main/xsd/smt.xsd).
 
-Binding a Service Metadata Template to a Participant is done by executing a PUT request for `/participants/«ParticipantID»/bindings/«template_id»`. Again the Participant Identifier must be formatted as specified in the OASIS SMP specification. As the template id is just a simple long there is no need for encoding. 
+Binding a Service Metadata Template to a Participant is done by executing a PUT request for `/participants/«ParticipantID»/bindings/«template_id»`. Again the Participant Identifier must be formatted as specified in the OASIS SMP specification. As the template id is a simple integer there is no need for encoding. 
 
 | HTTP status       | Indicates      |
 | :---------------- | :------------- | 
