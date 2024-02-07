@@ -11,7 +11,7 @@ If Participants and their associated business info should be registered in the S
 
 #### Managing Participants
 Participant registrations are managed using the `/participants` resource. 
-A new Participant registration is added by executing a PUT request with the Participant Identifier added to the URL, i.e. `/participants/«PartID»`. The identifier should be in URL encoded format specified in [section 3.6.3](https://docs.oasis-open.org/bdxr/bdx-smp/v2.0/os/bdx-smp-v2.0-os.html#_Toc62566898) of the OASIS SMP Version 2.0 specification.
+A new Participant registration is added by executing a PUT request with the Participant Identifier added to the URL, i.e. `/participants/«ParticipantID»`. The identifier should be in URL encoded format specified in [section 3.6.3](https://docs.oasis-open.org/bdxr/bdx-smp/v2.0/os/bdx-smp-v2.0-os.html#_Toc62566898) of the OASIS SMP Version 2.0 specification.
 The server will respond with following HTTP response codes to indicate how the request was processed:
 
 | HTTP status                 | Indicates      |
@@ -22,7 +22,7 @@ The server will respond with following HTTP response codes to indicate how the r
 | 424 (Failed dependency)     | The Participant Identifier was successfully registered, but could not be added to the SML. When this happens, use the UI to retry registration in the SML.|
 | 500 (Internal Server Error) | An unexpected error occurred during the processing of the request | 
 
-To delete a Participant registration a DELETE request with the Participant Identifier added to the URL, i.e. `/participants/«PartID»` should be executed. NOTE that when there are existing bindings to Service Metadata Templates, these are removed. The server indicates the result of the deletion request using the following HTTP status codes:
+To delete a Participant registration a DELETE request with the Participant Identifier added to the URL, i.e. `/participants/«ParticipantID»` should be executed. NOTE that when there are existing bindings to Service Metadata Templates, these are removed. The server indicates the result of the deletion request using the following HTTP status codes:
 
 | HTTP status                 | Indicates      |
 | :-------------------------- | :------------- | 
