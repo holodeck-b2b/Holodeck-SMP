@@ -32,13 +32,13 @@ To delete a Participant registration a DELETE request with the Participant Ident
 | 500 (Internal Server Error) | An unexpected error occurred during the processing of the request | 
 
 #### Managing Service Bindings
-The bindings of Service Metadata Templates to a Participant are managed using the `/participants/«ParticipentID»/bindings` resource.   
+The bindings of Service Metadata Templates to a Participant are managed using the `/participants/«ParticipantID»/bindings` resource.   
 
 Bindings are managed using an identifier that is generated for each registered Service Metadata Template. This identifier can be found in the UI on the overview of Service Metadata Templates and on the edit page of the individual template. To facilitate easy selection of services in the back-end system however the API also has the option to retrieve a summary of the registered Service Metadata Templates by executing a GET request of the `/templates` resource. The response will be an XML document as specified by the XML Schema _http://holodeck-b2b.org/schemas/2023/12/bdxr/smp/smt_ which can be found in [/src/main/xsd/smt.xsd](/src/main/xsd/smt.xsd).
 
 To retrieve a summary of all Service Metadata Templates that are bound to a Participant a GET request can be executed to the resource. When a Participant is registered with the given Identifier, the server will respond with an XML document that contains the list of templates bound to that Participant. The structure of the XML document is specified in the XML Schema _http://holodeck-b2b.org/schemas/2023/12/bdxr/smp/smt_ which can be found in [/src/main/xsd/smt.xsd](/src/main/xsd/smt.xsd).
 
-Binding a Service Metadata Template to a Participant is done by executing a PUT request for `/participants/«ParticipentID»/bindings/«template_id»`. Again the Participant Identifier must be formatted as specified in the OASIS SMP specification. As the template id is just a simple long there is no need for encoding. 
+Binding a Service Metadata Template to a Participant is done by executing a PUT request for `/participants/«ParticipantID»/bindings/«template_id»`. Again the Participant Identifier must be formatted as specified in the OASIS SMP specification. As the template id is just a simple long there is no need for encoding. 
 
 | HTTP status       | Indicates      |
 | :---------------- | :------------- | 
@@ -47,7 +47,7 @@ Binding a Service Metadata Template to a Participant is done by executing a PUT 
 | 404 (Not Found)   | Either no Participant or Service Metadata Template with the specified identifier could be found |
 | 500 (Internal Server Error) | An unexpected error occurred during the processing of the request |
 
-Removing a binding between Service Metadata Template and Participant is done by a DELETE request for `/participants/«ParticipentID»/bindings/«template_id»`. The HTTP response codes are:
+Removing a binding between Service Metadata Template and Participant is done by a DELETE request for `/participants/«ParticipantID»/bindings/«template_id»`. The HTTP response codes are:
 
 | HTTP status       | Indicates      |
 | :---------------- | :------------- | 
