@@ -103,7 +103,8 @@ public class CertUpdateViewController {
 				String issuerName = CertificateUtils.getIssuerName(cert).toLowerCase();
 				if (!issuerName.contains("peppol service metadata publisher"))
 					mv.addObject(M_KP_ERROR_ATTR, "The uploaded certificate is not a Peppol SMP certificate");
-				else if ("SMK".equals(smlReg.getEnvironment()) && !issuerName.contains("test"))
+				else if (("SMK".equals(smlReg.getEnvironment()) && !issuerName.contains("test"))
+						|| ("SML".equals(smlReg.getEnvironment()) && issuerName.contains("test")))
 					mv.addObject(M_KP_ERROR_ATTR, "The uploaded SMP certificate cannot be used with the " + smlReg.getEnvironment());
 				else {
 					mv.addObject("newCert", new X509CertificateData(cert));
