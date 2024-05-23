@@ -10,9 +10,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 * REST API to manage Participants
 * Option to select which servers (Query/AdminUI/REST API) are started
 * Specific exceptions for errors in communication with SML and directory
+* Signing algorithms for Peppol responses is now configurable
 
 ### Changed
 * Renamed `org.holodeckb2b.bdxr.smp.server.queryapi.QueryUtils`  to `org.holodeckb2b.bdxr.smp.server.svc.IdUtils`
+* Default signing algorithms for Peppol responses changed to SHA-256
 
 ## 1.0.1
 ##### 2023-08-24

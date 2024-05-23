@@ -36,6 +36,7 @@ import org.holodeckb2b.bdxr.smp.server.svc.IdUtils;
 import org.holodeckb2b.bdxr.smp.server.svc.peppol.SMLClient;
 import org.holodeckb2b.commons.util.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -50,10 +51,13 @@ import org.w3c.dom.Document;
 @Slf4j
 public class PEPPOLQueryResponder implements IQueryResponder {
 
-	private static final String SIGNING_ALG = "http://www.w3.org/2000/09/xmldsig#rsa-sha1";
-	private static final String DIGEST_ALG = "http://www.w3.org/2000/09/xmldsig#sha1";
-	private static final String C14N_ALG = "http://www.w3.org/TR/2001/REC-xml-c14n-20010315";
-
+	@Value("${peppol.signing.algorithm:http://www.w3.org/2001/04/xmldsig-more#rsa-sha256}")
+	protected String signingAlgorithm;
+	@Value("${peppol.signing.c14n:http://www.w3.org/TR/2001/REC-xml-c14n-20010315}")
+	protected String c14nAlgorithm;
+	@Value("${peppol.signing.digest:http://www.w3.org/2001/04/xmlenc#sha256}")
+	protected String digestMethod;	
+	
 	@Autowired
 	protected IdUtils	queryUtils;
 	@Autowired
@@ -110,7 +114,7 @@ public class PEPPOLQueryResponder implements IQueryResponder {
 		}
 		log.trace("Sign the response document");
 		try {
-			signed = signer.signResponse(response, SIGNING_ALG, DIGEST_ALG, C14N_ALG);
+			signed = signer.signResponse(response, signingAlgorithm, digestMethod, c14nAlgorithm);
 		} catch (XMLSignatureException ex) {
 			log.error("Error occurred signing the response document. Error details: {}", Utils.getExceptionTrace(ex));
 			return new QueryResponse(HttpStatus.INTERNAL_SERVER_ERROR, null, null);
