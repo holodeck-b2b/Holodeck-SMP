@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## 2.0.0
-##### 2024-02-05
+##### 2024-06-07
 ### Added
 * Support for Peppol Directory Business Cards
 * Support to automatically register the certificate update in the Peppol SML
