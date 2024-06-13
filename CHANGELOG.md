@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## 2.0.1
+##### 2024-06-13
+### Fixed
+* Participant not published to Peppol directory [#2](https://github.com/holodeck-b2b/Holodeck-SMP/issues/2)
+
 ## 2.0.0
 ##### 2024-06-07
 ### Added
