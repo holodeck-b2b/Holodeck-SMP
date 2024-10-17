@@ -234,6 +234,8 @@ public class EndpointsViewController {
 		}
 
 		m.addAttribute("endpointFormData", s.getAttribute("endpointFormData"));
+		if (row > 0)
+			m.addAttribute("certIndex", row);
 		return "admin-ui/endpoint_form";
 	}
 
