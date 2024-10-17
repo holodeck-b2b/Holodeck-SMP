@@ -56,17 +56,18 @@ abstract class AbstractResponseFactory {
 	}
 
 	/**
-	 * Creates a new JAXB content object of the given type and sets its value to the specified date.
+	 * Converts the given date time to a <code>XMLGregorianCalendar</code> object that can be used as content of a 
+	 * JAXB element of xsd:dateTime type.
 	 *
-	 * @param value	datetime to take the date from
-	 * @throws InstantiationException when the object could not be created
+	 * @param value		date time to convert
+	 * @return {@link XMLGregorianCalendar} instance representing the given date time
 	 */
-	protected XMLGregorianCalendar createDateContent(ZonedDateTime value) {
+	protected XMLGregorianCalendar createDateTimeContent(ZonedDateTime value) {
 		if (value == null)
 			return null;
 
-		return DTF.newXMLGregorianCalendarDate(value.getYear(), value.getMonthValue(), value.getDayOfMonth(),
-											   value.getOffset().getTotalSeconds()/60);
+		return DTF.newXMLGregorianCalendar(value.getYear(), value.getMonthValue(), value.getDayOfMonth(),
+										   value.getHour(), value.getMinute(), 0, 0, value.getOffset().getTotalSeconds()/60);
 	}
 
 	/**

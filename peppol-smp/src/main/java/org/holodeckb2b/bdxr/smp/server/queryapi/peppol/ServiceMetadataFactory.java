@@ -151,8 +151,8 @@ public class ServiceMetadataFactory extends AbstractResponseFactory {
 		epr.setAddress(epURL);
 		e.setEndpointReference(epr);
 
-		e.setServiceActivationDate(createDateContent(ep.getServiceActivationDate()));
-		e.setServiceExpirationDate(createDateContent(ep.getServiceExpirationDate()));
+		e.setServiceActivationDate(createDateTimeContent(ep.getServiceActivationDate()));
+		e.setServiceExpirationDate(createDateTimeContent(ep.getServiceExpirationDate()));
 		e.setRequireBusinessLevelSignature(false);
 		e.setServiceDescription(ep.getDescription());
 		e.setTechnicalContactUrl(ep.getContactInfo());
