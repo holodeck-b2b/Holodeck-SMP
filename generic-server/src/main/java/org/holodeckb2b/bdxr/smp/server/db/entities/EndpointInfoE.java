@@ -18,6 +18,8 @@ package org.holodeckb2b.bdxr.smp.server.db.entities;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -68,11 +70,11 @@ public class EndpointInfoE implements EndpointInfo {
 
 	@Column
 	@Setter
-	protected ZonedDateTime	serviceActivationDate;
+	protected LocalDateTime	serviceActivationDate;
 
 	@Column
 	@Setter
-	protected ZonedDateTime	serviceExpirationDate;
+	protected LocalDateTime	serviceExpirationDate;
 
 	@Column
 	@Setter
@@ -105,6 +107,16 @@ public class EndpointInfoE implements EndpointInfo {
 		if (url == null)
 			throw new IllegalArgumentException("Endpoint must have a URL");
 		this.url = url.toString();
+	}
+	
+	@Override
+	public ZonedDateTime getServiceActivationDate() {
+		return serviceActivationDate != null ?  serviceActivationDate.atZone(ZoneOffset.UTC) : null;
+	}
+	
+	@Override
+	public ZonedDateTime getServiceExpirationDate() {
+		return serviceExpirationDate != null ? serviceExpirationDate.atZone(ZoneOffset.UTC) : null;
 	}
 
 	@Override

@@ -123,8 +123,8 @@ public class EndpointsViewController {
 			epEntity.setName(input.getName());
 			epEntity.setProfile(profiles.findById(input.getProfileId()).get());
 			epEntity.setEndpointURL(epURL);
-			epEntity.setServiceActivationDate(activation != null ? activation.atZone(ZoneOffset.UTC) : null);
-			epEntity.setServiceExpirationDate(expiration != null ? expiration.atZone(ZoneOffset.UTC) : null);
+			epEntity.setServiceActivationDate(activation);
+			epEntity.setServiceExpirationDate(expiration);
 			epEntity.setContactInfo(input.getContactInfo());
 			epEntity.setDescription(input.getDescription());
 
@@ -142,11 +142,11 @@ public class EndpointsViewController {
 				}
 				cEntity.setUsage(c.getUsage());
 				if (c.getActivationDate() != null)
-					cEntity.setActivationDate(c.getActivationDate().atTime(c.getActivationTime()).atZone(ZoneOffset.UTC));
+					cEntity.setActivationDate(c.getActivationDate().atTime(c.getActivationTime()));
 				else 
 					cEntity.setActivationDate(null);
 				if (c.getExpirationDate()!= null)
-					cEntity.setExpirationDate(c.getExpirationDate().atTime(c.getExpirationTime()).atZone(ZoneOffset.UTC));
+					cEntity.setExpirationDate(c.getExpirationDate().atTime(c.getExpirationTime()));
 				else 
 					cEntity.setExpirationDate(null);
 				

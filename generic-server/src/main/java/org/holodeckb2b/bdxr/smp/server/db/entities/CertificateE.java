@@ -19,6 +19,8 @@ package org.holodeckb2b.bdxr.smp.server.db.entities;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.List;
 import javax.persistence.Column;
@@ -55,11 +57,11 @@ public class CertificateE implements Certificate {
 
 	@Column
 	@Setter
-	protected ZonedDateTime	activationDate;
+	protected LocalDateTime	activationDate;
 
 	@Column
 	@Setter
-	protected ZonedDateTime	expirationDate;
+	protected LocalDateTime	expirationDate;
 
 	@Column
 	@Setter
@@ -96,6 +98,16 @@ public class CertificateE implements Certificate {
 	 */
 	public void setCertificate(String pemEncodedCert) throws CertificateException {
 		this.cert = CertificateUtils.getCertificate(pemEncodedCert).getEncoded();
+	}
+
+	@Override
+	public ZonedDateTime getActivationDate() {
+		return activationDate != null ?  activationDate.atZone(ZoneOffset.UTC) : null;
+	}
+	
+	@Override
+	public ZonedDateTime getExpirationDate() {
+		return expirationDate != null ? activationDate.atZone(ZoneOffset.UTC) : null;
 	}
 
 	@Override
