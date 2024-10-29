@@ -38,9 +38,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 
-import eu.peppol.schema.pd.businesscard._20161123.BusinessCardType;
-import eu.peppol.schema.pd.businesscard._20161123.BusinessEntityType;
-import eu.peppol.schema.pd.businesscard._20161123.IdentifierType;
+import eu.peppol.schema.pd.businesscard._20180621.BusinessCardType;
+import eu.peppol.schema.pd.businesscard._20180621.BusinessEntityType;
+import eu.peppol.schema.pd.businesscard._20180621.IdentifierType;
+import eu.peppol.schema.pd.businesscard._20180621.MultilingualNameType;
+import eu.peppol.schema.pd.businesscard._20180621.ObjectFactory;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -57,7 +59,6 @@ public class BusinessCardResponder implements IQueryResponder {
 	@Autowired
 	protected ParticipantRepository participants;
 		
-	protected static final QName BC_QNAME = new QName("http://www.peppol.eu/schema/pd/businesscard/20161123/", "BusinessCard");
 	protected static final JAXBContext JAXB_CTX;
 	static {
 		try {
@@ -100,13 +101,15 @@ public class BusinessCardResponder implements IQueryResponder {
 		pid.setValue(partID.getValue());
 		bc.setParticipantIdentifier(pid);
 		BusinessEntityType busInfo = new BusinessEntityType();
-		busInfo.setName(participant.getName());
+		MultilingualNameType name = new MultilingualNameType();
+		name.setValue(participant.getName());
+		busInfo.getName().add(name);
 		busInfo.setCountryCode(participant.getCountry());
 		busInfo.setGeographicalInformation(participant.getAddressInfo());
 		bc.getBusinessEntity().add(busInfo);				 
 		try {
 			DOMResult res = new DOMResult();
-			JAXB_CTX.createMarshaller().marshal(new JAXBElement<BusinessCardType>(BC_QNAME, BusinessCardType.class, bc), res);
+			JAXB_CTX.createMarshaller().marshal(new ObjectFactory().createBusinessCard(bc), res);
 			log.debug("Return BusinessCard of Participant ({}) to Peppol Directory indexer", partID.toString());
 			return new QueryResponse(HttpStatus.OK, null, (Document) res.getNode());
 		} catch (JAXBException ex) {

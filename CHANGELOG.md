@@ -6,6 +6,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## 2.0.2
 ##### 
 ### Fixed
+* Use latest version of Peppol BusinessCard XSD [#4](https://github.com/holodeck-b2b/Holodeck-SMP/issues/4)
 * Setting Endpoint activation or expiration date results in invalid Peppol SMP response [#5](https://github.com/holodeck-b2b/Holodeck-SMP/issues/5)
 * Activation and expiration dates cannot be removed once set [#6](https://github.com/holodeck-b2b/Holodeck-SMP/issues/6)
 * Edit EP cert changes to add on input validation error [#7](https://github.com/holodeck-b2b/Holodeck-SMP/issues/7)

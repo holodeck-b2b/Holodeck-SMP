@@ -66,8 +66,11 @@
 				<executions>
 					<execution>
 						<id>sml-wsdl</id>
+						<goals>
+							<goal>xjc</goal>
+						</goals>
 						<configuration>
-							<sourceType>WSDL</sourceType>
+							<sourceType>wsdl</sourceType>
 							<sources>
 								<source>src/main/xsd/peppol-smp-1.0.xsd</source>
 								<source>src/main/wsdl/BDMSLService-1.0.wsdl</source>
@@ -78,10 +81,15 @@
 					</execution>
 					<execution>
 						<id>buscard-xsd</id>
+						<goals>
+							<goal>xjc</goal>
+						</goals>
 						<configuration>
-							<sourceType>XSD</sourceType>
+							<sourceType>xmlschema</sourceType>
+							<clearOutputDir>false</clearOutputDir>
 							<sources>
 								<source>src/main/xsd/peppol-directory-business-card-20161123.xsd</source>
+								<source>src/main/xsd/peppol-directory-business-card-20180621.xsd</source>
 							</sources>
 						</configuration>
 					</execution>					
