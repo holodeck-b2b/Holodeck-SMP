@@ -4,7 +4,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 
 ## 2.0.2
-##### 
+##### 2024-12-19
 ### Fixed
 * Use latest version of Peppol BusinessCard XSD [#4](https://github.com/holodeck-b2b/Holodeck-SMP/issues/4)
 * Setting Endpoint activation or expiration date results in invalid Peppol SMP response [#5](https://github.com/holodeck-b2b/Holodeck-SMP/issues/5)
