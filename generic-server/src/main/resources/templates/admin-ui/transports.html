@@ -35,7 +35,7 @@
 					<button class="btn btn-sm btn-outline-danger"
 							th:disabled="${p.value2() > 0}"
 							data-bs-toggle="modal" data-bs-target="#confirmDelete"
-							th:attr="data-bs-profile=${p.value1().id}">Delete</button>
+							th:attr="data-bs-profile=@{/settings/transports/delete/{id}(id=${p.value1().id})}">Delete</button>
 				</td>
 			</tr>
 		</tbody>
@@ -60,8 +60,7 @@
 	</div>
 	<script>
 		$('#confirmDelete').on('show.bs.modal', function (event) {
-		  $('#delConfirmed').attr('href', "/settings/transports/delete/" +
-												event.relatedTarget.getAttribute('data-bs-profile'));
+		  $('#delConfirmed').attr('href', event.relatedTarget.getAttribute('data-bs-profile'));
 		})
 	</script>
 </section>

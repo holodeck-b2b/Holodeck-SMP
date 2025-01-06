@@ -34,7 +34,7 @@
 					<button class="btn btn-sm btn-outline-danger"
 							th:disabled="${isAdm and numAdm le 1}"
 							data-bs-toggle="modal" data-bs-target="#confirmDelete"
-							th:attr="data-bs-user=${u.oid}">Delete</button>
+							th:attr="data-bs-user=@{/settings/users/delete/{id}(id=${u.oid})}">Delete</button>
 				</td>
 			</tr>
 		</tbody>
@@ -59,8 +59,7 @@
 	</div>
 	<script>
 		$('#confirmDelete').on('show.bs.modal', function (event) {
-		  $('#delConfirmed').attr('href', "/settings/users/delete/" +
-												event.relatedTarget.getAttribute('data-bs-user'));
+		  $('#delConfirmed').attr('href', event.relatedTarget.getAttribute('data-bs-user'));
 		})
 	</script>
 </section>

@@ -34,7 +34,7 @@
 					<td >
 						<a th:href="@{/endpoints/edit/{oid}(oid=${ep.oid})}" class="btn btn-sm btn-outline-dark">Edit</a>
 						<button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#confirmDelete"
-								th:attr="data-bs-endpoint=${ep.oid}">Delete</button>
+								th:attr="data-bs-endpoint=@{/endpoints/delete/{oid}(oid=${ep.oid})">Delete</button>
 					</td>
 				</tr>
 			</tbody>
@@ -59,8 +59,7 @@
 	</div>
 	<script>
 		$('#confirmDelete').on('show.bs.modal', function (event) {
-		  $('#delConfirmed').attr('href', "/endpoints/delete/" +
-												event.relatedTarget.getAttribute('data-bs-endpoint'));
+		  $('#delConfirmed').attr('href', event.relatedTarget.getAttribute('data-bs-endpoint'));
 		})
 	</script>
 

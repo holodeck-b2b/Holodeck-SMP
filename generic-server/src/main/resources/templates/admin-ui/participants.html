@@ -58,7 +58,7 @@
 					<td>
 						<a th:href="@{/participants/edit/{oid}(oid=${p.oid})}" class="btn btn-sm btn-outline-dark">Edit</a>
 							<button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#confirmDelete"
-									th:attr="data-bs-participant=${p.oid}">Delete</button>
+									th:attr="data-bs-participant=@{/participants/delete/{oid}(oid=${p.oid})}">Delete</button>
 					</td>
 				</tr>
 			</tbody>
@@ -83,8 +83,7 @@
 	</div>
 	<script>
 		$('#confirmDelete').on('show.bs.modal', function (event) {
-		  $('#delConfirmed').attr('href', "/participants/delete/" +
-												event.relatedTarget.getAttribute('data-bs-participant'));
+		  $('#delConfirmed').attr('href', event.relatedTarget.getAttribute('data-bs-participant'));
 		})
 	</script>
 
