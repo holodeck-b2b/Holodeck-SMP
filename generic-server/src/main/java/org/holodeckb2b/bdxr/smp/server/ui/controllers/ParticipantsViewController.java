@@ -154,7 +154,7 @@ public class ParticipantsViewController {
 						if (Utils.isNullOrEmpty(stored.getMigrationCode()))
 							smlService.registerParticipant(stored);
 						else {
-							smlService.migrateParticipant(stored);
+							smlService.migrateParticipant(stored, stored.getMigrationCode());
 							stored.setMigrationCode(null);
 							stored = participants.save(stored);
 						}								
@@ -221,7 +221,7 @@ public class ParticipantsViewController {
 	public String cancelMigration(@ModelAttribute(P_ATTR) ParticipantE input, Model m, HttpSession s) {
 		ParticipantE stored = participants.findByIdentifier(input.getId());
 		try {
-			smlService.migrateParticipant(stored);
+			smlService.migrateParticipant(stored, stored.getMigrationCode());
 			stored.setMigrationCode(null);
 			stored = participants.save(stored);	
 			input.setMigrationCode(null);

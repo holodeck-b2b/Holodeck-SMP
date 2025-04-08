@@ -108,11 +108,12 @@ public class SMLIntegrationService {
 	 * Migrates the Participant to this SMP.
 	 * 
 	 * @param p		the meta-data on the Participant being migrated
+	 * @param code  the migration code provided by the other SMP to register the Participant with this SMP 
 	 * @throws SMLException when there is an error executing the update to the SML
 	 */
-	public void migrateParticipant(ParticipantE p) throws SMLException {
+	public void migrateParticipant(ParticipantE p, String migrationCode) throws SMLException {
 		try {
-			smlIntegrator().migrateParticipant(p, p.getMigrationCode());
+			smlIntegrator().migrateParticipant(p, migrationCode);
 		} catch (SMLException e) {
 			log.error("Error migrating participant (PID={}) in SML : {}", 
 						p.getId().toString(), Utils.getExceptionTrace(e));

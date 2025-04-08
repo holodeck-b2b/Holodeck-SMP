@@ -226,9 +226,7 @@ public class ParticipantsController {
 				smlService.registerParticipant(p);
 			} else {
 				log.trace("Migrate the Participant in the SML");
-				p.setMigrationCode(migrationCode);
-				smlService.migrateParticipant(p);
-				p.setMigrationCode(null);
+				smlService.migrateParticipant(p, migrationCode);
 			}
 			log.info("Registered new Participant in SML");
 			p.setIsRegisteredSML(true);
