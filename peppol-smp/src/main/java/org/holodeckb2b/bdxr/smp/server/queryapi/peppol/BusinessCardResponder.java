@@ -27,11 +27,13 @@ import javax.xml.namespace.QName;
 import javax.xml.transform.dom.DOMResult;
 
 import org.holodeckb2b.bdxr.smp.datamodel.Identifier;
+import org.holodeckb2b.bdxr.smp.datamodel.impl.IdentifierImpl;
 import org.holodeckb2b.bdxr.smp.server.db.entities.ParticipantE;
 import org.holodeckb2b.bdxr.smp.server.db.repos.ParticipantRepository;
 import org.holodeckb2b.bdxr.smp.server.queryapi.IQueryResponder;
 import org.holodeckb2b.bdxr.smp.server.queryapi.QueryResponse;
 import org.holodeckb2b.bdxr.smp.server.svc.IdUtils;
+import org.holodeckb2b.commons.util.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -52,22 +54,13 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Service("PEPPOLBCResponder")
 @Slf4j
-public class BusinessCardResponder implements IQueryResponder {
+public class BusinessCardResponder extends AbstractResponseFactory implements IQueryResponder {
 	
 	@Autowired
 	protected IdUtils	queryUtils;
 	@Autowired
 	protected ParticipantRepository participants;
-		
-	protected static final JAXBContext JAXB_CTX;
-	static {
-		try {
-			JAXB_CTX = JAXBContext.newInstance(BusinessCardType.class);
-		} catch (JAXBException ex) {
-			throw new RuntimeException("Failed to initialise JAXBContext", ex);
-		}
-	}
-	
+			
 	@Override
 	public QueryResponse processQuery(String query, HttpHeaders headers) {
 		log.trace("Process a BusinessCard query");
@@ -97,7 +90,7 @@ public class BusinessCardResponder implements IQueryResponder {
 		log.trace("Create BusinessCard for Participant ({})", partID.toString());
 		BusinessCardType bc = new BusinessCardType();
 		IdentifierType pid = new IdentifierType();
-		pid.setScheme(partID.getScheme().getSchemeId());
+		pid.setScheme(partID.getScheme() == null ? null : partID.getScheme().getSchemeId());
 		pid.setValue(partID.getValue());
 		bc.setParticipantIdentifier(pid);
 		BusinessEntityType busInfo = new BusinessEntityType();
@@ -106,13 +99,23 @@ public class BusinessCardResponder implements IQueryResponder {
 		busInfo.getName().add(name);
 		busInfo.setCountryCode(participant.getCountry());
 		busInfo.setGeographicalInformation(participant.getAddressInfo());
-		bc.getBusinessEntity().add(busInfo);				 
+		busInfo.setRegistrationDate(createDateContent(participant.getFirstRegistration()));
+		String additionalIds = participant.getAdditionalIds();
+		if (additionalIds != null && additionalIds.length() > 1) {
+			for(String id : additionalIds.split(",")) {
+				int schemeEnd = Math.max(0, id.indexOf("::"));
+				IdentifierType idType = new IdentifierType();
+				idType.setScheme(id.substring(0, schemeEnd));
+				idType.setValue(id.substring(schemeEnd > 0 ? schemeEnd + 2 : 0));
+				busInfo.getIdentifier().add(idType);
+			}
+		}		
+		bc.getBusinessEntity().add(busInfo);			
+		
 		try {
-			DOMResult res = new DOMResult();
-			JAXB_CTX.createMarshaller().marshal(new ObjectFactory().createBusinessCard(bc), res);
 			log.debug("Return BusinessCard of Participant ({}) to Peppol Directory indexer", partID.toString());
-			return new QueryResponse(HttpStatus.OK, null, (Document) res.getNode());
-		} catch (JAXBException ex) {
+			return new QueryResponse(HttpStatus.OK, null, jaxb2dom(bc));
+		} catch (InstantiationException ex) {
 			log.error("Error in conversion of BusinessCard XML for Participant ({}) : {}", partID.toString(), ex.getMessage());
 			return new QueryResponse(HttpStatus.INTERNAL_SERVER_ERROR, null, null);
 		}

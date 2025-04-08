@@ -16,11 +16,13 @@
  */
 package org.holodeckb2b.bdxr.smp.server.queryapi.peppol;
 
+import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
@@ -29,22 +31,26 @@ import org.busdox.servicemetadata.publishing._1.ServiceGroupType;
 import org.busdox.servicemetadata.publishing._1.SignedServiceMetadataType;
 import org.w3c.dom.Document;
 
+import eu.peppol.schema.pd.businesscard._20180621.BusinessCardType;
+
 /**
  * Is the abstract base class for creating the XML response documents as specified in the PEPPOL SMP specification. It
  * supplies some utility functions to construct the XML documents.
  *
  * @author Sander Fieten (sander at holodeck-b2b.org)
+ * @since 2.1.0 support for converting BusinessCardType JAXB object to DOM
  */
 abstract class AbstractResponseFactory {
 	private final static QName SignedServiceMetadata_QNAME = new QName("http://busdox.org/serviceMetadata/publishing/1.0/", "SignedServiceMetadata");
 	private final static QName ServiceGroup_QNAME = new QName("http://busdox.org/serviceMetadata/publishing/1.0/", "ServiceGroup");
+	private final static QName BusinessCard_QNAME = new QName("http://www.peppol.eu/schema/pd/businesscard/20180621/", "BusinessCard");
 
 	protected static final DatatypeFactory DTF;
 	protected static final JAXBContext JAXB_CTX;
 
 	static {
 		try {
-			JAXB_CTX = JAXBContext.newInstance(SignedServiceMetadataType.class, ServiceGroupType.class);
+			JAXB_CTX = JAXBContext.newInstance(SignedServiceMetadataType.class, ServiceGroupType.class, BusinessCardType.class);
 		} catch (JAXBException ex) {
 			throw new RuntimeException("Failed to initialise JAXBContext", ex);
 		}
@@ -71,6 +77,22 @@ abstract class AbstractResponseFactory {
 	}
 
 	/**
+	 * Converts the given date to a <code>XMLGregorianCalendar</code> object that can be used as content of a 
+	 * JAXB element of xsd:date type.
+	 *
+	 * @param value		date to convert
+	 * @return {@link XMLGregorianCalendar} instance representing the given date
+	 * @since 2.1.0
+	 */
+	protected XMLGregorianCalendar createDateContent(LocalDate value) {
+		if (value == null)
+			return null;
+		
+		return DTF.newXMLGregorianCalendarDate(value.getYear(), value.getMonthValue(), value.getDayOfMonth(), 
+												DatatypeConstants.FIELD_UNDEFINED);
+	}
+	
+	/**
 	 * Converts the given JAXB representation of the response to the DOM model representation.
 	 *
 	 * @param <T>	the JAXB type of the data, must be either {@link ServiceMetadataType} or {@link ServiceGroupType}
@@ -78,12 +100,15 @@ abstract class AbstractResponseFactory {
 	 * @return		the DOM object representation for the response
 	 * @throws InstantiationException	when the given data cannot be converted to the DOM representation
 	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	protected <T> Document jaxb2dom(T data) throws InstantiationException {
 		JAXBElement e;
 		if (data instanceof SignedServiceMetadataType)
 			e = new JAXBElement(SignedServiceMetadata_QNAME, SignedServiceMetadataType.class, data);
 		else if (data instanceof ServiceGroupType)
 			e = new JAXBElement(ServiceGroup_QNAME, ServiceGroupType.class, data);
+		else if (data instanceof BusinessCardType)
+			e = new JAXBElement(BusinessCard_QNAME, BusinessCardType.class, data);
 		else
 			throw new IllegalArgumentException("Unsupported data type " + data.getClass().getName());
 
