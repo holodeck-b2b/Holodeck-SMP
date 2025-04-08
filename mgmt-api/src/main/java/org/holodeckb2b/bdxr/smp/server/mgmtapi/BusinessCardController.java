@@ -112,6 +112,7 @@ public class BusinessCardController {
 	}
 	
 	@DeleteMapping
+	@ResponseStatus(HttpStatus.ACCEPTED)
 	public void deleteBusinessCard(@PathVariable("partID") String partID) {
 		log.debug("Request to update the Business Card info for Participant {}", partID);
 		IdentifierE pid;

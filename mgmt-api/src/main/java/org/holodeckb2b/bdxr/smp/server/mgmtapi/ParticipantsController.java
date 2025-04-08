@@ -117,7 +117,7 @@ public class ParticipantsController {
 	}
 	
 	@PutMapping("/{partID}/sml")
-	@ResponseStatus(HttpStatus.OK)
+	@ResponseStatus(HttpStatus.CREATED)
 	public void registerParticipantInSML(@PathVariable("partID") String partID, 
 										 @RequestParam(required = false) String migrationCode) {
 		log.debug("Request to register Participant ({}) in SML", partID);
