@@ -4,6 +4,8 @@ This module contains a REST API for managing the Participant served by the SMP s
 ### Installation and configuration
 To add the management API to the SMP server the `mgmt-api-«version».jar` must be copied to the SMP deployment directory and the server must be started using the following command: `java -Dloader.path=mgmt-api-«version».jar -jar holodeck-smp-server-«version».jar`. The management API will then be available on port 8585. To change the port the API is listening on add a properties file named `mgmt-api.properties` to the SMP deployment directory and set the _server.port_ property.
 
+When the SMP server is registered in the SML, the Participant registration function of the management API by default will automatically register new participants in the SML (or migrate the Participant when a migration code has been provided). This means that the new Participant will not have any services published until they are registered through the Manage Service Bindings API. This automatic registration can be disabled by setting the _sml.autoregistration_ property with value _false_ in the `mgmt-api.properties` configuration file.
+
 ### API Specification
 #### Preconditions
 As the API can only be used to manage the manage the Participant registration and the binding of Service Metadata Templates to Participants the Service Metadata Templates must already be configured in the web interface before the API can be effectively used. 
@@ -11,15 +13,15 @@ If Participants and their associated business info should be registered in the S
 
 #### Managing Participants
 Participant registrations are managed using the `/participants` resource. 
-A new Participant registration is added by executing a PUT request with the Participant Identifier added to the URL, i.e. `/participants/«ParticipantID»`. The identifier should be in URL encoded format specified in [section 3.6.3](https://docs.oasis-open.org/bdxr/bdx-smp/v2.0/os/bdx-smp-v2.0-os.html#_Toc62566898) of the OASIS SMP Version 2.0 specification.
+A new Participant registration is added by executing a PUT request with the Participant Identifier added to the URL, i.e. `/participants/«ParticipantID»`. The identifier should be in the URL encoded format specified in [section 3.6.3](https://docs.oasis-open.org/bdxr/bdx-smp/v2.0/os/bdx-smp-v2.0-os.html#_Toc62566898) of the OASIS SMP Version 2.0 specification. When automatic SML registratio is enabled, an optional query parameter `migrationCode` may be added to provide the _migration code_ when the Participant is moved from another SMP to this SMP, e.g. `/participants/«ParticipantID»?migrationCode=«migration code»`.
 The server will respond with following HTTP response codes to indicate how the request was processed:
 
 | HTTP status                 | Indicates      |
 | :-------------------------- | :------------- | 
 | 201 (Created)               | The Participant Identifier was successfully registered and if SML integration is enabled added to the SML | 
-| 409 (Conflict)              | The specified Participant Identifier already exists |
 | 400 (Bad Request)           | The specified Participant Identifier could not be parsed or the specified scheme does not exist |
-| 424 (Failed dependency)     | The Participant Identifier was successfully registered, but could not be added to the SML. When this happens, use the UI to retry registration in the SML.|
+| 409 (Conflict)              | The specified Participant Identifier already exists |
+| 424 (Failed dependency)     | The Participant Identifier was successfully registered, but could not be added to the SML |
 | 500 (Internal Server Error) | An unexpected error occurred during the processing of the request | 
 
 To delete a Participant registration a DELETE request with the Participant Identifier added to the URL, i.e. `/participants/«ParticipantID»` should be executed. NOTE that when there are existing bindings to Service Metadata Templates, these are removed. The server indicates the result of the deletion request using the following HTTP status codes:
@@ -27,9 +29,37 @@ To delete a Participant registration a DELETE request with the Participant Ident
 | HTTP status                 | Indicates      |
 | :-------------------------- | :------------- | 
 | 202 (Accepted)              | The Participant was successfully deleted and if applicable removed from the SML and directory |
-| 424 (Failed dependency)     | An error occurredin removing the Participant from the SML or directory which prevents the Participant from being removed from the SMP | 
+| 424 (Failed dependency)     | An error occurred in removing the Participant from the SML or directory which prevents the Participant from being removed from the SMP | 
 | 400 (Bad Request)           | The specified Participant Identifier could not be parsed or the specified scheme does not exist |
 | 500 (Internal Server Error) | An unexpected error occurred during the processing of the request | 
+
+##### SML Registration
+The registration of a Participant in the SML can be managed using the `/participants/«ParticipantID»/sml` resource where ParticipantID should be in the URL  encoded format specified in [section 3.6.3](https://docs.oasis-open.org/bdxr/bdx-smp/v2.0/os/bdx-smp-v2.0-os.html#_Toc62566898) of the OASIS SMP Version 2.0 specification.  
+Using the PUT method the Participant is registered in the SML. An optional query parameter `migrationCode` may be added to provide the _migration code_ when the Participant is moved from another SMP to this SMP, e.g. `/participants/«ParticipantID»/sml?migrationCode=«migration code»`.  
+Removing the Participant from the SML is done by executing a DELETE request on the resource. Note that deleting the Participant from the SML will also remove it from the directory if it was published to it (as SML registration is a precondition for publication). 
+The server indicates the result of the registratio or deletion request using the following HTTP status codes:
+
+| HTTP status                 | Indicates      |
+| :-------------------------- | :------------- | 
+| 201 (Created)               | The Participant Identifier was successfully registered in the SML | 
+| 202 (Accepted)              | The Participant Identifier was successfully removed from the SML | 
+| 400 (Bad Request)           | The specified Participant Identifier could not be parsed or the specified scheme does not exist |
+| 404 (Not Found)             | There is no Participant registered with the specified identifier |
+| 412 (Precondition failed)   | The Participant is being migrated to another SMP and therefore cannot be removed from the SML |
+| 424 (Failed dependency)     | The Participant could not be added to or removed from the SML or directory |
+| 500 (Internal Server Error) | An unexpected error occurred during the processing of the request | 
+
+Also the migration of a Participant to another SMP can be managed through the Management API. To prepare the migration of a Participant and get the migration code to provide to the other SMP's Service Provider a GET request on the URL `/participants/«ParticipantID»/sml/prepareMigration` should be executed. When the Participant can be migrated, the server will generate a migration code and include it in the response entity body. The HTTP response code will be 200 (OK). Other status codes can be:
+
+| HTTP status                 | Indicates      |
+| :-------------------------- | :------------- | 
+| 400 (Bad Request)           | The specified Participant Identifier could not be parsed or the specified scheme does not exist |
+| 404 (Not Found)             | There is no Participant registered with the specified identifier |
+| 424 (Failed dependency)     | The migration code could not be registered in the SML |
+| 500 (Internal Server Error) | An unexpected error occurred during the processing of the request | 
+
+If an error occurs when trying to manage the SML registration of the Participant through the API, it is recommended to retry the operation using the web UI to get more details on the error.
+
 
 #### Managing Service Bindings
 The bindings of Service Metadata Templates to a Participant are managed using the `/participants/«ParticipantID»/bindings` resource.   
