@@ -52,7 +52,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ParticipantsController {
 
-	@Value("${mgmtapi.sml.autoregistration:false}")
+	@Value("${sml.autoregistration:true}")
 	protected boolean	autoRegisterInSML;
 	
 	@Autowired
