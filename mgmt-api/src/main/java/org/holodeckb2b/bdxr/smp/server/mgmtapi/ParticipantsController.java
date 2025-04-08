@@ -94,7 +94,7 @@ public class ParticipantsController {
 			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		if (autoRegisterInSML && smlService.isSMLIntegrationAvailable())
-			updateSMLRegistration(p, migrationCode);			
+			registerInSML(p, migrationCode);			
 	}	
 	
 	@DeleteMapping("/{partID}")
@@ -109,7 +109,7 @@ public class ParticipantsController {
 		
 		// If the Participant is migrated to another SP, no action towards SML and/or directory is needed
 		if (p.registeredInSML() && Utils.isNullOrEmpty(p.getMigrationCode())) 
-			removeSMLRegistration(p);
+			removeFromSML(p);
 		
 		log.trace("Removing Participant (ID={}) from database", p.getId().toString());
 		participants.delete(p);
@@ -126,7 +126,7 @@ public class ParticipantsController {
 			log.info("Participant with PartID ({}) not found, cannot register in SML", partID);
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
 		}
-		updateSMLRegistration(p, migrationCode);
+		registerInSML(p, migrationCode);
 	}
 	
 	@GetMapping(value = "/{partID}/sml/prepareMigration", produces = MediaType.TEXT_PLAIN_VALUE)
@@ -168,10 +168,17 @@ public class ParticipantsController {
         buf.forEach(c -> codeBldr.append(c));
         String migCode = codeBldr.toString();
 
-        log.trace("Save migrationcode for Participant");
-        p.setMigrationCode(migCode);
-        participants.save(p);
-        log.info("Saved migration code ({}) for Participant (ID={})", migCode, p.getId().toString());
+        log.trace("Register migrationcode for Participant in SML");
+        try {
+        	p.setMigrationCode(migCode);        
+        	smlService.registerMigrationCode(p);
+            participants.save(p);
+            log.info("Saved migration code ({}) for Participant (ID={})", migCode, p.getId().toString());
+        } catch (SMLException e) {
+	        log.error("Could not register migration code for Participant ({}) in SML : {}", p.getId().toString(), 
+	        		  Utils.getExceptionTrace(e));
+	        throw new ResponseStatusException(HttpStatus.FAILED_DEPENDENCY);
+        }
         
         return migCode;
 	}
@@ -190,7 +197,7 @@ public class ParticipantsController {
 			log.warn("Cannot remove Participant ({}) as it's being migrated", partID);
 			throw new ResponseStatusException(HttpStatus.PRECONDITION_FAILED);
 		}		
-		removeSMLRegistration(p);
+		removeFromSML(p);
 	}
 		
 	/**
@@ -219,9 +226,9 @@ public class ParticipantsController {
 	 * @param migrationCode 	migration code to use for migrating the Participant
 	 * @throws ResponseStatusException when the update in the SML fails
 	 */
-	private void updateSMLRegistration(ParticipantE p, String migrationCode) throws ResponseStatusException {
+	private void registerInSML(ParticipantE p, String migrationCode) throws ResponseStatusException {
 		try {
-			if (Utils.isNullOrEmpty(p.getMigrationCode())) {
+			if (Utils.isNullOrEmpty(migrationCode)) {
 				log.trace("Register the Participant in the SML");
 				smlService.registerParticipant(p);
 			} else {
@@ -244,7 +251,7 @@ public class ParticipantsController {
 	 * @param p					Participant to be removed 
 	 * @throws ResponseStatusException when an error occurs removing the Participant from either the SML or directory
 	 */
-	private void removeSMLRegistration(ParticipantE p) throws ResponseStatusException {
+	private void removeFromSML(ParticipantE p) throws ResponseStatusException {
 		if (p.publishedInDirectory()) {
 			try {
 				log.trace("Remove Participant from the directory");
