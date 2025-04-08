@@ -16,6 +16,7 @@
  */
 package org.holodeckb2b.bdxr.smp.server.svc;
 
+import org.holodeckb2b.bdxr.smp.server.datamodel.Participant;
 import org.holodeckb2b.bdxr.smp.server.db.entities.ParticipantE;
 import org.holodeckb2b.commons.util.Utils;
 import org.springframework.beans.BeansException;
@@ -87,6 +88,39 @@ public class SMLIntegrationService {
 		}
 	}
 
+	/**
+	 * Prepares the migration of the Participant by registering the migration code in the SML.
+	 * 
+	 * @param p		the meta-data on the Participant
+	 * @throws SMLException when there is an error executing the update to the SML
+	 */
+	public void registerMigrationCode(ParticipantE p) throws SMLException {
+		try {
+			smlIntegrator().registerMigrationCode(p, p.getMigrationCode());
+		} catch (SMLException e) {
+			log.error("Error registering migration code for participant (PID={}) in SML : {}", 
+						p.getId().toString(), Utils.getExceptionTrace(e));
+			throw e;
+		}
+	}
+	
+	/**
+	 * Migrates the Participant to this SMP.
+	 * 
+	 * @param p		the meta-data on the Participant being migrated
+	 * @throws SMLException when there is an error executing the update to the SML
+	 */
+	public void migrateParticipant(ParticipantE p) throws SMLException {
+		try {
+			smlIntegrator().migrateParticipant(p, p.getMigrationCode());
+		} catch (SMLException e) {
+			log.error("Error migrating participant (PID={}) in SML : {}", 
+						p.getId().toString(), Utils.getExceptionTrace(e));
+			throw e;
+		}
+	}
+
+	
 	/**
 	 * Indicates whether the SMP Certificate needs to be registered in the SML
 	 *

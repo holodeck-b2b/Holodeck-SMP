@@ -16,6 +16,7 @@
  */
 package org.holodeckb2b.bdxr.smp.server.db.entities;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.CascadeType;
@@ -32,6 +33,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.holodeckb2b.bdxr.smp.server.datamodel.Participant;
+import org.springframework.format.annotation.DateTimeFormat;
 
 /**
  * Is the JPA entity for {@link Participant}.
@@ -41,6 +43,7 @@ import org.holodeckb2b.bdxr.smp.server.datamodel.Participant;
 @Entity(name = "Participant")
 @Table(indexes = {@Index(columnList = "name")})
 @Getter
+@Setter
 @NoArgsConstructor
 public class ParticipantE implements Participant {
 
@@ -49,36 +52,38 @@ public class ParticipantE implements Participant {
 	protected long		oid;
 
 	@Embedded
-	@Setter
 	@Valid
 	protected IdentifierE	id;
 
 	@Column
-	@Setter
 	protected String	name;
 	
 	@Column(length=2)
-	@Setter
 	protected String	country;
 
 	@Column
-	@Setter
 	protected String	contactInfo;
 
 	@Column(length=1024)
-	@Setter
 	protected String	addressInfo;
+	
+	@Column
+	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+	protected LocalDate firstRegistration;
+	
+	@Column(length=1024)
+	protected String	additionalIds;
 
 	@Column
-	@Setter
 	protected Boolean	isRegisteredSML;
 
 	@Column
-	@Setter
 	protected Boolean	publishedInDirectory;
+	
+	@Column
+	protected String	migrationCode;
 
 	@OneToMany(mappedBy = "participant", cascade = CascadeType.ALL, orphanRemoval = true)
-	@Setter
 	protected List<ServiceMetadataBindingE>	bindings = new ArrayList<>();
 
 	@Override

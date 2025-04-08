@@ -48,11 +48,29 @@ public interface ISMLIntegrator {
 	 * @throws SMLException when the Participant could not be removed in the SML
 	 */
 	void unregisterParticipant(Participant p) throws SMLException;
+	
+	/**
+	 * Prepares the migration of the Participant by registering the migration code in the SML.
+	 * 
+	 * @param p		the meta-data on the Participant
+	 * @param code	the migration code
+	 * @throws SMLException when there is an error executing the update to the SML
+	 */
+	void registerMigrationCode(Participant p, String code) throws SMLException;
+	
+	/**
+	 * Migrates the Participant to this SMP using the provided migration code.
+	 * 
+	 * @param p		the meta-data on the Participant being migrated
+	 * @param code	the migration code
+	 * @throws SMLException when there is an error executing the update to the SML
+	 */
+	void migrateParticipant(Participant p, String code) throws SMLException; 
 
 	/**
 	 * Indicates whether the SMP Certificate needs to be registered in the SML
 	 *
-	 * @return <code>true</code> if the certificate needs to be registred in the SML, <code>false</code> if not
+	 * @return <code>true</code> if the certificate needs to be registered in the SML, <code>false</code> if not
 	 */
 	boolean requiresSMPCertRegistration();
 }

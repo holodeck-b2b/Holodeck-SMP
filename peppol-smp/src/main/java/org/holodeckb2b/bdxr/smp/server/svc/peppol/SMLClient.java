@@ -50,6 +50,7 @@ import org.apache.http.impl.client.LaxRedirectStrategy;
 import org.apache.http.impl.conn.BasicHttpClientConnectionManager;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.ssl.SSLContexts;
+import org.busdox.servicemetadata.locator._1.MigrationRecordType;
 import org.busdox.servicemetadata.locator._1.ObjectFactory;
 import org.busdox.servicemetadata.locator._1.PublisherEndpointType;
 import org.busdox.servicemetadata.locator._1.ServiceMetadataPublisherServiceForParticipantType;
@@ -256,17 +257,9 @@ public class SMLClient implements ISMLIntegrator {
 	private void updateParticipant(Participant p,
 								   Function<ServiceMetadataPublisherServiceForParticipantType, JAXBElement> f,
 								   String action) throws SMLException {
-		SMLRegistration smlReg;
-		try {
-			smlReg = getSMLRegistration();
-		} catch (CertificateException inavlidSMLReg) {
-			smlReg = null;
-		}
-		if (smlReg == null || Utils.isNullOrEmpty(smlReg.getIdentifier()))
-			throw new SMLException("The SMP is not registered in the SML");
-
+		
 		ServiceMetadataPublisherServiceForParticipantType pInfo = new ServiceMetadataPublisherServiceForParticipantType();
-		pInfo.setServiceMetadataPublisherID(smlReg.getIdentifier());
+		pInfo.setServiceMetadataPublisherID(getSMPId());
 		ParticipantIdentifierType partID = new ParticipantIdentifierType();
 		partID.setScheme(p.getId().getScheme() != null ? p.getId().getScheme().getSchemeId() : null);
 		partID.setValue(p.getId().getValue());
@@ -279,7 +272,60 @@ public class SMLClient implements ISMLIntegrator {
 			throw new SMLException(requestFailed);
 		}
 	}
+	
+	/**
+	 * Prepares the migration of the Participant by registering the migration code in the SML.
+	 * 
+	 * @param p		the meta-data on the Participant
+	 * @param code	the migration code
+	 * @throws SMLException when there is an error executing the update to the SML
+	 */
+	public void registerMigrationCode(Participant p, String code) throws SMLException {
+		MigrationRecordType migrationRecord = new MigrationRecordType();
+		migrationRecord.setServiceMetadataPublisherID(getSMPId());
+		ParticipantIdentifierType partID = new ParticipantIdentifierType();
+		partID.setScheme(p.getId().getScheme() != null ? p.getId().getScheme().getSchemeId() : null);
+		partID.setValue(p.getId().getValue());
+		migrationRecord.setParticipantIdentifier(partID);
+		migrationRecord.setMigrationKey(code);
+		
+		try {
+			webServiceTemplate().marshalSendAndReceive(baseURL() + "/manageparticipantidentifier", 
+				new ObjectFactory().createPrepareMigrationRecord(migrationRecord),
+				new SoapActionCallback("http://busdox.org/serviceMetadata/ManageBusinessIdentifierService/1.0/         :prepareMigrateIn")
+			);
+		} catch (Exception requestFailed) {
+			throw new SMLException(requestFailed);
+		}
+	}
 
+	/**
+	 * Migrates the Participant to this SMP using the provided migration code.
+	 * 
+	 * @param p		the meta-data on the Participant being migrated
+	 * @param code	the migration code
+	 * @throws SMLException when there is an error executing the update to the SML
+	 */
+	public void migrateParticipant(Participant p, String code) throws SMLException {
+		MigrationRecordType migrationRecord = new MigrationRecordType();
+		migrationRecord.setServiceMetadataPublisherID(getSMPId());		
+		ParticipantIdentifierType partID = new ParticipantIdentifierType();
+		partID.setScheme(p.getId().getScheme() != null ? p.getId().getScheme().getSchemeId() : null);
+		partID.setValue(p.getId().getValue());
+		migrationRecord.setParticipantIdentifier(partID);
+		migrationRecord.setMigrationKey(code);
+		
+		try {
+			webServiceTemplate().marshalSendAndReceive(baseURL() + "/manageparticipantidentifier", 
+				new ObjectFactory().createCompleteMigrationRecord(migrationRecord),
+				new SoapActionCallback("http://busdox.org/serviceMetadata/ManageBusinessIdentifierService/1.0/         :migrateIn")
+			);
+		} catch (Exception requestFailed) {
+			throw new SMLException(requestFailed);
+		}
+	}
+	
+	
 	/**
 	 * Gets the SMP meta-data currently registered in the SML, or if none is registered an empty record.
 	 *
@@ -308,6 +354,25 @@ public class SMLClient implements ISMLIntegrator {
 		return reg;
 	}
 
+	/**
+	 * Gets the identifier of the SMP currently registered in the SML.
+	 * 
+	 * @return the SMP identifier
+	 * @throws SMLException when the SMP is not registered in the SML
+	 */
+	private String getSMPId() throws SMLException {
+		SMLRegistration smlReg;
+		try {
+			smlReg = getSMLRegistration();
+		} catch (CertificateException inavlidSMLReg) {
+			smlReg = null;
+		}
+		if (smlReg == null || Utils.isNullOrEmpty(smlReg.getIdentifier()))
+			throw new SMLException("The SMP is not registered in the SML");
+
+		return smlReg.getIdentifier();
+	}
+	
 	/**
 	 * Determines the base URL of the SML interface based on the installed SMP certificate. The default Peppol URLs can
 	 * be overriden by setting the <code>sml.sml_url</code> and <code>sml.smk_url</code> application properties in

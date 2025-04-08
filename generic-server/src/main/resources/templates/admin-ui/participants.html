@@ -12,6 +12,9 @@
 		<symbol id="unchecked" viewBox="0 0 16 16">
 			<path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z"/>
 			<path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8z"/>
+		</symbol>		
+		<symbol id="suitcase" viewBox="0 0 16 16">
+			<path d="M5 2a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2h3.5A1.5 1.5 0 0 1 16 3.5v9a1.5 1.5 0 0 1-1.5 1.5H14a.5.5 0 0 1-1 0H3a.5.5 0 0 1-1 0h-.5A1.5 1.5 0 0 1 0 12.5v-9A1.5 1.5 0 0 1 1.5 2zm1 0h4a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1M1.5 3a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5H3V3zM15 12.5v-9a.5.5 0 0 0-.5-.5H13v10h1.5a.5.5 0 0 0 .5-.5m-3 .5V3H4v10z"/>
 		</symbol>
 	</svg>
 </head>
@@ -44,7 +47,8 @@
 					<td th:text="${p.name}">Simon's Electric Ltd.</td>
 					<td th:if="${smlAvailable}" class="text-center">
 						<svg class="bi me-2" width="20" height="20" role="img">
-							<use th:if="${p.isRegisteredSML}" xlink:href="#checked"></use>
+							<use th:if="${#bools.isTrue(p.isRegisteredSML) && #strings.isEmpty(p.migrationCode)}" xlink:href="#checked"></use>
+							<use th:if="${#bools.isTrue(p.isRegisteredSML) && !#strings.isEmpty(p.migrationCode)}" xlink:href="#suitcase"></use>
 							<use th:unless="${p.isRegisteredSML}" xlink:href="#unchecked"></use>
 						</svg>
 					</td>

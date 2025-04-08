@@ -16,7 +16,11 @@
  */
 package org.holodeckb2b.bdxr.smp.server.mgmtapi;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Random;
 
 import org.holodeckb2b.bdxr.smp.server.db.entities.IdentifierE;
 import org.holodeckb2b.bdxr.smp.server.db.entities.ParticipantE;
@@ -28,12 +32,15 @@ import org.holodeckb2b.bdxr.smp.server.svc.SMLException;
 import org.holodeckb2b.bdxr.smp.server.svc.SMLIntegrationService;
 import org.holodeckb2b.commons.util.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
@@ -45,6 +52,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ParticipantsController {
 
+	@Value("${mgmtapi.sml.autoregistration:false}")
+	protected boolean	autoRegisterInSML;
+	
 	@Autowired
 	protected ParticipantRepository	participants;
 	
@@ -57,8 +67,9 @@ public class ParticipantsController {
 	
 	@PutMapping("/{partID}")
 	@ResponseStatus(HttpStatus.CREATED)
-	public void addParticipant(@PathVariable("partID") String partID) {
-		log.debug("Request to add Participant with ID={}", partID);
+	public void addParticipant(@PathVariable("partID") String partID, 
+							   @RequestParam(required = false) String migrationCode) {		
+		log.debug("Request to {} Participant with ID={}", Utils.isNullOrEmpty(migrationCode) ? "add" : "migrate", partID);
 		IdentifierE pid;
 		try {
 			pid = idUtils.parseIDString(partID);
@@ -76,29 +87,120 @@ public class ParticipantsController {
 		try {
 			log.trace("Adding new Participant");
 			p.setId(pid);
-			p.setIsRegisteredSML(smlService.isSMLIntegrationAvailable());
 			p = participants.save(p);
 			log.info("Added new Participant with ID {} to database", pid.toString());
 		} catch (Exception e) {
 			log.error("Could not save new Participant (PID={}) to database : {}", pid.toString(), Utils.getExceptionTrace(e));
 			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		if (p.registeredInSML())
-			try {
-				log.trace("Register the Participant in the SML");
-				smlService.registerParticipant(p);
-				log.info("Registered new Participant in SML");			
-			} catch (SMLException smlRegFailed) {
-				log.error("Revert Participant (ID={}) registration because it could not be registered in SML", pid.toString());
-				participants.delete(p);
-				throw new ResponseStatusException(HttpStatus.FAILED_DEPENDENCY);
-			}
-	}
+		if (autoRegisterInSML && smlService.isSMLIntegrationAvailable())
+			updateSMLRegistration(p, migrationCode);			
+	}	
 	
 	@DeleteMapping("/{partID}")
 	@ResponseStatus(HttpStatus.ACCEPTED)
 	public void removeParticipant(@PathVariable("partID") String partID) {
 		log.debug("Request to remove Participant with ID={}", partID);
+		ParticipantE p = findParticipant(partID);
+		if (p == null) {
+			log.info("Participant with PartID ({}) not found, nothing to remove", partID);
+			return;
+		}
+		
+		// If the Participant is migrated to another SP, no action towards SML and/or directory is needed
+		if (p.registeredInSML() && Utils.isNullOrEmpty(p.getMigrationCode())) 
+			removeSMLRegistration(p);
+		
+		log.trace("Removing Participant (ID={}) from database", p.getId().toString());
+		participants.delete(p);
+		log.info("Removed Participant (ID={}) from database", p.getId().toString());
+	}
+	
+	@PutMapping("/{partID}/sml")
+	@ResponseStatus(HttpStatus.OK)
+	public void registerParticipantInSML(@PathVariable("partID") String partID, 
+										 @RequestParam(required = false) String migrationCode) {
+		log.debug("Request to register Participant ({}) in SML", partID);
+		ParticipantE p = findParticipant(partID);
+		if (p == null) {
+			log.info("Participant with PartID ({}) not found, cannot register in SML", partID);
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+		}
+		updateSMLRegistration(p, migrationCode);
+	}
+	
+	@GetMapping(value = "/{partID}/sml/prepareMigration", produces = MediaType.TEXT_PLAIN_VALUE)
+	@ResponseStatus(HttpStatus.OK)
+	public String prepareMigration(@PathVariable("partID") String partID, 
+								 @RequestParam(required = false) String migrationCode) {
+		
+		log.debug("Request to prepare migration of Participant with ID={}", partID);
+		ParticipantE p = findParticipant(partID);
+		if (p == null) {
+			log.info("Participant with PartID ({}) not found, cannot prepare migration", partID);
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+		}
+		
+		log.trace("Generate a migration code");
+	    String upperCase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	    String lowerCase = "abcdefghijklmnopqrstuvwxyz";
+	    String numbers = "0123456789";
+	    String specialChars = "@#$%()[]{}*^-!~|+=";
+	    String allChars = upperCase + lowerCase + numbers + specialChars;
+	    
+	    List<Character> buf = new ArrayList<>();	    
+	    Random random = new Random();	    
+        // Add required minimum characters
+        for (int i = 0; i < 2; i++) {
+            buf.add(upperCase.charAt(random.nextInt(upperCase.length())));
+            buf.add(lowerCase.charAt(random.nextInt(lowerCase.length())));
+            buf.add(numbers.charAt(random.nextInt(numbers.length())));
+            buf.add(specialChars.charAt(random.nextInt(specialChars.length())));
+        }
+        // Fill the rest of the string
+        while (buf.size() < 24) {
+            buf.add(allChars.charAt(random.nextInt(allChars.length())));
+        }
+        // Shuffle to ensure randomness
+        Collections.shuffle(buf, random);
+
+        StringBuilder codeBldr = new StringBuilder();
+        buf.forEach(c -> codeBldr.append(c));
+        String migCode = codeBldr.toString();
+
+        log.trace("Save migrationcode for Participant");
+        p.setMigrationCode(migCode);
+        participants.save(p);
+        log.info("Saved migration code ({}) for Participant (ID={})", migCode, p.getId().toString());
+        
+        return migCode;
+	}
+	
+	@DeleteMapping("/{partID}/sml")
+	@ResponseStatus(HttpStatus.OK)
+	public void removeParticipantFromSML(@PathVariable("partID") String partID) {
+		log.debug("Request to remove Participant ({}) from SML", partID);
+		ParticipantE p = findParticipant(partID);
+		if (p == null) {
+			log.info("Participant with PartID ({}) not found, cannot remove from SML", partID);
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+		}
+		
+		if (!Utils.isNullOrEmpty(p.getMigrationCode())) {
+			log.warn("Cannot remove Participant ({}) as it's being migrated", partID);
+			throw new ResponseStatusException(HttpStatus.PRECONDITION_FAILED);
+		}		
+		removeSMLRegistration(p);
+	}
+		
+	/**
+	 * Helper method to retrieve the Participant registration from the database.
+	 * 
+	 * @param partID	identifier of the Participant
+	 * @return	the Participant's registration in the database if it exists, otherwise <code>null</code>
+	 * @throws ResponseStatusException when the given string does not represent a valid Participant ID
+	 */
+	private ParticipantE findParticipant(String partID) throws ResponseStatusException {
 		IdentifierE pid;
 		try {
 			pid = idUtils.parseIDString(partID);
@@ -107,12 +209,44 @@ public class ParticipantsController {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
 		}
 		
-		ParticipantE p = participants.findByIdentifier(pid);
-		if (p == null) {
-			log.info("Participant with PartID ({}) not found, nothing to remove", pid.toString());
-			return;
-		}
-		
+		return participants.findByIdentifier(pid);		
+	}
+	
+	/**
+	 * Helper method to register or migrate the Participant in the SML.
+	 *  
+	 * @param p					Participant to be registered or migrated 
+	 * @param migrationCode 	migration code to use for migrating the Participant
+	 * @throws ResponseStatusException when the update in the SML fails
+	 */
+	private void updateSMLRegistration(ParticipantE p, String migrationCode) throws ResponseStatusException {
+		try {
+			if (Utils.isNullOrEmpty(p.getMigrationCode())) {
+				log.trace("Register the Participant in the SML");
+				smlService.registerParticipant(p);
+			} else {
+				log.trace("Migrate the Participant in the SML");
+				p.setMigrationCode(migrationCode);
+				smlService.migrateParticipant(p);
+				p.setMigrationCode(null);
+			}
+			log.info("Registered new Participant in SML");
+			p.setIsRegisteredSML(true);
+			participants.save(p);
+		} catch (SMLException smlRegFailed) {
+			log.error("Error during registration of Participant (ID={}) in SML : {}", p.getId().toString(), 
+						Utils.getExceptionTrace(smlRegFailed));
+			throw new ResponseStatusException(HttpStatus.FAILED_DEPENDENCY);
+		}				
+	}
+
+	/**
+	 * Helper method to remove the Participant from the SML and if published in the directory from the directory.
+	 *  
+	 * @param p					Participant to be removed 
+	 * @throws ResponseStatusException when an error occurs removing the Participant from either the SML or directory
+	 */
+	private void removeSMLRegistration(ParticipantE p) throws ResponseStatusException {
 		if (p.publishedInDirectory()) {
 			try {
 				log.trace("Remove Participant from the directory");
@@ -122,28 +256,25 @@ public class ParticipantsController {
 				throw new ResponseStatusException(HttpStatus.FAILED_DEPENDENCY);
 			}
 		}
-		if (p.registeredInSML()) {
-			try {
-				log.trace("Remove Participant from the SML");
-				smlService.unregisterParticipant(p);
-			} catch (SMLException smlRemoveFailed) {
-				log.error("An error occurred removing the Participant (ID={}) from the SML", p.getId().toString());
-				if (p.publishedInDirectory()) {
-					log.trace("Republish Participant in directory");
-					try {
-						directoryService.publishParticipantInfo(p);
-					} catch (DirectoryException republishFailed) {
-						log.error("Could not republish Participant to directory. Updating info");
-						p.setPublishedInDirectory(false);
-						p = participants.save(p);
-					}
+		try {
+			log.trace("Remove Participant from the SML");
+			smlService.unregisterParticipant(p);
+			p.setIsRegisteredSML(false);
+			p.setPublishedInDirectory(false);
+			participants.save(p);
+		} catch (SMLException smlRemoveFailed) {
+			log.error("An error occurred removing the Participant (ID={}) from the SML", p.getId().toString());
+			if (p.publishedInDirectory()) {
+				log.trace("Republish Participant in directory");
+				try {
+					directoryService.publishParticipantInfo(p);
+				} catch (DirectoryException republishFailed) {
+					log.error("Could not republish Participant to directory. Updating info");
+					p.setPublishedInDirectory(false);
+					p = participants.save(p);
 				}
-				throw new ResponseStatusException(HttpStatus.FAILED_DEPENDENCY);
-			}			
-		}
-		log.trace("Removing Participant (ID={}) from database", p.getId().toString());
-		participants.delete(p);
-		log.info("Removed Participant (ID={}) from database", p.getId().toString());
+			}
+			throw new ResponseStatusException(HttpStatus.FAILED_DEPENDENCY);
+		}					
 	}
-	
 }
