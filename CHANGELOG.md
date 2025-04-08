@@ -2,6 +2,17 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## 2.1.0
+##### 
+### Added (only when used in the Peppol network)
+* Support for migration of Participants between Service Providers
+* Ability to set the first registration date and additional identifiers of a Participant that should be published in the
+  Peppol Directory. This is both supported in the management UI as well as the REST API
+
+### Changed
+* Updated to version 2.7.18 of the Spring Boot framework
+* Updated to Bootstrap version 5.3.3
+
 ## 2.0.3
 ##### 2025-01-06
 ### Fixed
