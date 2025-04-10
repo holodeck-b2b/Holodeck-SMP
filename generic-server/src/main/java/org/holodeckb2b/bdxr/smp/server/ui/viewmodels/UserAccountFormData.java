@@ -16,12 +16,13 @@
  */
 package org.holodeckb2b.bdxr.smp.server.ui.viewmodels;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
-import lombok.Getter;
-import lombok.Setter;
 import org.holodeckb2b.bdxr.smp.server.ui.UserAccount;
 import org.holodeckb2b.bdxr.smp.server.ui.UserRole;
+
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * UI model for editing a user account.

@@ -16,7 +16,6 @@
  */
 package org.holodeckb2b.bdxr.smp.server.ui.controllers;
 
-import javax.validation.Valid;
 import org.holodeckb2b.bdxr.smp.server.db.entities.TransportProfileE;
 import org.holodeckb2b.bdxr.smp.server.db.repos.TransportProfileRepository;
 import org.holodeckb2b.commons.Pair;
@@ -32,6 +31,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import jakarta.validation.Valid;
+
 @Controller
 @RequestMapping("settings/transports")
 public class TransportsViewController {
@@ -41,7 +42,7 @@ public class TransportsViewController {
 	protected TransportProfileRepository		profiles;
 
 
-	@GetMapping()
+	@GetMapping(value = {"","/"})
     public String getOverview(Model m) {
 		m.addAttribute("profiles", profiles.findAll().parallelStream()
 									.map(p -> new Pair<TransportProfileE, Integer>(p, profiles.getNumberOfEndpoints(p)))

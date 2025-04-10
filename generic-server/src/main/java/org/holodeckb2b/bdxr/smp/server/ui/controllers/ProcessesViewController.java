@@ -17,7 +17,7 @@
 package org.holodeckb2b.bdxr.smp.server.ui.controllers;
 
 import java.util.Collection;
-import javax.validation.Valid;
+
 import org.holodeckb2b.bdxr.smp.server.db.entities.IDSchemeE;
 import org.holodeckb2b.bdxr.smp.server.db.entities.ProcessE;
 import org.holodeckb2b.bdxr.smp.server.db.repos.IDSchemeRepository;
@@ -32,6 +32,8 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import jakarta.validation.Valid;
 
 @Controller
 @RequestMapping("smd/processes")
@@ -48,7 +50,7 @@ public class ProcessesViewController {
 		return idschemes.findAll();
 	}
 
-	@GetMapping()
+	@GetMapping(value = {"","/"})
     public String getOverview(Model m) {
 		m.addAttribute("processes", procesess.findAll().parallelStream()
 									.map(svc -> new Pair<ProcessE, Integer>(svc, procesess.getNumberOfTemplates(svc)))

@@ -17,7 +17,7 @@
 package org.holodeckb2b.bdxr.smp.server.ui.controllers;
 
 import java.util.Optional;
-import javax.validation.Valid;
+
 import org.holodeckb2b.bdxr.smp.server.ui.UserAccount;
 import org.holodeckb2b.bdxr.smp.server.ui.UserAccountRepository;
 import org.holodeckb2b.bdxr.smp.server.ui.UserRole;
@@ -34,6 +34,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import jakarta.validation.Valid;
+
 @Controller
 @RequestMapping("settings/users")
 public class UserAccountsViewController {
@@ -44,14 +46,14 @@ public class UserAccountsViewController {
 
 	private static final BCryptPasswordEncoder	pwdEncoder = new BCryptPasswordEncoder();
 
-	@GetMapping()
+	@GetMapping(value = {"","/"})
     public String getOverview(Model m) {
 		m.addAttribute("accounts", users.findAll());
 		m.addAttribute("numAdm", users.countAdmins());
 	    return "admin-ui/users";
     }
 
-	@GetMapping(value = {"/edit", "/edit/{id}" })
+	@GetMapping(value = { "/edit", "/edit/{id}" })
 	public String editAccount(@PathVariable(name = "id", required = false) Long id, Model m) {
 		m.addAttribute(U_ATTR, new UserAccountFormData(id != null ? users.getById(id) : null));
 		return "admin-ui/useraccount_form";

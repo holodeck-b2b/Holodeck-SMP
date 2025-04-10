@@ -22,8 +22,9 @@ import java.security.cert.CertificateException;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.regex.Pattern;
+
 import javax.xml.crypto.dsig.XMLSignatureException;
-import lombok.extern.slf4j.Slf4j;
+
 import org.holodeckb2b.bdxr.smp.datamodel.Identifier;
 import org.holodeckb2b.bdxr.smp.server.db.SMLRegistration;
 import org.holodeckb2b.bdxr.smp.server.db.entities.ServiceMetadataBindingE;
@@ -41,6 +42,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Is the component responsible for processing SMP queries as specified in the PEPPOL SMP ßSpecification.

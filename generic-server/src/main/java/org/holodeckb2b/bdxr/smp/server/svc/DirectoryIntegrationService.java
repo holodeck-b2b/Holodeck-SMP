@@ -43,7 +43,9 @@ public class DirectoryIntegrationService {
 	protected String	implSvcName;
 	@Autowired
 	protected BeanFactory serviceFactory;
-
+	@Autowired
+	protected SMLIntegrationService smlService;
+	
 	private IDirectoryIntegrator directoryService;
 
 	/**
@@ -51,7 +53,7 @@ public class DirectoryIntegrationService {
 	 *		   <code>false</code> otherwise
 	 */
 	public boolean isDirectoryIntegrationAvailable() {
-		return directoryEnabled;
+		return directoryEnabled && smlService.isSMLIntegrationAvailable();
 	}
 
 	/**

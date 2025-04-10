@@ -16,10 +16,11 @@
  */
 package org.holodeckb2b.bdxr.smp.server.db.entities;
 
-import javax.persistence.Embeddable;
+import org.holodeckb2b.bdxr.smp.datamodel.ProcessIdentifier;
+
+import jakarta.persistence.Embeddable;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.holodeckb2b.bdxr.smp.datamodel.ProcessIdentifier;
 
 /**
  * Is the JPA entity for {@link ProcessIdentifier}. Uses the "normal" {@link IdentifierE} entity as base class and add

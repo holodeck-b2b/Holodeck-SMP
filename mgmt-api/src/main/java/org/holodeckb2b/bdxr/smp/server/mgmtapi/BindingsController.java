@@ -18,8 +18,6 @@ package org.holodeckb2b.bdxr.smp.server.mgmtapi;
 
 import java.util.NoSuchElementException;
 
-import javax.persistence.PersistenceException;
-
 import org.holodeckb2b.bdxr.smp.server.db.entities.IdentifierE;
 import org.holodeckb2b.bdxr.smp.server.db.entities.ParticipantE;
 import org.holodeckb2b.bdxr.smp.server.db.entities.ServiceMetadataBindingE;
@@ -43,6 +41,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import jakarta.persistence.PersistenceException;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController

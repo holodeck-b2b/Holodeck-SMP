@@ -25,8 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
-import javax.servlet.http.HttpSession;
-import javax.validation.Valid;
+
 import org.holodeckb2b.bdxr.smp.server.db.entities.IdentifierE;
 import org.holodeckb2b.bdxr.smp.server.db.entities.ProcessGroupE;
 import org.holodeckb2b.bdxr.smp.server.db.entities.ProcessInfoE;
@@ -55,6 +54,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
+
 @Controller
 @RequestMapping("smd/smt")
 public class SMTViewController {
@@ -77,7 +79,7 @@ public class SMTViewController {
 		return services.findAll();
 	}
 
-	@GetMapping()
+	@GetMapping(value = {"","/"})
     public String getOverview(Model m) {
 		m.addAttribute("templates", templates.findAll().parallelStream()
 							.map(t -> new Pair<ServiceMetadataTemplateE, Integer>(t, templates.getNumberOfBindings(t)))

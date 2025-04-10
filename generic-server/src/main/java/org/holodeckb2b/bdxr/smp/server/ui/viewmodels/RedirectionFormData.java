@@ -18,12 +18,14 @@ package org.holodeckb2b.bdxr.smp.server.ui.viewmodels;
 
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import javax.validation.constraints.NotBlank;
+
+import org.holodeckb2b.bdxr.smp.server.db.entities.RedirectionE;
+import org.holodeckb2b.commons.security.CertificateUtils;
+
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.holodeckb2b.bdxr.smp.server.db.entities.RedirectionE;
-import org.holodeckb2b.commons.security.CertificateUtils;
 
 /**
  * UI model for editing the meta-data of a Redirection.

@@ -2,7 +2,6 @@ package org.holodeckb2b.bdxr.smp.server.svc.peppol;
 
 import java.security.cert.CertificateException;
 import java.time.LocalDate;
-import java.util.Date;
 
 import org.holodeckb2b.bdxr.smp.server.db.CertificateUpdate;
 import org.holodeckb2b.bdxr.smp.server.db.SMLRegistration;
@@ -10,7 +9,6 @@ import org.holodeckb2b.bdxr.smp.server.svc.SMPCertificateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
-import org.springframework.core.annotation.Order;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 

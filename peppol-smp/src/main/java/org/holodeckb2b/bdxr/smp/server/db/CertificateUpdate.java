@@ -20,17 +20,15 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.security.KeyStore;
 import java.time.LocalDate;
-import java.time.ZoneOffset;
-import java.util.Date;
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.persistence.Lob;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+
+import org.holodeckb2b.commons.security.KeystoreUtils;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.Lob;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.holodeckb2b.commons.security.KeystoreUtils;
 
 /**
  * Is the JPA entity that contains the data on a pending certificate update.

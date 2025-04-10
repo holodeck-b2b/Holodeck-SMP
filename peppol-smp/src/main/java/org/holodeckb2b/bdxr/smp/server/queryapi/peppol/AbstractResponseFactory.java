@@ -18,20 +18,23 @@ package org.holodeckb2b.bdxr.smp.server.queryapi.peppol;
 
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
+
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import javax.xml.transform.dom.DOMResult;
+
 import org.busdox.servicemetadata.publishing._1.ServiceGroupType;
+import org.busdox.servicemetadata.publishing._1.ServiceMetadataType;
 import org.busdox.servicemetadata.publishing._1.SignedServiceMetadataType;
 import org.w3c.dom.Document;
 
 import eu.peppol.schema.pd.businesscard._20180621.BusinessCardType;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBElement;
+import jakarta.xml.bind.JAXBException;
 
 /**
  * Is the abstract base class for creating the XML response documents as specified in the PEPPOL SMP specification. It

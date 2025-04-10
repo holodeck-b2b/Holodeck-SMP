@@ -17,9 +17,7 @@
 package org.holodeckb2b.bdxr.smp.server.ui.controllers;
 
 import java.util.Optional;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-import javax.validation.Valid;
+
 import org.holodeckb2b.bdxr.smp.server.ui.UserAccount;
 import org.holodeckb2b.bdxr.smp.server.ui.UserAccountRepository;
 import org.holodeckb2b.bdxr.smp.server.ui.UserAccountService.UserDetails;
@@ -35,6 +33,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 
 @Controller
 @RequestMapping("account/update")

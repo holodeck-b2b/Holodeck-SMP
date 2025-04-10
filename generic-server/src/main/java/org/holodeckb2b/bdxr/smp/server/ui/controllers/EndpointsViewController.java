@@ -26,8 +26,7 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.servlet.http.HttpSession;
-import javax.validation.Valid;
+
 import org.holodeckb2b.bdxr.smp.server.db.entities.CertificateE;
 import org.holodeckb2b.bdxr.smp.server.db.entities.EndpointInfoE;
 import org.holodeckb2b.bdxr.smp.server.db.entities.TransportProfileE;
@@ -48,6 +47,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
+
 @Controller
 @RequestMapping("endpoints")
 public class EndpointsViewController {
@@ -63,7 +65,7 @@ public class EndpointsViewController {
 		return profiles.findAll();
 	}
 
-	@GetMapping()
+	@GetMapping(value = {"","/"})
     public String getOverview(Model m) {
 		m.addAttribute("endpoints", endpoints.findAll());
         return "admin-ui/endpoints";
@@ -73,6 +75,7 @@ public class EndpointsViewController {
 	public String addEndpoint(Model m, HttpSession s) {
 		m.addAttribute(new EndpointFormData());
 		s.setAttribute("certs", new ArrayList<CertificateFormData>());
+		m.addAttribute("certs", s.getAttribute("certs"));
 		return "admin-ui/endpoint_form";
 	}
 
@@ -81,6 +84,7 @@ public class EndpointsViewController {
 		EndpointInfoE ep = endpoints.findById(oid).get();
 		m.addAttribute(new EndpointFormData(ep));
 		s.setAttribute("certs", ep.getCertificates().stream().map(c -> new CertificateFormData(c)).collect(Collectors.toList()));
+		m.addAttribute("certs", s.getAttribute("certs"));
 		return "admin-ui/endpoint_form";
 	}
 
@@ -181,12 +185,14 @@ public class EndpointsViewController {
 		s.setAttribute("endpointFormData", input);
 		m.addAttribute("certificateFormData", ((List<CertificateFormData>) s.getAttribute("certs")).get(row.intValue()));
 		m.addAttribute("certIndex", row);
+		m.addAttribute("certs", s.getAttribute("certs"));
 		return "admin-ui/endpoint_form";
 	}
 
 	@PostMapping(value = "/save", params = { "removeCertificate" })
 	public String removeCertificate(@ModelAttribute EndpointFormData input, Model m, HttpSession s, @RequestParam("removeCertificate") Long row) {
 		((List<CertificateFormData>) s.getAttribute("certs")).remove(row.intValue());
+		m.addAttribute("certs", s.getAttribute("certs"));
 		return "admin-ui/endpoint_form";
 	}
 
@@ -234,6 +240,7 @@ public class EndpointsViewController {
 		}
 
 		m.addAttribute("endpointFormData", s.getAttribute("endpointFormData"));
+		m.addAttribute("certs", s.getAttribute("certs"));
 		if (row > 0)
 			m.addAttribute("certIndex", row);
 		return "admin-ui/endpoint_form";

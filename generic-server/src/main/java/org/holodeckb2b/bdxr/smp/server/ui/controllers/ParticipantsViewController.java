@@ -18,9 +18,6 @@ package org.holodeckb2b.bdxr.smp.server.ui.controllers;
 
 import java.util.Collection;
 
-import javax.persistence.EntityNotFoundException;
-import javax.servlet.http.HttpSession;
-import javax.validation.Valid;
 import org.holodeckb2b.bdxr.smp.server.db.entities.IDSchemeE;
 import org.holodeckb2b.bdxr.smp.server.db.entities.ParticipantE;
 import org.holodeckb2b.bdxr.smp.server.db.entities.ServiceMetadataBindingE;
@@ -43,6 +40,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
 @Controller
@@ -80,7 +81,7 @@ public class ParticipantsViewController {
 		return directoryService.isDirectoryIntegrationAvailable();
 	}
 
-	@GetMapping()
+	@GetMapping(value = {"","/"})
     public String getOverview(Model m) {
 		m.addAttribute("participants", participants.findAll());
         return "admin-ui/participants";

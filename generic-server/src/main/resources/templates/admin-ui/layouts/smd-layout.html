@@ -15,15 +15,15 @@
 	<ul class="nav nav-tabs" role="tablist">
 	  <li class="nav-item" role="presentation">
 		<a th:href="|${baseURL}services|"
-		   th:class="|nav-link ${{#request.getRequestURI().startsWith({baseURL}+'services')}? 'active' : _}|">Services</a>
+		   th:class="|nav-link ${{requestURI.startsWith({baseURL}+'services')}? 'active' : _}|">Services</a>
 	  </li>
 	  <li class="nav-item" role="presentation">
 		<a th:href="|${baseURL}processes|"
-			th:class="|nav-link ${{#request.getRequestURI().startsWith({baseURL}+'processes')}? 'active' : _}|">Processes</a>
+			th:class="|nav-link ${{requestURI.startsWith({baseURL}+'processes')}? 'active' : _}|">Processes</a>
 	  </li>
 	  <li class="nav-item" role="presentation">
 		<a th:href="|${baseURL}smt|"
-		   th:class="|nav-link ${{#request.getRequestURI().startsWith({baseURL}+'smt')}? 'active' : _}|">Service Metadata Templates</a>
+		   th:class="|nav-link ${{requestURI.startsWith({baseURL}+'smt')}? 'active' : _}|">Service Metadata Templates</a>
 	  </li>
 	</ul>
 	<div class="container mt-3">

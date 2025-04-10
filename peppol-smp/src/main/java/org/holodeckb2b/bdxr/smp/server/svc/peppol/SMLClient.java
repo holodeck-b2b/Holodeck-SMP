@@ -16,7 +16,6 @@
  */
 package org.holodeckb2b.bdxr.smp.server.svc.peppol;
 
-import ec.services.wsdl.bdmsl.data._1.PrepareChangeCertificateType;
 import java.io.File;
 import java.io.IOException;
 import java.security.KeyManagementException;
@@ -32,24 +31,24 @@ import java.util.GregorianCalendar;
 import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLKeyException;
-import javax.xml.bind.JAXBElement;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
-import org.apache.http.config.Registry;
-import org.apache.http.config.RegistryBuilder;
-import org.apache.http.conn.socket.ConnectionSocketFactory;
-import org.apache.http.conn.socket.PlainConnectionSocketFactory;
-import org.apache.http.conn.ssl.NoopHostnameVerifier;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.client.LaxRedirectStrategy;
-import org.apache.http.impl.conn.BasicHttpClientConnectionManager;
-import org.apache.http.ssl.SSLContextBuilder;
-import org.apache.http.ssl.SSLContexts;
+
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.impl.io.BasicHttpClientConnectionManager;
+import org.apache.hc.client5.http.socket.ConnectionSocketFactory;
+import org.apache.hc.client5.http.socket.PlainConnectionSocketFactory;
+import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
+import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
+import org.apache.hc.core5.http.config.Registry;
+import org.apache.hc.core5.http.config.RegistryBuilder;
+import org.apache.hc.core5.ssl.SSLContextBuilder;
+import org.apache.hc.core5.ssl.SSLContexts;
 import org.busdox.servicemetadata.locator._1.MigrationRecordType;
 import org.busdox.servicemetadata.locator._1.ObjectFactory;
 import org.busdox.servicemetadata.locator._1.PublisherEndpointType;
@@ -73,7 +72,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.ws.client.core.WebServiceTemplate;
 import org.springframework.ws.soap.client.SoapFaultClientException;
 import org.springframework.ws.soap.client.core.SoapActionCallback;
-import org.springframework.ws.transport.http.HttpComponentsMessageSender;
+import org.springframework.ws.transport.http.HttpComponents5MessageSender;
+
+import ec.services.wsdl.bdmsl.data._1.PrepareChangeCertificateType;
+import jakarta.xml.bind.JAXBElement;
 
 /**
  * Implements the integration of the SMP with the Peppol SML.
@@ -424,18 +426,16 @@ public class SMLClient implements ISMLIntegrator {
 																				   NoopHostnameVerifier.INSTANCE)
 												  : new SSLConnectionSocketFactory(sslContext(keyPair));
 
-		Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder
-			.<ConnectionSocketFactory>create().register("https", sslFactory)
-			.register("http", new PlainConnectionSocketFactory())
-			.build();
-
+		Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory>create()
+				.register("https", sslFactory)
+				.register("http", new PlainConnectionSocketFactory())
+				.build();
+		
 		webServiceTemplate.setMessageSender(
 				new SMLMessageSender(
-						HttpClientBuilder.create()
-								.setSSLSocketFactory(sslFactory)
+						HttpClients.custom()
 								.setConnectionManager(new BasicHttpClientConnectionManager(socketFactoryRegistry))
-								.setRedirectStrategy(LaxRedirectStrategy.INSTANCE)
-								.addInterceptorFirst(new HttpComponentsMessageSender.RemoveSoapHeadersInterceptor())
+								.addRequestInterceptorFirst(new HttpComponents5MessageSender.RemoveSoapHeadersInterceptor())
 								.build()
 						));
 

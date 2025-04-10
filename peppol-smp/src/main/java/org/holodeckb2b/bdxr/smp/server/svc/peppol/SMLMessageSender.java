@@ -19,12 +19,13 @@ package org.holodeckb2b.bdxr.smp.server.svc.peppol;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Iterator;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.protocol.HttpContext;
+
+import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.core5.http.protocol.HttpContext;
 import org.springframework.ws.transport.WebServiceConnection;
-import org.springframework.ws.transport.http.HttpComponentsConnection;
-import org.springframework.ws.transport.http.HttpComponentsMessageSender;
+import org.springframework.ws.transport.http.HttpComponents5Connection;
+import org.springframework.ws.transport.http.HttpComponents5MessageSender;
 import org.springframework.ws.transport.http.HttpTransportConstants;
 
 /**
@@ -35,7 +36,7 @@ import org.springframework.ws.transport.http.HttpTransportConstants;
  *
  * @author Sander Fieten (sander at holodeck-b2b.org)
  */
-public class SMLMessageSender extends HttpComponentsMessageSender {
+public class SMLMessageSender extends HttpComponents5MessageSender {
 
 	public SMLMessageSender(HttpClient httpClient) {
 		super(httpClient);
@@ -51,7 +52,7 @@ public class SMLMessageSender extends HttpComponentsMessageSender {
 		return new SMLConnection(getHttpClient(), httpPost, httpContext);
 	}
 
-	private class SMLConnection extends HttpComponentsConnection {
+	private class SMLConnection extends HttpComponents5Connection {
 
 		SMLConnection(HttpClient httpClient, HttpPost httpPost, HttpContext httpContext) {
 			super(httpClient, httpPost, httpContext);

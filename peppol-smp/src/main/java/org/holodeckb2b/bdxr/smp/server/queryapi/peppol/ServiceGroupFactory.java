@@ -17,7 +17,7 @@
 package org.holodeckb2b.bdxr.smp.server.queryapi.peppol;
 
 import java.util.List;
-import lombok.extern.slf4j.Slf4j;
+
 import org.busdox.servicemetadata.publishing._1.ServiceGroupType;
 import org.busdox.servicemetadata.publishing._1.ServiceMetadataReferenceCollectionType;
 import org.busdox.servicemetadata.publishing._1.ServiceMetadataReferenceType;

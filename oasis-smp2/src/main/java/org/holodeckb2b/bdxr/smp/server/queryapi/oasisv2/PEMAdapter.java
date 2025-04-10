@@ -17,7 +17,8 @@
 package org.holodeckb2b.bdxr.smp.server.queryapi.oasisv2;
 
 import java.util.Base64;
-import javax.xml.bind.annotation.adapters.XmlAdapter;
+
+import jakarta.xml.bind.annotation.adapters.XmlAdapter;
 
 /**
  * Is a custom {@link XmlAdapter} to ensure that the <code>Certificate/ContentBinaryObject</code> element in the

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 The Holodeck B2B Team
+ * Copyright (C) 2025 The Holodeck B2B Team
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the Affero GNU General Public License as published by
@@ -14,32 +14,18 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.holodeckb2b.bdxr.smp.server.ui.viewmodels;
+package org.holodeckb2b.bdxr.smp.server.ui.controllers;
 
-import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ModelAttribute;
 
-/**
- * UI model for adding an Endpoint to a Process Group.
- *
- * @author Sander Fieten (sander at holodeck-b2b.org)
- */
-@Getter
-@Setter
-@NoArgsConstructor
-public class PgAddEndpointFormData {
+import jakarta.servlet.http.HttpServletRequest;
 
-	/**
-	 * Is the list index of the Process Group the edited Process Info is part of
-	 */
-	private int	pgIndex;
+@ControllerAdvice
+public class RequestURIProvider {
 
-	@NotNull(message = "An endpoint must be selected")
-	private Long	epOID;
-
-	public PgAddEndpointFormData(int pg) {
-		this.pgIndex = pg;
-	}
+	@ModelAttribute("requestURI")
+    String getRequestServletPath(HttpServletRequest request) {
+        return request.getServletPath();
+    }
 }

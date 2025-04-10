@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.security.KeyStore;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import javax.servlet.http.HttpSession;
+
 import org.holodeckb2b.bdxr.smp.server.svc.SMLIntegrationService;
 import org.holodeckb2b.bdxr.smp.server.svc.SMPCertificateService;
 import org.holodeckb2b.bdxr.smp.server.ui.viewmodels.X509CertificateData;
@@ -34,6 +34,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
+
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 @RequestMapping("settings/smpcert")
@@ -58,7 +60,7 @@ public class SMPCertViewController {
 		return null;
 	}
 
-	@GetMapping()
+	@GetMapping(value = {"","/"})
     public String getOverview(HttpSession s) throws Exception {
 		if (smlIntegration.requiresSMPCertRegistration())
 			return "redirect:/settings/sml/smpcert";

@@ -15,11 +15,11 @@
 	<ul class="nav nav-tabs" role="tablist">
 	  <li class="nav-item">
 		  <a th:href="|${baseURL}transports|"
-		   th:class="|nav-link ${{#request.getRequestURI().startsWith({baseURL}+'transports')}? 'active' : _}|">Transport profiles</a>
+		   th:class="|nav-link ${{requestURI.startsWith({baseURL}+'transports')}? 'active' : _}|">Transport profiles</a>
 	  </li>
 	  <li class="nav-item">
 		  <a th:href="|${baseURL}ids|"
-		   th:class="|nav-link ${{#request.getRequestURI().startsWith({baseURL}+'ids')}? 'active' : _}|">ID Schemes</a>
+		   th:class="|nav-link ${{requestURI.startsWith({baseURL}+'ids')}? 'active' : _}|">ID Schemes</a>
 	  </li>
 	  <li sec:authorize="hasRole('ADMIN')" class="nav-item">
 		<a th:href="|${baseURL}smpcert|"
@@ -28,11 +28,11 @@
 	  <li th:if="${@environment.getProperty('sml.enabled')}" sec:authorize="hasRole('ADMIN')" class="nav-item">
 		<a th:href="|${baseURL}sml|"
 		   th:class="|nav-link ${{(certPage == null || !certPage) &&
-								  #request.getRequestURI().startsWith({baseURL}+'sml')}? 'active' : _}|">SML Integration</a>
+								  requestURI.startsWith({baseURL}+'sml')}? 'active' : _}|">SML Integration</a>
 	  </li>
 	  <li sec:authorize="hasRole('ADMIN')" class="nav-item">
 		<a th:href="|${baseURL}users|"
-		   th:class="|nav-link ${{#request.getRequestURI().startsWith({baseURL}+'users')}? 'active' : _}|">Users</a>
+		   th:class="|nav-link ${{requestURI.startsWith({baseURL}+'users')}? 'active' : _}|">Users</a>
 	  </li>
 	</ul>
 	<div class="container mt-3">

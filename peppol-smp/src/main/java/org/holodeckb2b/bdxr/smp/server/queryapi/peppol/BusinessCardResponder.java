@@ -20,31 +20,21 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.NoSuchElementException;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.namespace.QName;
-import javax.xml.transform.dom.DOMResult;
-
 import org.holodeckb2b.bdxr.smp.datamodel.Identifier;
-import org.holodeckb2b.bdxr.smp.datamodel.impl.IdentifierImpl;
 import org.holodeckb2b.bdxr.smp.server.db.entities.ParticipantE;
 import org.holodeckb2b.bdxr.smp.server.db.repos.ParticipantRepository;
 import org.holodeckb2b.bdxr.smp.server.queryapi.IQueryResponder;
 import org.holodeckb2b.bdxr.smp.server.queryapi.QueryResponse;
 import org.holodeckb2b.bdxr.smp.server.svc.IdUtils;
-import org.holodeckb2b.commons.util.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.w3c.dom.Document;
 
 import eu.peppol.schema.pd.businesscard._20180621.BusinessCardType;
 import eu.peppol.schema.pd.businesscard._20180621.BusinessEntityType;
 import eu.peppol.schema.pd.businesscard._20180621.IdentifierType;
 import eu.peppol.schema.pd.businesscard._20180621.MultilingualNameType;
-import eu.peppol.schema.pd.businesscard._20180621.ObjectFactory;
 import lombok.extern.slf4j.Slf4j;
 
 /**

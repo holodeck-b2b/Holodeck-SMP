@@ -18,14 +18,13 @@ package org.holodeckb2b.bdxr.smp.server.queryapi.oasisv2;
 
 import java.lang.reflect.Method;
 import java.time.ZonedDateTime;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
+
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import javax.xml.transform.dom.DOMResult;
+
 import org.holodeckb2b.bdxr.smp.datamodel.IDScheme;
 import org.holodeckb2b.bdxr.smp.datamodel.Identifier;
 import org.holodeckb2b.commons.util.Utils;
@@ -34,6 +33,10 @@ import org.oasis_open.docs.bdxr.ns.smp._2.servicegroup.ServiceGroupType;
 import org.oasis_open.docs.bdxr.ns.smp._2.servicemetadata.ServiceMetadataType;
 import org.oasis_open.docs.bdxr.ns.smp._2.unqualifieddatatypes.IdentifierType;
 import org.w3c.dom.Document;
+
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBElement;
+import jakarta.xml.bind.JAXBException;
 
 /**
  * Is the abstract base class for creating the XML response documents as specified in the OASIS SMP v2 specification. It

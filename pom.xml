@@ -9,10 +9,9 @@
 	<packaging>pom</packaging>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<maven.compiler.source>16</maven.compiler.source>
-		<maven.compiler.target>16</maven.compiler.target>
+		<maven.compiler.source>17</maven.compiler.source>
+		<maven.compiler.target>17</maven.compiler.target>
 		<utils.version>1.5.0</utils.version>
-		<jaxb.version>2.3.1</jaxb.version>
 	</properties>
 	<name>Holodeck SMP Server</name>
 	<description>This project contains a SMP Server that support the SMP specifications developed by the
@@ -80,21 +79,10 @@
 			<dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
-                <version>2.7.18</version>
+                <version>3.3.10</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-			<!-- JAXB -->
-			<dependency>
-				<groupId>javax.xml.bind</groupId>
-				<artifactId>jaxb-api</artifactId>
-				<version>${jaxb.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.sun.xml.bind</groupId>
-				<artifactId>jaxb-impl</artifactId>
-				<version>${jaxb.version}</version>
-			</dependency>
 			<dependency>
 				<groupId>org.holodeckb2b.commons</groupId>
 				<artifactId>generic-utils</artifactId>
@@ -108,6 +96,14 @@
 	<build>
 		<pluginManagement>
 			<plugins>
+				<plugin>
+				    <groupId>org.apache.maven.plugins</groupId>
+				    <artifactId>maven-compiler-plugin</artifactId>
+				    <version>3.13.0</version>
+				    <configuration>
+				        <parameters>true</parameters>
+				    </configuration>
+				</plugin>			
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>jaxb2-maven-plugin</artifactId>

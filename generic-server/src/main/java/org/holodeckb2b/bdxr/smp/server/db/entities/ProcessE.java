@@ -16,17 +16,18 @@
  */
 package org.holodeckb2b.bdxr.smp.server.db.entities;
 
-import javax.persistence.Column;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
+import org.holodeckb2b.bdxr.smp.server.datamodel.Process;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.holodeckb2b.bdxr.smp.server.datamodel.Process;
 
 /**
  * Is the JPA entity for {@link Process}.

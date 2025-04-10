@@ -16,17 +16,18 @@
  */
 package org.holodeckb2b.bdxr.smp.server.db.entities;
 
-import javax.persistence.Column;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Index;
-import javax.persistence.Table;
-import javax.validation.constraints.NotBlank;
+import org.holodeckb2b.bdxr.smp.server.datamodel.Service;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
-import org.holodeckb2b.bdxr.smp.server.datamodel.Service;
 
 /**
  * Is the JPA entity for {@link Service}.

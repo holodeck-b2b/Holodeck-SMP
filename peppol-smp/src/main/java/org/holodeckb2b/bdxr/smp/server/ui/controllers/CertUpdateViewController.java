@@ -27,7 +27,7 @@ import java.time.ZoneOffset;
 import java.util.UUID;
 
 import javax.net.ssl.SSLException;
-import javax.servlet.http.HttpSession;
+
 import org.holodeckb2b.bdxr.smp.server.db.CertificateUpdate;
 import org.holodeckb2b.bdxr.smp.server.db.SMLRegistration;
 import org.holodeckb2b.bdxr.smp.server.svc.SMPCertificateService;
@@ -48,6 +48,8 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.ws.soap.client.SoapFaultClientException;
+
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 @RequestMapping("settings/sml/smpcert")

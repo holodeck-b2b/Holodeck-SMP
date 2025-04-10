@@ -22,8 +22,7 @@
 	<link th:rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css} "/>
 	<link th:rel="stylesheet" th:href="@{/css/main.css} "/>
 	<script th:src="@{/webjars/jquery/3.1.1/jquery.min.js}"></script>
-	<script th:src="@{/webjars/popper.js/umd/popper.min.js}"></script>
-	<script th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
+	<script th:src="@{/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
 </head>
 <body>
 <header class="p-3 mb-3 border-bottom">
@@ -34,24 +33,25 @@
         </a>
        	<ul class="nav fs-6 col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0"
 			th:with="baseURL=@{/}">
-<!--		  <li><a th:href="|${baseURL}main|" th:class="|nav-link px-2 ${{#request.getRequestURI().startsWith({baseURL}+'main')}? 'link-secondary' : 'link-dark'}|">Overview</a></li> -->
-		  <li><a th:href="|${baseURL}participants|" th:class="|nav-link px-2 ${{#request.getRequestURI().startsWith({baseURL}+'participants')}? 'link-secondary' : 'link-dark'}|">Participants</a></li>
-          <li><a th:href="|${baseURL}smd/services|" th:class="|nav-link px-2 ${{#request.getRequestURI().startsWith({baseURL}+'smd')}? 'link-secondary' : 'link-dark'}|">Service Metadata</a></li>
-		  <li><a th:href="|${baseURL}endpoints|" th:class="|nav-link px-2 ${{#request.getRequestURI().startsWith({baseURL}+'endpoints')}? 'link-secondary' : 'link-dark'}|">Endpoints</a></li>
-          <li><a th:href="|${baseURL}settings/transports|" th:class="|nav-link px-2 ${{#request.getRequestURI().startsWith({baseURL}+'settings')}? 'link-secondary' : 'link-dark'}|">Settings</a></li>
+		  <li><a th:href="|${baseURL}participants|" th:class="|nav-link px-2 ${{requestURI.startsWith({baseURL}+'participants')}? 'link-secondary' : 'link-dark'}|">Participants</a></li>
+          <li><a th:href="|${baseURL}smd/services|" th:class="|nav-link px-2 ${{requestURI.startsWith({baseURL}+'smd')}? 'link-secondary' : 'link-dark'}|">Service Metadata</a></li>
+		  <li><a th:href="|${baseURL}endpoints|" th:class="|nav-link px-2 ${{requestURI.startsWith({baseURL}+'endpoints')}? 'link-secondary' : 'link-dark'}|">Endpoints</a></li>
+          <li><a th:href="|${baseURL}settings/transports|" th:class="|nav-link px-2 ${{requestURI.startsWith({baseURL}+'settings')}? 'link-secondary' : 'link-dark'}|">Settings</a></li>
           <li><a th:href="|${baseURL}about|" class="nav-link px-2 link-dark">About</a></li>
 		</ul>
-	    <div class="dropdown text-end">
-          <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
-            <svg class="bi me-2" width="28" height="28" role="img" aria-label="Bootstrap"><use xlink:href="#people-circle"></use></svg>
-          </a>
-          <ul class="text-small dropdown-menu" aria-labelledby="dropdownUser1">
-			  <li><span class="dropdown-header" th:text="${#authentication.principal.fullName}">User's name</span></li>
-            <li><a class="dropdown-item " th:href="@{/account/update}">Account settings</a></li>
-            <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item " th:href="@{/logout}">Log out</a></li>
-          </ul>
-        </div>
+	    <div class="text-end">
+	    	<div class="dropdown">
+		          <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
+            		<svg class="bi me-2" width="28" height="28" role="img" aria-label="Bootstrap"><use xlink:href="#people-circle"></use></svg>
+          		</a>
+	          	<ul class="text-small dropdown-menu" aria-labelledby="dropdownUser1">
+				  	<li><span class="dropdown-header" th:text="${#authentication.principal.fullName}">User's name</span></li>
+	            	<li><a class="dropdown-item " th:href="@{/account/update}">Account settings</a></li>
+	            	<li><hr class="dropdown-divider"></li>
+	            	<li><a class="dropdown-item " th:href="@{/logout}">Log out</a></li>
+	          	</ul>
+        	</div>
+       	</div>
       </div>
     </div>
   </header>

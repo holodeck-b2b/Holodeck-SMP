@@ -20,7 +20,7 @@ import java.security.cert.CertificateEncodingException;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Iterator;
-import lombok.extern.slf4j.Slf4j;
+
 import org.busdox.servicemetadata.publishing._1.EndpointType;
 import org.busdox.servicemetadata.publishing._1.ProcessListType;
 import org.busdox.servicemetadata.publishing._1.ProcessType;
@@ -44,6 +44,8 @@ import org.holodeckb2b.bdxr.smp.server.datamodel.ServiceMetadataTemplate;
 import org.w3._2005._08.addressing.AttributedURIType;
 import org.w3._2005._08.addressing.EndpointReferenceType;
 import org.w3c.dom.Document;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Is a factory for <code>SignedServiceMetadata</code> XML documents as specified by the PEPPOL SMP Specification.

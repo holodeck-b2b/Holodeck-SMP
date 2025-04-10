@@ -16,14 +16,15 @@
  */
 package org.holodeckb2b.bdxr.smp.server.db.entities;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.validation.constraints.NotBlank;
+import org.holodeckb2b.bdxr.smp.server.datamodel.TransportProfile;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.holodeckb2b.bdxr.smp.server.datamodel.TransportProfile;
 
 /**
  * Is the JPA entity for {@link TransportProfile}.

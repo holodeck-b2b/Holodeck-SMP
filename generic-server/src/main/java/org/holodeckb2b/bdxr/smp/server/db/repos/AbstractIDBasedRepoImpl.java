@@ -18,15 +18,17 @@ package org.holodeckb2b.bdxr.smp.server.db.repos;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+
 import org.holodeckb2b.bdxr.smp.datamodel.IDScheme;
 import org.holodeckb2b.bdxr.smp.datamodel.Identifier;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 
 /**
  * Base implementation of {@link AbstractIDBasedRepo} to search an entity based on the assigned Identifier, taking into

@@ -177,7 +177,7 @@
 				</div>
 				<div if="${smlAvailable && directoryAvailable}">
 				<div class="row g-2">
-					<label for="inputRegDate" class="col-5 col-form-label">Date of first registration in the Peppol network (optional)</label>
+					<label for="inputRegDate" class="col-4 col-form-label">Date of first registration in the network (optional)</label>
 					<div class="col-3">
 						<input type="date" class="form-control" id="inputRegDate" th:field="*{firstRegistration}">
 					</div>				
@@ -230,7 +230,7 @@
 						$('#addIdBtn').click( function (event) {
 							if ($('#additionalID').val().length > 0) {
 								var newId = $('#additionalID').val();
-								const checkId = /^(([\w@\.]{1,}:?)+::)?([\w@\.]{1,}:?)+$/;
+								const checkId = /^(([\w@\.-]{1,}:?)+::)?([\w@\.-]{1,}:?)+$/;
 								if (!checkId.test(newId)) {
 									$('#invalidIdMsg').show();
 									return;

@@ -21,13 +21,15 @@ import java.security.cert.X509Certificate;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
-import javax.validation.constraints.NotBlank;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+
 import org.holodeckb2b.bdxr.smp.server.db.entities.CertificateE;
 import org.holodeckb2b.commons.security.CertificateUtils;
 import org.springframework.format.annotation.DateTimeFormat;
+
+import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * UI model for editing the meta-data of a Certificate.

@@ -19,8 +19,9 @@ package org.holodeckb2b.bdxr.smp.server.ui.controllers;
 import java.net.Inet4Address;
 import java.net.UnknownHostException;
 import java.security.cert.CertificateException;
+
 import javax.net.ssl.SSLException;
-import javax.validation.Valid;
+
 import org.holodeckb2b.bdxr.smp.server.db.SMLRegistration;
 import org.holodeckb2b.bdxr.smp.server.svc.peppol.SMLClient;
 import org.holodeckb2b.commons.util.Utils;
@@ -37,6 +38,8 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.ws.soap.client.SoapFaultClientException;
 
+import jakarta.validation.Valid;
+
 @Controller
 @RequestMapping("settings/sml")
 public class SMLViewController {
@@ -44,7 +47,7 @@ public class SMLViewController {
 	@Autowired
 	protected SMLClient smlClient;
 
-	@GetMapping()
+	@GetMapping(value = {"","/"})    
     private ModelAndView getOverview(String infoMsg) {
 		return createOverview(null);
 	}

@@ -18,16 +18,18 @@ package org.holodeckb2b.bdxr.smp.server.db.entities;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.persistence.ManyToOne;
-import javax.persistence.MappedSuperclass;
-import javax.validation.constraints.NotBlank;
+
+import org.holodeckb2b.bdxr.smp.datamodel.Identifier;
+import org.holodeckb2b.commons.util.Utils;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MappedSuperclass;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.holodeckb2b.bdxr.smp.datamodel.Identifier;
-import org.holodeckb2b.commons.util.Utils;
 
 /**
  * Is the JPA entity for {@link Identifier}. As identifiers always belong to a specific <i>Participant</i>, <i>Process

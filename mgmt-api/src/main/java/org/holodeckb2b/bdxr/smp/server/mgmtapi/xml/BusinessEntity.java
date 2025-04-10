@@ -16,9 +16,9 @@
  */
 package org.holodeckb2b.bdxr.smp.server.mgmtapi.xml;
 
-import javax.xml.bind.annotation.XmlRootElement;
 
 import eu.peppol.schema.pd.businesscard._20161123.BusinessEntityType;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "BusinessEntity", namespace = "http://www.peppol.eu/schema/pd/businesscard/20161123/")
 public class BusinessEntity extends BusinessEntityType {

@@ -16,7 +16,6 @@
  */
 package org.holodeckb2b.bdxr.smp.server.ui.controllers;
 
-import javax.validation.Valid;
 import org.holodeckb2b.bdxr.smp.server.db.entities.IDSchemeE;
 import org.holodeckb2b.bdxr.smp.server.db.repos.IDSchemeRepository;
 import org.holodeckb2b.commons.util.Utils;
@@ -31,6 +30,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import jakarta.validation.Valid;
+
 @Controller
 @RequestMapping("settings/ids")
 public class IDSchemesViewController {
@@ -40,7 +41,7 @@ public class IDSchemesViewController {
 	protected IDSchemeRepository		idschemes;
 
 
-	@GetMapping()
+	@GetMapping(value = {"","/"})
     public String getOverview(Model m) {
 		m.addAttribute("schemes", idschemes.findAll());
 	    return "admin-ui/idschemes";

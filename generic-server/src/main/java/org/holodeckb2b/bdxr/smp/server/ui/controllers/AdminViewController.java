@@ -16,11 +16,21 @@
  */
 package org.holodeckb2b.bdxr.smp.server.ui.controllers;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
+import org.holodeckb2b.commons.util.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.info.BuildProperties;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.server.ResponseStatusException;
 
 @Controller
 public class AdminViewController {
@@ -33,7 +43,7 @@ public class AdminViewController {
 		return buildProperties;
 	}
 
-    @GetMapping({"/"})
+    @GetMapping({"", "/"})
     public String getMainView() {
         return "redirect:/participants";
     }
@@ -42,4 +52,17 @@ public class AdminViewController {
     public String getAboutView() {
         return "admin-ui/about";
     }
+
+	@GetMapping(value = "/favicon.ico", produces = "image/x-icon")	
+	@ResponseBody
+	public byte[] getFavIcon() throws ResponseStatusException {
+		try(InputStream is = new ClassPathResource("/static/img/favicon.ico").getInputStream()) {
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			Utils.copyStream(is, baos);			
+			return baos.toByteArray();
+		} catch (IOException e) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+		}
+	}
+
 }

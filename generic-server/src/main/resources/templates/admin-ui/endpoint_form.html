@@ -110,7 +110,7 @@
 							</tr>
 						</thead>
 						<tbody style="height: 15vh;">
-							<tr class="d-flex" th:each="c, cStat : ${#session.getAttribute('certs')}">
+							<tr class="d-flex" th:each="c, cStat : ${certs}">
 								<td class="col-4" th:text="${c.subjectName}">CN=partyb.examples.holodeck-b2b.com,OU=Holodeck B2B Support,O=Chasquis,C=NL</td>
 								<td class="col-2" th:text="${c.usage}"></td>
 								<td class="col-2" th:text="${c.activationDate != null ? c.activationDate.atTime(c.activationTime) : ''}"></td>

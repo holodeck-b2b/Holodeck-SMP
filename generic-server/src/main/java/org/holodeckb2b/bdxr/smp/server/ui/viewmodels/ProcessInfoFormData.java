@@ -17,12 +17,14 @@
 package org.holodeckb2b.bdxr.smp.server.ui.viewmodels;
 
 import java.util.Set;
-import javax.validation.constraints.NotNull;
+
+import org.holodeckb2b.bdxr.smp.server.db.entities.IdentifierE;
+import org.holodeckb2b.bdxr.smp.server.db.entities.ProcessInfoE;
+
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.holodeckb2b.bdxr.smp.server.db.entities.IdentifierE;
-import org.holodeckb2b.bdxr.smp.server.db.entities.ProcessInfoE;
 
 /**
  * UI model for editing the meta-data of Process info included in a Process Group.
