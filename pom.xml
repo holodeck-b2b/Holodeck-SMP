@@ -11,7 +11,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>17</maven.compiler.source>
 		<maven.compiler.target>17</maven.compiler.target>
-		<utils.version>1.5.0</utils.version>
+		<utils.version>1.6.0</utils.version>
 	</properties>
 	<name>Holodeck SMP Server</name>
 	<description>This project contains a SMP Server that support the SMP specifications developed by the
