@@ -31,7 +31,9 @@ import org.springframework.core.io.ClassPathResource;
  * @author Sander Fieten (sander at holodeck-b2b.org)
  */
 public class SMPServerApplication {
-
+	
+	public static boolean isMgmtAPILoaded = false;
+	
 	public static void main(String[] args) {
 		boolean queryApi = false, adminUI = false, mgmtApi = false;
 		if (args.length >= 0) {			
@@ -64,6 +66,7 @@ public class SMPServerApplication {
 		if (mgmtApi || runAll) {
 			try {
 				Class mgmtAppClass = Class.forName("org.holodeckb2b.bdxr.smp.server.mgmtapi.MgmtAppConfig");
+				isMgmtAPILoaded = true;
 				if (queryApi || adminUI || runAll)
 					app = app.sibling(mgmtAppClass);
 				else

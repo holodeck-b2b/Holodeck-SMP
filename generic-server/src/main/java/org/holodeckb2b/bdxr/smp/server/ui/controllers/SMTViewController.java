@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 
+import org.holodeckb2b.bdxr.smp.server.SMPServerApplication;
 import org.holodeckb2b.bdxr.smp.server.db.entities.IdentifierE;
 import org.holodeckb2b.bdxr.smp.server.db.entities.ProcessGroupE;
 import org.holodeckb2b.bdxr.smp.server.db.entities.ProcessInfoE;
@@ -74,6 +75,10 @@ public class SMTViewController {
 	@Autowired
 	protected EndpointRepository	endpoints;
 
+	private boolean isMgmtAPIenabled() {
+		return mgmtAPIenabled || SMPServerApplication.isMgmtAPILoaded;
+	}
+	
 	@ModelAttribute("allServices")
 	public List<ServiceE> populateServices() {
 		return services.findAll();
@@ -84,7 +89,7 @@ public class SMTViewController {
 		m.addAttribute("templates", templates.findAll().parallelStream()
 							.map(t -> new Pair<ServiceMetadataTemplateE, Integer>(t, templates.getNumberOfBindings(t)))
 							.toList());
-		m.addAttribute("apiEnabled", mgmtAPIenabled);
+		m.addAttribute("apiEnabled", isMgmtAPIenabled());
 	    return "admin-ui/smt";
     }
 
@@ -99,7 +104,7 @@ public class SMTViewController {
 		}
 		s.setAttribute(SMT_ATTR, smt);
 		m.addAttribute(SMT_ATTR, smt);
-		m.addAttribute("apiEnabled", mgmtAPIenabled);
+		m.addAttribute("apiEnabled", isMgmtAPIenabled());
 		return "admin-ui/smt_form";
 	}
 

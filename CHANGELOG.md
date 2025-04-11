@@ -10,6 +10,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 * Configuration option in the management API to indicate whether new Participant registrations should automatically be added in the SML as well (if the SMP is registered with an SML)  
 
 ### Changed
+* Availability of the REST API is now automatically determined and does not require defining the _api.enabled_ configuration property
 * Updated to version 3.3.10 of the Spring Boot framework
 * Updated to Bootstrap version 5.3.3
 * Minimum Java version to run the SMP server is now 17 
