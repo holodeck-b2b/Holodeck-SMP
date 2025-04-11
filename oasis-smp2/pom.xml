@@ -40,7 +40,6 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>jaxb2-maven-plugin</artifactId>
-                <version>3.1.0</version>
                 <configuration>
                     <sources>
                         <source>src/main/xsd/ServiceGroup-2.0.xsd</source>
