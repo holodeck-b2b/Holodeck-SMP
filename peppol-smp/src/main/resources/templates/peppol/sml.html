@@ -38,7 +38,7 @@
 			<label for="smpID" class="col-2 col-form-label">SMP identifier</label>
 			<div class="col-4">
 				<input type="text" class="form-control"
-					   th:readonly="!${#strings.isEmpty(registration.identifier)}"
+					   th:disabled="!${#strings.isEmpty(registration.identifier)}"
 					   th:errorclass="is-invalid" th:field="*{identifier}">
 				<div id="invalidNameMsg"
 					th:if="${#fields.hasErrors('identifier')}" class="invalid-feedback"
