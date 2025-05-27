@@ -16,7 +16,10 @@
  */
 package org.holodeckb2b.bdxr.smp.server.mgmtapi;
 
+import java.math.BigInteger;
+import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import org.holodeckb2b.bdxr.smp.server.db.entities.IdentifierE;
 import org.holodeckb2b.bdxr.smp.server.db.entities.ParticipantE;
@@ -77,14 +80,17 @@ public class BindingsController {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
 		}		
 				
-		ServiceMetadataBindings bindings = new ServiceMetadataBindings();
+		ServiceMetadataBindings bindingsElem = new ServiceMetadataBindings();
 		ParticipantIDType pidElem = new ParticipantIDType();
 		if (pid.getScheme() != null)
-			pid.setValue(pid.getScheme().getSchemeId());
-		pid.setValue(pid.getValue());		
-		bindings.setParticipantID(pidElem);		
+			pidElem.setValue(pid.getScheme().getSchemeId());
+		pidElem.setValue(pid.getValue());		
+		bindingsElem.setParticipantID(pidElem);	
 		
-		return bindings;
+		for (ServiceMetadataBindingE smb : bindings.findByParticipantId(pid))
+			bindingsElem.getTemplateIds().add(BigInteger.valueOf(smb.getTemplate().getOid()));
+		
+		return bindingsElem;
 	}
 	
 	@PutMapping("/{smtID}")
