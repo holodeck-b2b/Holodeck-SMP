@@ -111,18 +111,19 @@ public class BindingsController {
 			log.warn("Unable to add binding as no Participant with ID ({}) is found", pid.toString());
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
 		}		
-		ServiceMetadataTemplateE template = templates.getReferenceById(smtOid);
-		if (template == null) {
+		Optional<ServiceMetadataTemplateE> template = templates.findById(smtOid);
+		if (!template.isPresent()) {
 			log.warn("Unable to add binding as no template with ID ({}) is found", pid.toString());
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
 		}
 		
+		ServiceMetadataTemplateE smt = template.get();
 		try {
-			bindings.save(new ServiceMetadataBindingE(participant, template));
-			log.info("Added new binding ({},{}-{})", participant.getId().toString(), template.getOid(), template.getName());
+			bindings.save(new ServiceMetadataBindingE(participant, smt));
+			log.info("Added new binding ({},{}-{})", participant.getId().toString(), smt.getOid(), smt.getName());
 		} catch (PersistenceException dbError) {
-			log.error("Failed to save new binding ({},{}-{}) : {}", participant.getId().toString(), template.getOid(), template.getName(),
-					Utils.getExceptionTrace(dbError));
+			log.error("Failed to save new binding ({},{}-{}) : {}", participant.getId().toString(), smt.getOid(), 
+					smt.getName(), Utils.getExceptionTrace(dbError));
 			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
