@@ -101,8 +101,6 @@ public class SMLClient implements ISMLIntegrator {
 	@Autowired
 	protected ParticipantRepository participants;
 
-	private String targetURL;
-
 	/**
 	 * @return <code>true</code> when the SMP is registered in the SML, <code>false</code> otherwise
 	 */
@@ -383,15 +381,14 @@ public class SMLClient implements ISMLIntegrator {
 	 * @return	the URL where the SML interface is located
 	 */
 	private String baseURL() {
-		if (targetURL == null) {
-			try {
-				KeyStore.PrivateKeyEntry keyPair = certSvc.getKeyPair();
-				targetURL = CertificateUtils.getIssuerName((X509Certificate) keyPair.getCertificate()).toLowerCase()
-						.contains("test") ? smkURL : smlURL;
-			} catch (CertificateException ex) {
-				Logger.getLogger(SMLClient.class.getName()).log(Level.SEVERE,
-																"Could not retrieve SMP cert : {0}", ex.getMessage());
-			}
+		String targetURL = null;
+		try {
+			KeyStore.PrivateKeyEntry keyPair = certSvc.getKeyPair();
+			targetURL = CertificateUtils.getIssuerName((X509Certificate) keyPair.getCertificate()).toLowerCase()
+					.contains("test") ? smkURL : smlURL;
+		} catch (CertificateException ex) {
+			Logger.getLogger(SMLClient.class.getName()).log(Level.SEVERE,
+															"Could not retrieve SMP cert : {0}", ex.getMessage());
 		}
 		return targetURL;
 	}

@@ -82,8 +82,6 @@ public class DirectoryClient implements IDirectoryIntegrator {
 	@Autowired
 	protected ParticipantRepository participants;
 
-	private URI targetURL;
-	
 	@Override
 	public void publishParticipantInfo(Participant p) throws DirectoryException {		
 		try {
@@ -114,20 +112,19 @@ public class DirectoryClient implements IDirectoryIntegrator {
 	 * @return	the URL where the SML interface is located
 	 */
 	private URI targetURL() {
-		if (targetURL == null) {
-			try {
-				KeyStore.PrivateKeyEntry keyPair = certSvc.getKeyPair();
-				String baseURL = CertificateUtils.getIssuerName((X509Certificate) keyPair.getCertificate()).toLowerCase()
-																.contains("test") ? accURL : prodURL;
-				targetURL = new URI(baseURL + "indexer/1.0/");				
-			} catch (CertificateException ex) {
-				Logger.getLogger(DirectoryClient.class.getName()).log(Level.SEVERE,
-																"Could not retrieve SMP cert : {0}", ex.getMessage());
-			} catch (URISyntaxException invalidURL) {
-				Logger.getLogger(DirectoryClient.class.getName()).log(Level.SEVERE,
-						"Invalid URL specified for directory API : {0}", invalidURL.getMessage());
-			}
-		}
+		URI targetURL = null;
+		try {
+			KeyStore.PrivateKeyEntry keyPair = certSvc.getKeyPair();
+			String baseURL = CertificateUtils.getIssuerName((X509Certificate) keyPair.getCertificate()).toLowerCase()
+															.contains("test") ? accURL : prodURL;
+			targetURL = new URI(baseURL + "indexer/1.0/");				
+		} catch (CertificateException ex) {
+			Logger.getLogger(DirectoryClient.class.getName()).log(Level.SEVERE,
+															"Could not retrieve SMP cert : {0}", ex.getMessage());
+		} catch (URISyntaxException invalidURL) {
+			Logger.getLogger(DirectoryClient.class.getName()).log(Level.SEVERE,
+					"Invalid URL specified for directory API : {0}", invalidURL.getMessage());
+		}		
 		return targetURL;
 	}
 	
