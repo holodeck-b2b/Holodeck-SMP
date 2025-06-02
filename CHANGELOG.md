@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## 2.1.1
-#####
+##### 2025-06-02
 ### Fixed
 * Error in SML registration when switching between environments [#11](https://github.com/holodeck-b2b/Holodeck-SMP/issues/11)
 * HTTP 500 instead of 404 in API when adding binding [#12](https://github.com/holodeck-b2b/Holodeck-SMP/issues/12)
