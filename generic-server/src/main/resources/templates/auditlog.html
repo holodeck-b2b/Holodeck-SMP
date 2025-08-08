@@ -1,0 +1,156 @@
+<!-- 
+ * Copyright (C) 2025 The Holodeck B2B Team
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the Affero GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ -->
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main-layout}"
+>
+<section layout:fragment="dynamic-content">
+
+<div class="row">
+	<div class="col-9">
+		<div class="mb-4 d-flex align-items-center justify-content-start">
+			<h5 class="me-3 mb-lg-0 text-dark text-decoration-none">
+				Audit Log
+			</h5>
+		</div>
+	</div>
+	<div class="col-3 text-end">
+		<div class="dropdown">
+			<button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+			  Search Audit Log
+			</button>			
+			<form class="dropdown-menu dropdown-menu-end p-4" style="min-width: 25vw;" method="post"
+				th:action="@{/auditlog/search}" th:object="${criteria}">
+			   	<div class="row	mb-3">
+				    <label for="username" class="form-label">User</label>
+					<div class="col-12">
+						<select class="form-select" th:field="*{username}">
+							<option value="" th:selected="*{username == null}">All</option>
+							<option th:each="u : ${users}" th:value="${u}" 
+							  		th:text="${u}" th:selected="${u.equals(criteria.username)}"></option>
+						</select>	
+					</div>					
+			  	</div>
+			  	<div class="row mb-3">
+				    <label for="action" class="form-label">Action</label>
+				    <div class="col-12">
+						<select class="form-select" th:field="*{action}">
+						  	<option value="" th:selected="*{action == null}">All</option>
+						  	<option th:each="a : ${actions}" th:value="${a}" 
+							  		th:text="${a}" th:selected="${a.equals(criteria.action)}"></option>
+						</select>
+			    	</div>
+			  	</div>
+			  	<div class="row mb-3">
+				    <label for="when" class="form-label">Timestamp between</label>
+				    <div class="col-12">
+				    	<input type="datetime-local" class="form-control" th:field="*{from}">
+				    </div>
+				    <div class="col-12">and</div>
+				    <div class="col-12">
+				    	<input type="datetime-local" class="form-control" th:field="*{to}">
+				    </div>				    
+				</div>
+			  	<div class="row justify-content-end">
+				  	<div class="col-3"><button type="submit" class="px-3 btn btn-primary">Search</button></div>
+				  	<div class="col-3"><a th:href="@{/auditlog}" class="px-3 btn btn-secondary">Reset</a></div>
+			  	</div>
+			</form>
+		</div>
+	</div>
+</div>	
+<div class="row">
+	<div class="table-responsive mt-2">
+		<table class="table table-hover">
+		<thead>
+			<tr>
+				<th scope="col">Time stamp</th>
+				<th scope="col">Action</th>
+				<th scope="col">User</th>
+				<th scope="col">Subject</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr th:each="r : ${records.content}" th:attr="data-details=${r.details}" onclick="showEventDetails(event)">
+				<td class="w-15" id="timestamp" th:text="${T(org.holodeckb2b.commons.util.Utils).toXMLDateTime(r.timestamp)}">2022-03-18T15:13:23.402Z</td>
+				<td class="w-15" id="action" th:text="${r.action}">Locked out</td>
+				<td class="w-15" id="user" th:text="${r.username}">John Doe</td>
+				<td class="td-truncate w-25" id="subject" th:text="${r.subject}" th:title="${r.subject}">SMT-xyz</td>
+			</tr>
+		</tbody>
+		</table>
+	</div>
+</div>
+<div th:replace="~{fragments/page_nav :: pageNavigation(${records}, '/auditlog')}" ></div>
+	
+<div class="modal fade" id="eventDetailsDialog" tabindex="-1">
+	<div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">Log record details</h4>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<div class="container-fluid">
+					<div class="row align-items-center">
+						<label class="col-3 col-form-label col-form-label-sm">Time stamp:</label>
+						<div class="col"><input id="fTimestamp" readonly class="form-control-plaintext form-control-sm" type="text"></div>
+					</div>
+					<div class="row align-items-center">
+						<label class="col-3 col-form-label col-form-label-sm">Action:</label>
+						<div class="col"><input id="fAction" readonly class="form-control-plaintext form-control-sm" type="text"></div>
+					</div>			
+					<div class="row align-items-center">
+						<label class="col-3 col-form-label col-form-label-sm">User:</label>
+						<div class="col"><input id="fUser" readonly class="form-control-plaintext form-control-sm" type="text"></div>
+					</div>
+					<div class="row align-items-center">
+						<label class="col-3 col-form-label col-form-label-sm">Subject:</label>
+						<div class="col"><input id="fSubject" readonly class="form-control-plaintext form-control-sm" type="text"></div>
+					</div>			
+					<div id="rErrors" class="row">
+						<label class="col-3 col-form-label col-form-label-sm">Details:</label>
+						<div class="col"><textarea id="fDetails" readonly rows=4 class="form-control-plaintext form-control-sm"></textarea></div>
+					</div>					
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+	
+<script type="text/javascript">
+	function showEventDetails(e) {
+		e.preventDefault();
+		e.stopPropagation();		
+
+		var target = e.currentTarget;		
+
+		document.getElementById("fTimestamp").value = target.querySelector("#timestamp").textContent;	
+		document.getElementById("fUser").value = target.querySelector("#user").textContent;	
+		document.getElementById("fAction").value = target.querySelector("#action").textContent;
+		document.getElementById("fSubject").value = target.querySelector("#subject").textContent;
+		let details = target.getAttribute("data-details");
+		if (details != null) 
+			details = details.replaceAll(";", "\n").replaceAll(",", "\n")
+		document.getElementById("fDetails").value = details;	
+		
+		bootstrap.Modal.getOrCreateInstance(document.getElementById("eventDetailsDialog")).show();
+	}
+</script>
+</section>
+</html>

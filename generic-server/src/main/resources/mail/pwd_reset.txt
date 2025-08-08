@@ -1,0 +1,4 @@
+Hello [(${name})],
+
+you or a server's administrator have/has requested a password reset for your account on the Holodeck SMP server.
+You can reset your password using the following link [(${resetLink})] (this link is valid for [(${expiration})] hours)

@@ -1,0 +1,97 @@
+<!-- 
+ * Copyright (C) 2025 The Holodeck B2B Team
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the Affero GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ -->
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/smd-layout}"
+>
+<body>
+<section layout:fragment="smd-content">
+	<form id="smtForm" method="post" th:action="@{/smd/services/update}" th:object="${service}">
+	<input type='hidden' th:field='*{oid}'>
+	<div class="row">
+	<div class="container">
+		<h5 th:text="(*{oid} ? 'Edit' : 'Add')+ ' Service data'">Edit Service data</h5>
+		<div class="card">
+		<div class="card-body">
+		<div class="row mb-3">
+			<label for="serviceName" class="col-2 col-form-label">Name</label>
+			<div class="col-6">
+				<input type="text" class="form-control" id="serviceName" th:errorclass="is-invalid"
+					    th:field="*{name}" placeholder="If not set, will default to Service Identifier">
+				<div id="invalidNameMsg"
+					th:if="${#fields.hasErrors('name')}" class="invalid-feedback"
+					th:errors="*{name}">
+				</div>
+			</div>
+		</div>
+		<div class="row mb-3">
+			<label for="serviceID" class="col-2 col-form-label">Identifier</label>
+			<div class="col-3">
+				<select class="form-select " th:errorclass="is-invalid"
+						id="inputIdScheme" th:field="*{id.scheme}">
+					<option value="-1">Without scheme</option>
+					<option th:each="ids : ${idSchemes}" th:value="${ids.schemeId}"
+							th:text="${ids.schemeId}">Wireframe</option>
+				</select>
+			</div>
+			<div class="col-7">
+				<input type="text" class="form-control" th:errorclass="is-invalid"
+					   id="inputIdValue" th:field="*{id.value}"
+					   placeholder="Service identifier" />
+				<div id="invalidIdentifierMsg"
+					 th:if="${#fields.hasErrors('id.value')}" class="invalid-feedback"
+					 th:errors="*{id.value}">
+				</div>
+			</div>
+		</div>
+		<div class="row mb-3">
+			<label for="serviceSpec" class="col-2 col-form-label">Specification reference</label>
+			<div class="col-6">
+				<input type="text" class="form-control" id="serviceSpec" th:field="*{specificationRef}">
+			</div>
+		</div>
+		</div>
+	</div>
+	<div class="row justify-content-center mt-3">
+		<div class="col-auto "><button type='submit' class="btn btn-primary">Save service data</button></div>
+		<div class="col-auto "><button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#confirmCancel">Cancel update</button></div>
+	</div>
+	</div>
+	</div>
+	</form>
+
+	<div class="modal fade" id="confirmCancel" tabindex="-1"  style="display: none;" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<span id="title" class="modal-title">Cancel update?</span>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<p id="question">Are you sure you want to discard all updates made to the Service registration?</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Go back</button>
+					<a th:href="@{/smd/services}"><button id="confirmBtn" type="button" class="btn btn-danger">Discard changes</button></a>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+</body>
+</html>

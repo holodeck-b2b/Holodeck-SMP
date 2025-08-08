@@ -16,7 +16,12 @@
  */
 package org.holodeckb2b.bdxr.smp.server.db.repos;
 
-import org.holodeckb2b.bdxr.smp.server.db.entities.ServiceMetadataTemplateE;
+import java.util.Collection;
+
+import org.holodeckb2b.bdxr.smp.server.db.entities.EndpointEntity;
+import org.holodeckb2b.bdxr.smp.server.db.entities.ProcessEntity;
+import org.holodeckb2b.bdxr.smp.server.db.entities.ServiceMetadataTemplateEntity;
+import org.holodeckb2b.bdxr.smp.server.db.entities.ServiceEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -26,8 +31,44 @@ import org.springframework.data.repository.query.Param;
  *
  * @author Sander Fieten (sander at holodeck-b2b.org)
  */
-public interface ServiceMetadataTemplateRepository extends JpaRepository<ServiceMetadataTemplateE, Long> {
+public interface ServiceMetadataTemplateRepository extends JpaRepository<ServiceMetadataTemplateEntity, Long> {
 
-	@Query("select count(*) from ServiceMetadataBinding smb where smb.template = :t")
-	Integer getNumberOfBindings(@Param("t") ServiceMetadataTemplateE t);
+	/**
+	 * Find the Service Metadata Templates for the given <i>Service</i>.
+	 * 
+	 * @param service	the entity object representing the Service
+	 * @return			the collection of Service Metadata Templates for the given <i>Service</i>
+	 */
+	Collection<ServiceMetadataTemplateEntity> findByService(ServiceEntity service);
+	
+	/**
+	 * Finds the Service Metadata Templates that are bound to the given Process.
+	 * 
+	 * @param process	the entity object representing the Process
+	 * @return			the collection of Service Metadata Templates that are bound to the given Process
+	 */
+	@Query("""
+			select smt
+			from ServiceMetadataTemplate smt
+			where smt in (select pg.template
+						  from ProcessGroup pg
+						  where pg in (select pi.procgroup from ProcessInfo pi where pi.process = :proc)
+						 )
+		""")
+	Collection<ServiceMetadataTemplateEntity> findByProcess(@Param("proc") ProcessEntity process);
+	
+	/**
+	 * Finds the Service Metadata Templates that use to the given Endpoint.
+	 * 
+	 * @param endpoint	the entity object representing the Endpoint
+	 * @return			the collection of Service Metadata Templates that use the given Endpoint
+	 */
+	@Query("""
+			select smt
+			from ServiceMetadataTemplate smt
+			where smt in (select pg.template
+						  from ProcessGroup pg
+						  where :ep member of pg.endpoints)
+		""")
+	Collection<ServiceMetadataTemplateEntity> findByEndpoint(@Param("ep") EndpointEntity endpoint);
 }

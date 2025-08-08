@@ -19,10 +19,14 @@ package org.holodeckb2b.bdxr.smp.server.ui.viewmodels;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 
-import org.holodeckb2b.bdxr.smp.server.db.entities.EndpointInfoE;
+import org.holodeckb2b.bdxr.smp.server.db.entities.EmbeddedIdentifier;
+import org.holodeckb2b.bdxr.smp.server.db.entities.EndpointEntity;
+import org.holodeckb2b.bdxr.smp.server.db.entities.IDSchemeEntity;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -41,8 +45,8 @@ public class EndpointFormData {
 	private Long    oid;
 	@NotBlank(message = "A Endpoint name must be provided")
 	private String name;
-	@NotBlank(message = "A transport profile must be selected")
-	private String	profileId;
+	@Valid
+	private EmbeddedIdentifier	profileId;
 	@NotBlank(message = "An endpoint URL must be set set")
 	private String	url;
 	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
@@ -55,12 +59,18 @@ public class EndpointFormData {
 	private LocalTime	expirationTime;
 	private String		contactInfo;
 	private String		description;
+	
+	private ArrayList<CertificateFormData>	certs = new ArrayList<>();
 
-	public EndpointFormData(EndpointInfoE ep) {
+	public EndpointFormData(EndpointEntity ep) {
 		oid = ep.getOid();
 		name = ep.getName();
-		profileId = ep.getTransportProfile();
-		url = ep.getEndpointURL().toString();
+		if (ep.getTransportProfileId() != null)
+			profileId = new EmbeddedIdentifier((IDSchemeEntity) ep.getTransportProfileId().getScheme(), 
+											ep.getTransportProfileId().getValue());
+		else
+			profileId = new EmbeddedIdentifier();
+		url = ep.getEndpointURL() != null ? ep.getEndpointURL().toString() : null;
 		ZonedDateTime activation = ep.getServiceActivationDate();
 		activationDate = activation != null ? activation.toLocalDate() : null;
 		activationTime = activation != null ? activation.toLocalTime() : null;
@@ -69,5 +79,7 @@ public class EndpointFormData {
 		expirationTime = expiration != null ? expiration.toLocalTime() : null;
 		contactInfo = ep.getContactInfo();
 		description = ep.getDescription();
-	}
+		
+		ep.getCertificates().forEach(c -> certs.add(new CertificateFormData(c)));
+	}	
 }

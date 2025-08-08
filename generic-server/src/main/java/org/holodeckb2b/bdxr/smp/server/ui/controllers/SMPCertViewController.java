@@ -20,12 +20,18 @@ import java.io.IOException;
 import java.security.KeyStore;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 
-import org.holodeckb2b.bdxr.smp.server.svc.SMLIntegrationService;
-import org.holodeckb2b.bdxr.smp.server.svc.SMPCertificateService;
+import org.holodeckb2b.bdxr.smp.datamodel.Certificate;
+import org.holodeckb2b.bdxr.smp.server.services.core.SMPServerAdminService;
+import org.holodeckb2b.bdxr.smp.server.ui.viewmodels.PendingCertUpdateData;
 import org.holodeckb2b.bdxr.smp.server.ui.viewmodels.X509CertificateData;
 import org.holodeckb2b.commons.security.KeystoreUtils;
+import org.holodeckb2b.commons.util.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -38,69 +44,99 @@ import org.springframework.web.multipart.MultipartFile;
 import jakarta.servlet.http.HttpSession;
 
 @Controller
-@RequestMapping("settings/smpcert")
+@RequestMapping("settings/cert")
 public class SMPCertViewController {
-	private static final String M_ERROR_ATTR = "keyFileError";
-	private static final String S_KEYPAIR = "keypair";
+	private static final String KP_ERR_ATTR = "keyPairError";
+	private static final String NEW_ATTR = "newCert";
+	private static final String ACT_ERR_ATTR = "activationError";
 
 	@Autowired
-	protected SMLIntegrationService		smlIntegration;
-	@Autowired
-	protected SMPCertificateService		certService;
+	protected SMPServerAdminService		configSvc;
 
 	@ModelAttribute("currentCert")
 	public X509CertificateData populateCurrentCert() {
-		try {
-			KeyStore.PrivateKeyEntry keyPair = certService.getKeyPair();
-			if (keyPair != null)
-				return new X509CertificateData((X509Certificate) keyPair.getCertificate());
-		} catch (CertificateException ex) {
-			return new X509CertificateData("There was an error reading the key pair. Please provide a new key pair.");
-		}
-		return null;
+		X509Certificate currentCert = configSvc.getServerMetadata().getCertificate();
+		return currentCert == null ? null : new X509CertificateData(currentCert);
 	}
-
+	
+	@ModelAttribute("plannedUpdate")
+	public PendingCertUpdateData populatePlannedUpdate() {
+		Certificate pendingUpd = configSvc.getServerMetadata().getPendingCertificateUpdate();
+		return pendingUpd == null ? null : new PendingCertUpdateData(new X509CertificateData(pendingUpd.getX509Cert()), 
+															 pendingUpd.getActivationDate().toLocalDate());
+	}
+		
+	@ModelAttribute("smlCertRegRequired")
+	public boolean provideSMLCertRequirement() {
+		return Boolean.TRUE.equals(configSvc.getNetworkServicesInfo().smlCertificateRegistrationRequired());
+	}
+	
 	@GetMapping(value = {"","/"})
-    public String getOverview(HttpSession s) throws Exception {
-		if (smlIntegration.requiresSMPCertRegistration())
-			return "redirect:/settings/sml/smpcert";
-
-		s.removeAttribute(S_KEYPAIR);
-	    return "admin-ui/smpcert";
+    public String getOverview() {
+		return "smpcert";
     }
 
 	@PostMapping(value = "/upload")
-	public String uploadKeypair(@RequestParam("keypair") MultipartFile kpFile, @RequestParam("password") String pwd, Model ra, HttpSession s) {
+	public String uploadKeypair(@RequestParam("keypair") MultipartFile kpFile, @RequestParam("password") String pwd, 
+								Model m, HttpSession s) {
 
 		if (kpFile.isEmpty())
-			ra.addAttribute(M_ERROR_ATTR, "You must provide a file containing the key pair");
+			m.addAttribute(KP_ERR_ATTR, "You must provide a file containing the key pair");
 		else {
 			try {
 				KeyStore.PrivateKeyEntry kp = KeystoreUtils.readKeyPairFromKeystore(kpFile.getInputStream(), pwd);
-				s.setAttribute(S_KEYPAIR, kp);
-				ra.addAttribute("newCert", new X509CertificateData((X509Certificate) kp.getCertificate()));
+				s.setAttribute(NEW_ATTR, kp);
+				m.addAttribute(NEW_ATTR, new X509CertificateData((X509Certificate) kp.getCertificate()));
 			} catch (IOException ex) {
-				ra.addAttribute(M_ERROR_ATTR, "An error occured reading the uploaded file");
+				m.addAttribute(KP_ERR_ATTR, "An error occured reading the uploaded file");
 			} catch (CertificateException ex) {
-				ra.addAttribute(M_ERROR_ATTR, "Could not read the key pair from the uploaded file");
+				m.addAttribute(KP_ERR_ATTR, "Could not read the key pair from the uploaded file");
 			}
 		}
-		return "admin-ui/smpcert";
+		return "smpcert";
 	}
 
-	@GetMapping("/change")
-	public String changeCert(Model m, HttpSession s) {
-		KeyStore.PrivateKeyEntry kp = (KeyStore.PrivateKeyEntry) s.getAttribute(S_KEYPAIR);
+	@PostMapping("/apply")
+	public String changeCert(@AuthenticationPrincipal UserDetails user, 
+							 @RequestParam(name = "activation", required = false) String activation,
+							 @RequestParam("activateOn") String activateOn,		
+							 Model m, HttpSession s) {
+		KeyStore.PrivateKeyEntry kp = (KeyStore.PrivateKeyEntry) s.getAttribute(NEW_ATTR);	
 		if (kp != null) {
+			m.addAttribute(NEW_ATTR, new X509CertificateData((X509Certificate) kp.getCertificate()));
+			m.addAttribute("activation", activation);
+			LocalDate activationDate = null;
+			if (Utils.isNullOrEmpty(activation))
+				m.addAttribute(ACT_ERR_ATTR, "Please select when the certificate should be activated");
+			else if ("scheduled".equals(activation)) {				
+				if (Utils.isNullOrEmpty(activateOn)) {
+					m.addAttribute(ACT_ERR_ATTR, "Please provide the date the certificate should be activated");					
+				} else {
+					LocalDate certStart = LocalDate.ofInstant(((X509Certificate) kp.getCertificate()).getNotBefore()
+																					 .toInstant(), ZoneOffset.UTC);
+					activationDate = LocalDate.parse(activateOn);
+					m.addAttribute("activateOn", activationDate);
+					if (activationDate.isBefore(LocalDate.now()))
+						m.addAttribute(ACT_ERR_ATTR, "The activation date cannot be before the current date");
+					else if (certStart.isAfter(activationDate))
+						m.addAttribute(ACT_ERR_ATTR, "Activation date cannot be before start of certificate validity");
+				}
+			}
+			if (m.getAttribute(ACT_ERR_ATTR) != null) 
+				return "smpcert";
+			
 			try {
-				certService.setKeyPair(kp);
-			} catch (CertificateException e) {
-				m.addAttribute(M_ERROR_ATTR, "An error occurred updating the SMP certificate. Try again later.");
-				m.addAttribute("newCert", new X509CertificateData((X509Certificate) kp.getCertificate()));
-				return "admin-ui/smpcert";
+				if (activationDate == null) 
+					configSvc.registerCertificate(user, kp);
+				else
+					configSvc.registerCertificate(user, kp, activationDate.atStartOfDay(ZoneOffset.UTC));				
+				s.removeAttribute(NEW_ATTR);
+			} catch (CertificateException certActivationError) {
+				
+				return "smpcert";
 			}
 		}
-		return "redirect:/settings/smpcert";
+		return "redirect:/settings/cert";
 	}
 
 }

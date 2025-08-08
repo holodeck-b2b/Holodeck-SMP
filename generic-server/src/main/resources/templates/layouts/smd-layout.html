@@ -1,0 +1,44 @@
+<!-- 
+ * Copyright (C) 2025 The Holodeck B2B Team
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the Affero GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ -->
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main-layout}"
+>
+<body>
+<section layout:fragment="dynamic-content">
+	<div class="row mt-2" th:with="baseURL=@{/smd/}">
+		<ul class="nav nav-tabs" role="tablist">
+		  <li class="nav-item" role="presentation">
+			<a th:href="|${baseURL}services|"
+			   th:class="|nav-link ${{requestURI.startsWith({baseURL}+'services')}? 'active' : _}|">Services</a>
+		  </li>
+		  <li class="nav-item" role="presentation">
+			<a th:href="|${baseURL}processes|"
+				th:class="|nav-link ${{requestURI.startsWith({baseURL}+'processes')}? 'active' : _}|">Processes</a>
+		  </li>
+		  <li class="nav-item" role="presentation">
+			<a th:href="|${baseURL}smt|"
+			   th:class="|nav-link ${{requestURI.startsWith({baseURL}+'smt')}? 'active' : _}|">Service Metadata Templates</a>
+		  </li>
+		</ul>
+		<div class="container mt-3">
+			<section layout:fragment="smd-content"></section>
+		</div>
+</section>
+</body>
+</html>

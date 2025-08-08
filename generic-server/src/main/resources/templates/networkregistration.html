@@ -1,0 +1,168 @@
+<!-- 
+ * Copyright (C) 2025 The Holodeck B2B Team
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the Affero GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ -->
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/settings-layout}"
+	  >
+<body>
+<section layout:fragment="settings-content">
+<div class="container">
+	<div th:if="${netInfo.smlCertificateRegistrationRequired && !certRegistered}" class="row">
+		<div class="col mx-2 p-2 alert alert-danger">
+			<div class="row align-items-center">
+				<div class="col-auto">
+					<i class="bi fs-5 ms-1 bi-exclamation-triangle"></i>
+				</div>
+				<div class="col-11 ps-2">
+				For the correct operation of the SMP service the server needs to be registered with the
+				network's SML service. Part of the required data for this registration is the SMP certificate.
+				Therefore you first need to register the SMP's certificate.   
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div th:unless="${netInfo.smlCertificateRegistrationRequired && !certRegistered}">
+		<form id="smlForm" method="post" th:action="@{/settings/network/update}" th:object="${registration}">
+		<div class="card">
+			<div class="card-header">
+				SMP Registration data
+			</div>
+			<div class="card-body">		
+				<div class="row mb-3">
+					<div th:unless="${smpRegistered}" class="col">
+						For the correct operation of the SMP service the server needs to be registered with the
+						network's SML service. Use the form below to provide the required server meta-data
+						to complete the registration of this SMP server with the SML service.  
+					</div>
+					<div th:if="${smpRegistered}" class="col">
+						The SMP is currently registered with with the network's SML service. Using the form below you
+						can update the registration data in the SML. Please note that the SMP identifier cannot be 
+						changed once the server has been registered.  
+					</div>					
+				</div>				
+				<div class="row mb-3">
+					<div class="col alert mx-2 p-2" th:classappend="${smpRegistered ? 'alert-success' : 'alert-info'}">
+						The SMP server 
+						<span th:unless="${smpRegistered}">will be</span>
+						<span th:if="${smpRegistered}">is</span>						 
+						registered with the <strong><span th:text="${netInfo.smlName}"></span></strong>.
+					</div>
+				</div>
+				<div class="row mb-3">
+					<label for="smpID" class="col-2 col-form-label">SMP identifier</label>
+					<div class="col-4">
+						<input type="text" class="form-control"
+							   th:disabled="${smpRegistered}"
+							   th:errorclass="is-invalid" th:field="*{SMPId}">
+						<div id="invalidNameMsg" class="invalid-feedback" th:errors="*{SMPId}"></div>						
+					</div>
+					<label class='col-6 col-form-label'>(may contain only letters, digits and the hyphen character)</label>
+				</div>
+				<div class="row mb-3">
+					<label for="ip4Address" class="col-2 col-form-label">External IPv4 address</label>
+					<div class="col-2">
+						<input type="text" class="form-control" th:errorclass="is-invalid" th:field="*{IPv4Address}"
+							   placeholder="___.___.___.___">
+						<div id="invalidIP4Address" class="invalid-feedback" th:errors="*{IPv4Address}"
+							style="width: max-content;">
+						</div>
+					</div>
+				</div>
+				<div class="row mb-3">
+					<label for="ip6Address" class="col-2 col-form-label">External IPv6 address</label>
+					<div class="col-3">
+						<input type="text" class="form-control" th:errorclass="is-invalid" th:field="*{IPv6Address}"
+							   placeholder="___:___:___:___:___:___:___:___">
+						<div id="invalidIP6Address" class="invalid-feedback" th:errors="*{IPv6Address}"
+							style="width: max-content;"	>
+						</div>
+					</div>
+				</div>
+				<div class="row mb-3">
+					<label for="baseURL" class="col-2 col-form-label">External base URL</label>
+					<div class="col-4">
+						<input type="text" class="form-control" th:errorclass="is-invalid" th:field="*{baseUrl}">
+						<div id="invalidNameMsg" class="invalid-feedback" th:errors="*{baseUrl}">
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row justify-content-center mt-3">
+			<div class="col-auto">
+				<button type='submit' class="btn btn-primary">
+					<span th:unless="${smpRegistered}">Register SMP</span>
+					<span th:if="${smpRegistered}">Update SMP data</span> in SML
+				</button>
+			</div>
+			<div class="col-auto">
+				<button type="button" class="btn btn-secondary" data-bs-toggle="modal" 
+					data-bs-target="#confirmCancel">Reload registered data</button>
+			</div>
+			<div class="col-auto">
+				<button type="button" class="btn btn-danger" th:disabled="${!smpRegistered}" 
+					data-bs-toggle="modal" data-bs-target="#confirmDelete">Remove SMP from SML</button>
+			</div>
+		</div>
+		</form>
+	</div>
+</div>
+
+	<div class="modal fade" id="confirmCancel" tabindex="-1" aria-labelledby="gridModalLabel" style="display: none;" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<span id="title" class="modal-title">Cancel update?</span>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<p id="question">Are you sure you want to discard all updates made to the SML registration ?</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Go back</button>
+					<a th:href="@{/settings/network}" id="confirmCancel" class="btn btn-danger">Discard changes</a>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="modal fade" id="confirmDelete" tabindex="-1" aria-labelledby="gridModalLabel" style="display: none;" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<span id="title" class="modal-title">Delete SMP from SML?</span>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<p id="question">Are you sure removing the SMP from the SML?</p>
+					<p>Note that this will also remove all registered participants from the SML,
+						making it impossible for other Access Points to reach them!
+					</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Go back</button>
+					<a th:href="@{/settings/network/remove/}" id="confirmBtn" class="btn btn-danger">Remove SMP from SML</a>
+				</div>
+			</div>
+		</div>
+	</div>
+
+</section>
+</body>
+</html>

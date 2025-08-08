@@ -1,0 +1,79 @@
+<!-- 
+ * Copyright (C) 2025 The Holodeck B2B Team
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the Affero GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ -->
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/settings-layout}"
+>
+<body>
+<section layout:fragment="settings-content">
+	<form id="smtForm" method="post" th:action="@{/settings/transports/update}" th:object="${profile}">
+	<input type="hidden" name="action" th:value="*{oid}? 'edit' : 'add'">
+	<input type="hidden" th:field="*{oid}">
+	<div class="row">
+	<div class="container">
+		<h5 th:text="(*{id} ? 'Edit' : 'Add') + ' Transport Profile data'">Edit Transport Profile data</h5>
+		<div class="card">
+		<div class="card-body">
+		<div class="row mb-3">
+			<label for="transportID" class="col-2 col-form-label">Identifier</label>
+			<div class="col-7">
+				<input type="text" class="form-control" th:errorclass="is-invalid"
+					   th:readonly="*{oid}" th:field="*{id.value}"
+					   placeholder="Transport profile identifier" />
+				<div id="invalidIdentifierMsg"
+					 th:if="${#fields.hasErrors('id.value')}" class="invalid-feedback"
+					 th:errors="*{id.value}">
+				</div>
+			</div>
+		</div>
+		<div class="row mb-3">
+			<label for="profileSpec" class="col-2 col-form-label">Specification reference</label>
+			<div class="col-7">
+				<input type="text" class="form-control" id="profileSpec" th:field="*{specificationRef}">
+			</div>
+		</div>
+		</div>
+	</div>
+	<div class="row justify-content-center mt-3">
+		<div class="col-auto "><button type='submit' class="btn btn-primary">Save transport profile data</button></div>
+		<div class="col-auto "><button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#confirmCancel">Cancel update</button></div>
+	</div>
+	</div>
+	</div>
+	</form>
+
+	<div class="modal fade" id="confirmCancel" tabindex="-1" style="display: none;" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<span id="title" class="modal-title">Cancel update?</span>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<p id="question">Are you sure you want to discard all updates made to the Transport Profile?</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Go back</button>
+					<a th:href="@{/settings/transports}"><button id="confirmBtn" type="button" class="btn btn-danger">Discard changes</button></a>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+</body>
+</html>

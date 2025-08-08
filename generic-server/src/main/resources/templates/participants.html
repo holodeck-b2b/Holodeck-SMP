@@ -1,0 +1,168 @@
+<!-- 
+ * Copyright (C) 2025 The Holodeck B2B Team
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the Affero GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ -->
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main-layout}"
+>
+<body>
+<section layout:fragment="dynamic-content">
+	<div class="row">
+		<div class="col-9">
+			<div class="mb-4 d-flex align-items-center justify-content-start">
+				<h5 class="me-3 mb-lg-0 text-dark text-decoration-none">
+					List of Participants
+				</h5>
+				<a th:href="@{/participants/add}" class="btn btn-sm btn-outline-primary col-lg-auto me-lg-auto justify-content-center">Add new Participant</a>
+			</div>
+		</div>
+		<div class="col-3 text-end">
+			<div class="dropdown">
+				<button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+				  Search Participants
+				</button>
+				<form class="dropdown-menu dropdown-menu-end p-4" style="min-width: 33vw;" method="post"
+					th:action="@{/participants/search}" th:object="${criteria}">
+				   	<div class="row	mb-3">
+					    <label for="partID" class="form-label">Participant Identifier</label>
+						<div class="col-6">
+							<select class="form-select" id="inputIdScheme" th:field="*{id.scheme}">
+								<option value="-1">Without scheme</option>
+		 						<option th:each="ids : ${idSchemes}" th:value="${ids.schemeId}"
+									th:text="${ids.schemeId}">Wireframe</option>
+	 					</select>						
+						</div>
+						<div class="col-6">
+							<input type="text" class="form-control" id="inputIdValue" th:field="*{id.value}"
+								   placeholder="Participant identifier" />
+					   	</div>
+				  	</div>
+				  	<div class="row mb-3">
+					    <label for="entityName" class="form-label">Business entity name starts with</label>
+					    <div class="col-12">
+					    	<input type="text" class="form-control" id="entityName" th:field="*{entityName}">
+				    	</div>
+				  	</div>
+				  	<div th:if="${smlAvailable}" class="row mb-3">
+					    <label for="registeredInSML" class="form-label">With SML registration status</label>
+					    <div class="col-4">
+					    	<input type="radio" class="form-check-input me-2" value="" name="registeredInSML"
+					    		th:checked="*{#strings.isEmpty(registeredInSML)}">
+					    	<label class="form-check-label">Any</label>
+					    </div>
+					    <div class="col-4">
+					    	<input type="radio" class="form-check-input me-2" value="true" th:field="*{registeredInSML}">
+					    	<label class="form-check-label">Registered</label>
+					    </div>
+					    <div class="col-4">
+					    	<input type="radio" class="form-check-input me-2" value="false" th:field="*{registeredInSML}">
+					    	<label class="form-check-label">Not registered</label>
+					    </div>
+				  	</div>
+				  	<div th:if="${directoryAvailable}" class="row mb-3">
+					    <label for="registeredInSML" class="form-label">Directory publication state</label>
+					    <div class="col-4">
+					    	<input type="radio" class="form-check-input me-2" value="" name="publishedInDirectory"
+					    		th:checked="*{#strings.isEmpty(publishedInDirectory)}">
+					    	 <label class="form-check-label">Any</label>
+					    </div>
+					    <div class="col-4">
+					    	<input type="radio" class="form-check-input me-2" value="true" th:field="*{publishedInDirectory}">
+					    	 <label class="form-check-label">Published</label>
+					    </div>
+					    <div class="col-4">
+					    	<input type="radio" class="form-check-input me-2" value="false" th:field="*{publishedInDirectory}">
+					    	 <label class="form-check-label">Not published</label>
+					    </div>
+				  	</div>
+				  	<div class="row justify-content-end">
+					  	<div class="col-2"><button type="submit" class="btn btn-primary">Search</button></div>
+					  	<div class="col-2"><a th:href="@{/participants}" class="btn btn-secondary">Reset</a></div>
+				  	</div>
+				</form>
+			</div>
+		</div>
+	</div>	
+	<div class="row mb-2">
+		<div class="col">
+		<table class="table table-striped overview">
+			<thead>
+				<tr>
+					<th >Particpant ID</th>
+					<th >Name</th>
+					<th th:if="${smlAvailable}" class="text-center">In SML?</th>
+					<th th:if="${directoryAvailable}" class="text-center">In Directory?</th>
+					<th class="text-center">#Services</th>
+					<th ></th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="p : ${participants.content}">
+					<td th:text="${p.id.toString()}">9999:hb2b-simon</td>
+					<td th:text="${p.name}">Simon's Electric Ltd.</td>
+					<td th:if="${smlAvailable}" class="text-center">
+						<span class="bi me-2">
+							<i th:if="${#bools.isTrue(p.isRegisteredInSML) && #strings.isEmpty(p.SMLMigrationCode)}" class="bi-check-square"></i>
+							<i th:if="${#bools.isTrue(p.isRegisteredInSML) && !#strings.isEmpty(p.SMLMigrationCode)}" class="bi-suitcase-lg"></i>
+							<i th:unless="${p.isRegisteredInSML}" class="bi-dash-square"></i>
+						</span>
+					</td>
+					<td th:if="${directoryAvailable}" class="text-center">
+						<span class="bi me-2">
+							<i th:if="${p.publishedInDirectory}" class="bi-check-square"></i>
+							<i th:unless="${p.publishedInDirectory}" class="bi-dash-square"></i>
+						</span>
+					</td>
+					<td th:text="${p.boundSMT.size()}" class="text-center">1</td>
+					<td th:with="urlId=${T(org.holodeckb2b.bdxr.smp.server.utils.IdUtils).toIDString(p.id)}">
+						<a th:href="@{/participants/edit/{id}(id=${urlId})}" class="btn btn-sm btn-outline-dark">Edit</a>
+							<button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#confirmDelete"
+									th:attr="data-bs-participant=@{/participants/delete/{id}(id=${urlId})}">Delete</button>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		</div>
+	</div>
+	<div th:replace="~{fragments/page_nav :: pageNavigation(${participants}, '/participants')}" ></div>
+
+	<div class="modal fade" id="confirmDelete" tabindex="-1" aria-labelledby="gridModalLabel" style="display: none;" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Delete participant?</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<p>Are you sure you want to delete participant registration?</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+					<a id="delConfirmed"><button type="button" class="btn btn-danger">Delete participant</button></a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script>
+		$('#confirmDelete').on('show.bs.modal', function (event) {
+		  $('#delConfirmed').attr('href', event.relatedTarget.getAttribute('data-bs-participant'));
+		})
+	</script>
+
+</section>
+</body>
+</html>

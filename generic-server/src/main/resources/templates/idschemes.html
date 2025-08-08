@@ -1,0 +1,89 @@
+<!-- 
+ * Copyright (C) 2025 The Holodeck B2B Team
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the Affero GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ -->
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/settings-layout}"
+	  >
+<body>
+<section layout:fragment="settings-content">
+	<div class="row">
+		<div class="container">
+			<div class="mb-2 d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+				<h5 class="d-flex align-items-center me-3 mb-lg-0 text-dark text-decoration-none">
+					List of Identifier Schemes
+				</h5>
+				<a th:href="@{/settings/ids/edit/}" class="btn btn-sm btn-outline-primary col-lg-auto me-lg-auto justify-content-center  ">Add new scheme</a>
+			</div>
+		</div>
+	</div>
+	<div class="row mb-2">
+		<table class="table table-striped overview">
+			<thead>
+				<tr>
+					<th>Scheme ID</th>
+					<th>Name</th>
+					<th>Agency</th>
+					<th class="text-center">Case sensitive ids?</th>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="s : ${schemes.content}">
+					<td th:text="${s.schemeId}">SchemeID</td>
+					<td th:text="${s.name}">Scheme name</td>
+					<td th:text="${s.agency}">«Scheme agency</td>
+					<td class="text-center">
+						<i class="bi me-2" th:classappend="${s.caseSensitive ? 'bi-check-square' : 'bi-dash-square'}"></i>
+					</td>									
+					<td class="col-2">
+						<a th:href="@{/settings/ids/edit/{id}(id=${s.schemeId})}" class="px-3 btn btn-sm btn-outline-dark">Edit</a>
+						<button class="ms-2 btn btn-sm btn-outline-danger"
+								data-bs-toggle="modal" data-bs-target="#confirmDelete"
+								th:attr="data-bs-scheme=@{/settings/ids/delete/{id}(id=${s.schemeId})}">Delete</button>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	<div th:replace="~{fragments/page_nav :: pageNavigation(${schemes}, '/settings/ids')}" ></div> 
+	
+	<div class="modal fade" id="confirmDelete" tabindex="-1" style="display: none;">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Confirm delete</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+				</div>
+				<div class="modal-body">
+					<p>Are you sure you want to delete the identifier scheme?</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+					<a id="delConfirmed"><button type="button" class="btn btn-danger">Delete scheme</button></a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script>
+		$('#confirmDelete').on('show.bs.modal', function (event) {
+		  $('#delConfirmed').attr('href', event.relatedTarget.getAttribute('data-bs-scheme'));
+		})
+	</script>
+</section>
+</body>
+</html>

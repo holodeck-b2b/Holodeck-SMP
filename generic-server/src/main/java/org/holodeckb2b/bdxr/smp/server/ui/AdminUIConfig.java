@@ -17,10 +17,12 @@
 package org.holodeckb2b.bdxr.smp.server.ui;
 
 import org.holodeckb2b.bdxr.smp.server.SMPServerApplication;
+import org.holodeckb2b.bdxr.smp.server.ui.auth.UserAccount;
+import org.holodeckb2b.bdxr.smp.server.ui.auth.UserAccountRepository;
+import org.holodeckb2b.bdxr.smp.server.ui.auth.UserRole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -40,7 +42,6 @@ public class AdminUIConfig {
 	private static final String DEFAULT_UID = "admin@smp.holodeck-b2b.org";
 
 	@Bean
-	@Autowired
 	InitializingBean initAdminUser(UserAccountRepository users) {
 		return () -> {
 			if (users.countAdmins() == 0) {

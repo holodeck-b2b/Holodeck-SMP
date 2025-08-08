@@ -21,6 +21,8 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.holodeckb2b.bdxr.smp.server.services.query.IQueryResponder;
+import org.holodeckb2b.bdxr.smp.server.services.query.QueryResponse;
 import org.holodeckb2b.commons.util.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

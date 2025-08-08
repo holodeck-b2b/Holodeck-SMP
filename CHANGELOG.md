@@ -2,6 +2,28 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## 3.0.0
+##### 
+### Added 
+* Support for TOTP based two factor authentication. Use of 2FA can be configured to be required for all users.
+* Locking of users accounts. Accounts will automatically be locked after, a configurable, number of failed login 
+  attempts or can be locked by an administrator.
+* Audit logging. All actions related to authentication and changes in meta-data are logged in the audit log.
+* Search function for Participants to find Participants based on their identifier, business name, SML or Directory 
+  registration state.  
+* Interface layer that defines the API of the Holodeck SMP Core and can be used to implement extensions
+
+### Changed
+* The use of a network SML and Directory service has been generalised and is not limited to Peppol only
+* Certificate updates can be scheduled to be applied in the future (was already required when using the SMP server in 
+  the Peppol network, but has also been generalised)
+* External URL (as registered in SML) can be configured instead of only host name allowing both https and custom context
+  paths to be used for queries.
+
+### Fixed
+* Slow loading of the Participant overview page when there are many Participants registrations.
+ 
+
 ## 2.1.0
 ##### 
 ### Added 

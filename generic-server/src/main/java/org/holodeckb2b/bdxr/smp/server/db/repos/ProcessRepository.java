@@ -16,25 +16,15 @@
  */
 package org.holodeckb2b.bdxr.smp.server.db.repos;
 
-import org.holodeckb2b.bdxr.smp.server.db.entities.ProcessE;
+
+import org.holodeckb2b.bdxr.smp.server.db.entities.ProcessEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 /**
- * The Spring JPA repository for process meta-data.
+ * The Spring JPA repository for Process meta-data which beside the default repository operations also supports 
+ * searching and duplicate checks on the process identifier.
  *
  * @author Sander Fieten (sander at holodeck-b2b.org)
  */
-public interface ProcessRepository extends JpaRepository<ProcessE, Long>, ProcessSearchByIdRepo {
-
-	@Query("""
-			select count(*)
-			from ServiceMetadataTemplate smt
-			where smt in (select pg.template
-						  from ProcessGroup pg
-						  where pg in (select pi.procgroup from ProcessInfo pi where pi.process = :proc)
-						 )
-		""")
-	Integer getNumberOfTemplates(@Param("proc") ProcessE proc);
+public interface ProcessRepository extends JpaRepository<ProcessEntity, Long>, ProcessIdCapableRepo {
 }

@@ -17,11 +17,14 @@
 package org.holodeckb2b.bdxr.smp.server;
 
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.annotation.PropertySources;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
  * Configures the common components of the SMP server used by both the query responder and the administration UI.
@@ -29,7 +32,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  * @author Sander Fieten (sander at holodeck-b2b.org)
  */
 @Configuration
-@ComponentScan({"org.holodeckb2b.bdxr.smp.server.db", "org.holodeckb2b.bdxr.smp.server.svc"})
+@ComponentScan({"org.holodeckb2b.bdxr.smp.server.db", "org.holodeckb2b.bdxr.smp.server.services",
+				"org.holodeckb2b.bdxr.smp.server.utils"})
 @PropertySources({
 	@PropertySource("classpath:/common-defaults.properties"),
 	@PropertySource(value = "file:${smp.home:.}/common.properties", ignoreResourceNotFound = true)})
@@ -37,4 +41,16 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 public class CommonServerConfig {
 
+	/**
+	 * Password encoder to hash user passwords and ensure they cannot be retrieved or decoded
+	 */
+    private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+    /**
+	 * @return the {@link PasswordEncoder} instance to use for hashing of passwords  
+	 */
+	@Bean
+    PasswordEncoder passwordEncoder(){
+        return passwordEncoder;
+    }    
 }

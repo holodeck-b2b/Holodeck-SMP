@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.holodeckb2b.bdxr.smp.server</groupId>
 	<artifactId>parent</artifactId>
-	<version>2.1.0</version>
+	<version>3.0.0</version>
 	<packaging>pom</packaging>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -66,6 +66,11 @@
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
+				<groupId>${project.groupId}</groupId>
+				<artifactId>interfaces</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>org.holodeckb2b.commons</groupId>
 				<artifactId>generic-utils</artifactId>
 				<version>${utils.version}</version>
@@ -73,13 +78,13 @@
 			<dependency>
 				<groupId>org.holodeckb2b.bdxr</groupId>
 				<artifactId>bdxr-common</artifactId>
-				<version>4.0.0</version>
+				<version>5.0.0</version>
 			</dependency>
 			<!-- SPRING -->
 			<dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
-                <version>3.3.10</version>
+                <version>3.4.0</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -128,6 +133,7 @@
 		</pluginManagement>
 	</build>
 	<modules>
+		<module>interfaces</module>
 		<module>generic-server</module>
 		<module>oasis-smp2</module>
 		<module>peppol-smp</module>

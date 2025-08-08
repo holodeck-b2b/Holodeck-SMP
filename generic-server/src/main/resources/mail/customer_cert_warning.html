@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<body>
+Hello operator or administrator of [(${customer})],
+<p>
+this is a notification from the [(${@environment.getProperty('portal.name')})] to inform inform you that the AS4 messaging certificate 
+<span th:if="${hasMultiple}"> issued to [(${submitterName)] </span> for the data exchange with
+ [(${@environment.getProperty('portal.domain')})] [[${env.name().toLowerCase()}]] is about to expire on [(${expDate})] and needs to be renewed. Go to the <a th:href=
+"@{{host}/{env}/configuration/messaging/edit/{oid}(host=${@environment.getProperty('portal.external-url')},env=${env.name().toLowerCase()},oid=${oid})}">
+Messaging Settings</a> of the [(${@environment.getProperty('portal.submitterRole')})] to see all the details of the current 
+certificate.
+<br> 
+<span th:if="${usesECPKI}">On this page you create a new <i>Certificate Signing Request</i> to the EC's
+ PKI service for a new certificate.</span> 
+<span th:unless="${usesECPKI}">
+Request a new certificate from your Certificate Authority and click on <i>Upload new certificate</i> to install the new certificate.
+</span>
+<p>
+You should install the new certificate <b>before [(${expDate})]</b> as your current certificate will expire then and you 
+will not be able to exchange messages with [(${@environment.getProperty('portal.domain')})] if not replaced by the new
+ certificate.
+<p>
+This email is sent to all operators and administrators registered for your company.
+</body>
+</html>

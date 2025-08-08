@@ -1,6 +1,23 @@
-<!DOCTYPE html>
+<!-- 
+ * Copyright (C) 2025 The Holodeck B2B Team
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the Affero GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ -->
 <html lang="en"
       xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/nomenu-layout}"
 >
 <head>
     <meta charset=" UTF-8"/>
@@ -11,6 +28,16 @@
 
 </head>
 <body>
-<p>Oops, that didn't go as expected :-(</p>
+<section layout:fragment="page-content">
+<div class="container">
+<h3>Internal Error</h3>
+<p>
+An internal error occurred trying to process your request. Please go back and check the current state of the system.
+If the error persists please contact your system administrator for support.<br/>
+<p>
+<a th:href="@{/}">Go back to home page</a>.
+</p>
+</div> 
+</section>
 </body>
 </html>

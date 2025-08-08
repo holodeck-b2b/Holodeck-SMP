@@ -1,0 +1,39 @@
+<!-- 
+ * Copyright (C) 2025 The Holodeck B2B Team
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the Affero GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ -->
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8" />
+<title>Holodeck SMP Server Administration</title>
+<link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}" />
+<link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/font/bootstrap-icons.css}">
+<link rel="stylesheet" th:href="@{/css/main.css}" />
+<script th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
+</head>
+<body>
+	<header class="p-3">
+		<div class="container">
+			<div class="row text-center align-items-center justify-content-center">
+				<div class="col-auto"><a href="/"><img th:src='@{/img/logo.png}' height="60em" role="img" /></a></div>
+				<div class="col-auto"><h3 th:text="${@environment.getProperty('portal.name')}">Chasquis EU Reporting Gateway</h3></div>
+			</div>
+		</div>
+	</header>
+
+	<section layout:fragment="page-content"></section>
+
+</body>
+</html>

@@ -1,0 +1,151 @@
+<!-- 
+ * Copyright (C) 2025 The Holodeck B2B Team
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the Affero GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ -->
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<body>
+<div th:fragment="totpRegistrationDlg (reqdByCompany, action)">
+	<div class="modal fade" id="totpRegDialog" data-bs-backdrop="static" tabindex="-1" style="display: none;">
+		<div class="modal-dialog modal-lg">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Register 2FA device</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+				</div>
+				<div class="modal-body">
+					<div th:if="${reqdByCompany}" class="row mb-2">						
+						<div class="col">
+						Your company's security policy requires you to use two-factor authentication. Therefore you must
+						enable two-factor authentication and register a authenticator application.  
+						</div>
+					</div>
+					<div class="row mb-2">						
+						<div class="col">
+						To enable two-factor authentication you need to have a time-based one-time password (TOTP) application.
+						We don't require a specific authenticator, you're free to choose any TOTP application you want.
+						</div>
+					</div>
+					<div class="row mt-2 mb-2">
+						<div class="col">
+						Scan the QR code with you authenticator app or enter the secret key manually to register this
+						 login in your authenticator app. Once registered enter the code shown by the authenticator app
+						 below to verify correct registration.
+						</div>
+						<div class="row text-center">
+							<div class="col">
+								<img id="qrCode" width="200px"/> 
+							</div>
+						</div>				
+						<div class="row text-center">
+							<div class="col small">Secret key:</div>
+						</div>										
+						<div class="row text-center mb-3">
+							<div id="secret" class="col small"></div>
+						</div>			
+						<form id="totpRegistration" class="form" onsubmit="register2FA();" novalidate>
+							<div class="row mb-2">
+								<label class="col-form-label col-5">Provide a name for used authenticator:</label>
+								<div class="col-5">
+									<input class="form-control" id="deviceName" name="deviceName" type="text" required/>
+									<div class="invalid-feedback">Enter name to identify your authenticator app</div>									
+								</div>
+							</div>														
+							<div class="row">
+								<label class="col-form-label col-5">Enter code shown in authenticator:</label>
+								<div class="col-3">
+									<input class="form-control" id="verificationCode" name="verificationCode" 
+										type="text" pattern="\d{6,6}" required/>
+									<div class="invalid-feedback">Enter the 6 digits from authenticator app</div>									
+								</div>
+							</div>							
+							<div id="failedVerification" class="row mt-3 mx-2 d-none">
+								<div class="col py-1 alert alert-danger">The entered code could not be verified, 
+									please enter new code as shown in your authenticator app or try registering again.
+								</div>
+							</div>							
+						</form>
+					</div>		
+				</div>			
+				<div class="modal-footer">
+					<button th:unless="${reqdByCompany}" type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
+					<a th:if="${reqdByCompany}" th:href="@{/logout}"  class="btn btn-danger">Logout</a>
+					<button type="submit" form="totpRegistration" class="btn btn-primary">Register</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+<script th:inline="javascript">
+
+let deviceNameFld = document.getElementById('deviceName');
+let codeFld = document.getElementById('verificationCode');
+let newTotpDeviceFld = document.getElementById('newTotpDevice');
+
+let totpDlgElement = document.getElementById('totpRegDialog');
+totpDlgElement.addEventListener('show.bs.modal', e => {
+	deviceNameFld.value = "";
+	codeFld.value = "";
+	fetch("/mfa/register/prepare")
+		.then((response) => {
+    		if (!response.ok) {
+      			throw new Error(`HTTP error! Status: ${response.status}`);
+    		}
+		    return response.json();
+		})
+		.then(json => {
+		  	document.getElementById('qrCode').src = json.qr;
+		  	document.getElementById('secret').textContent = json.key;		  
+		});
+});
+
+totpDlgElement.addEventListener('shown.bs.modal', e => deviceNameFld.focus() );
+
+function register2FA() {	
+	let regForm = document.getElementById('totpRegistration');
+	event.preventDefault();
+	event.stopPropagation();
+	let verifyWrn = document.getElementById('failedVerification');
+	if (!verifyWrn.classList.contains('d-none'))
+		verifyWrn.classList.add('d-none');
+	if (regForm.checkValidity()) {
+    	document.body.style.cursor = "wait";
+    	fetch("/mfa/register/[(${action})]", {
+		        method: 'POST',
+		        body: new FormData(regForm)	        
+ 			})
+			.then((response) => {
+				document.body.style.cursor = "auto";
+	    		if (!response.ok) { 
+					regForm.classList.remove('was-validated');					
+					codeFld.value = "";
+					codeFld.focus();
+			    	verifyWrn.classList.remove('d-none');			    	    
+	    		} else if ([[(${action})]] === 'verifyandsave')
+	    			window.location.reload();
+	    		else {
+					if (newTotpDeviceFld != null)
+						newTotpDeviceFld.value = deviceNameFld.value;
+	    			bootstrap.Modal.getInstance(totpDlgElement).hide();
+	    		}
+			})
+    } else
+    	regForm.classList.add('was-validated')	
+}
+	
+</script>
+
+</div>
+</body>
