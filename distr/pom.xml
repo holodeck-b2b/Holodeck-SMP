@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.holodeckb2b.bdxr.smp.server</groupId>
         <artifactId>parent</artifactId>
-        <version>2.1.0</version>
+        <version>3.0.0</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>smp-server-app</artifactId>
@@ -47,10 +47,11 @@
 
 	<build>
 		<finalName>holodeck-smp-server-${project.version}</finalName>
-        <plugins>
+        <plugins>       
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>4.0.0-M2</version>
                 <configuration>
 					<layout>ZIP</layout>
                     <mainClass>org.holodeckb2b.bdxr.smp.server.SMPServerApplication</mainClass>
