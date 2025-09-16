@@ -14,12 +14,10 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.holodeckb2b.bdxr.smp.server.svc.peppol;
+package org.holodeckb2b.bdxr.smp.server.services.peppol;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -46,43 +44,67 @@ import org.apache.hc.core5.http.config.RegistryBuilder;
 import org.apache.hc.core5.ssl.SSLContextBuilder;
 import org.apache.hc.core5.ssl.SSLContexts;
 import org.holodeckb2b.bdxr.smp.server.datamodel.Participant;
-import org.holodeckb2b.bdxr.smp.server.db.repos.ParticipantRepository;
-import org.holodeckb2b.bdxr.smp.server.svc.DirectoryException;
-import org.holodeckb2b.bdxr.smp.server.svc.IDirectoryIntegrator;
-import org.holodeckb2b.bdxr.smp.server.svc.SMPCertificateService;
+import org.holodeckb2b.bdxr.smp.server.services.core.SMPServerAdminService;
+import org.holodeckb2b.bdxr.smp.server.services.network.DirectoryException;
+import org.holodeckb2b.bdxr.smp.server.services.network.DirectoryIntegrationService;
 import org.holodeckb2b.commons.security.CertificateUtils;
 import org.holodeckb2b.commons.util.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.ws.client.core.WebServiceTemplate;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * Implements the integration of the SMP with the Peppol Directory.
  *
  * @author Sander Fieten (sander at holodeck-b2b.org)
  */
+@Slf4j
 @Service("PEPPOLDirectoryClient")
-public class DirectoryClient implements IDirectoryIntegrator {
+public class DirectoryClient implements DirectoryIntegrationService {
 
-	@Value("${directory.prod_url:https://directory.peppol.eu/}")
+	@Value("${peppol.directory.prod.name:Peppol Production Directory}")
+	protected String prodName;
+	@Value("${peppol.directory.prod.url:https://directory.peppol.eu/}")
 	protected String prodURL;
-	@Value("${directory.acc_url:https://test-directory.peppol.eu/}")
-	protected String accURL;
-	@Value("${sml.ssl-truststore:}")
+
+	@Value("${peppol.directory.acc.name:Peppol Acceptance Directory}")
+	protected String testName;
+	@Value("${peppol.directory.acc.url:https://test-directory.peppol.eu/}")
+	protected String testURL;
+
+	@Value("${peppol.directory.ssl.verifyhostname:true}")
+	protected boolean verifyHostname;
+
+	@Value("${peppol.directory.ssl.truststore:}")
 	protected String sslTrustStorePath;
-	@Value("${sml.ssl-truststore-pwd:}")
+	@Value("${peppol.directory.ssl.truststore.pwd:}")
 	protected String sslTrustStorePwd;
 
+	@Lazy
 	@Autowired
-	protected SMPCertificateService	certSvc;
-	@Autowired
-	protected ParticipantRepository participants;
+	protected SMPServerAdminService	adminSvc;
+	
+	@Override
+	public String getDirectoryName() {
+		X509Certificate smpCert = adminSvc.getServerMetadata().getCertificate();
+		if (smpCert == null) {
+			log.warn("Directory name cannot be determined as SMP certificate is not available!");
+			return null;
+		}
+		return CertificateUtils.getIssuerName(smpCert).toLowerCase().contains("test") ? testName : prodName;
+	}
 
-	private URI targetURL;
+	@Override
+	public boolean isSMLRegistrationRequired() {
+		return true;
+	}	
 	
 	@Override
 	public void publishParticipantInfo(Participant p) throws DirectoryException {		
@@ -107,28 +129,19 @@ public class DirectoryClient implements IDirectoryIntegrator {
 	}
 
 	/**
-	 * Determines the URL of the Peppol directory interface based on the installed SMP certificate. The default Peppol URLs can
-	 * be overriden by setting the <code>directory.prod_url</code> and <code>directory.acc_url</code> application properties in
-	 * <code>common.properties</code>.
+	 * Determines the base URL of the SML interface based on the installed SMP certificate. The default Peppol URLs can
+	 * be overridden by setting the <code>peppol.sml.prod.url</code> and <code>peppol.sml.acc.url</code> application 
+	 * properties in <code>common.properties</code>.
 	 *
 	 * @return	the URL where the SML interface is located
 	 */
-	private URI targetURL() {
-		if (targetURL == null) {
-			try {
-				KeyStore.PrivateKeyEntry keyPair = certSvc.getKeyPair();
-				String baseURL = CertificateUtils.getIssuerName((X509Certificate) keyPair.getCertificate()).toLowerCase()
-																.contains("test") ? accURL : prodURL;
-				targetURL = new URI(baseURL + "indexer/1.0/");				
-			} catch (CertificateException ex) {
-				Logger.getLogger(DirectoryClient.class.getName()).log(Level.SEVERE,
-																"Could not retrieve SMP cert : {0}", ex.getMessage());
-			} catch (URISyntaxException invalidURL) {
-				Logger.getLogger(DirectoryClient.class.getName()).log(Level.SEVERE,
-						"Invalid URL specified for directory API : {0}", invalidURL.getMessage());
-			}
-		}
-		return targetURL;
+	private String targetURL() {
+		X509Certificate smpCert = adminSvc.getServerMetadata().getCertificate();
+		if (smpCert == null) {
+			log.error("Directory function called before SMP certificate is available!");
+			return null;
+		} else
+			return CertificateUtils.getIssuerName(smpCert).toLowerCase().contains("test") ? testURL : prodURL;		
 	}
 	
 	/**
@@ -140,20 +153,10 @@ public class DirectoryClient implements IDirectoryIntegrator {
 	private RestTemplate restTemplate() throws SSLException {
 		RestTemplate restTemplate = new RestTemplate();
 
-		/* When the configured SML base URL is for localhost we turn off hostname verification as otherwise the
-		 * following error is probably thrown:
-		 *		java.security.cert.CertificateException: No name matching localhost found
-		 */
-		KeyStore.PrivateKeyEntry keyPair;
-		try {
-			keyPair = certSvc.getKeyPair();
-		} catch (CertificateException ex) {
-			throw new SSLException("Could not retrieve SMP key pair");
-		}
-		SSLConnectionSocketFactory sslFactory = targetURL().getHost().contains("localhost") ?
-													new SSLConnectionSocketFactory(sslContext(keyPair),
-																				   NoopHostnameVerifier.INSTANCE)
-												  : new SSLConnectionSocketFactory(sslContext(keyPair));
+		SSLConnectionSocketFactory sslFactory = verifyHostname ?
+													new SSLConnectionSocketFactory(sslContext()) :
+													new SSLConnectionSocketFactory(sslContext(),
+																				   NoopHostnameVerifier.INSTANCE);
 
 		Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory>create()
 				.register("https", sslFactory)
@@ -174,21 +177,21 @@ public class DirectoryClient implements IDirectoryIntegrator {
 	/**
 	 * Creates the <code>SSLContext</code> for the connections to the SML. It uses the given SMP key pair for client
 	 * authentication and can use a customised trust store for validation of the SML server certificate. To use a
-	 * customised trust store the <code>sml.ssl-truststore</code> and <code>sml.ssl-truststore-pwd</code> application
-	 * properties must be set in <code>common.properties</code>.
+	 * customised trust store the <code>peppol.directory.ssl.truststore</code> and 
+	 * <code>peppol.directory.ssl.truststore</code> application properties should be set in 
+	 * <code>common.properties</code>.
 	 *
-	 * @param pk	the key pair to use for client authentication
 	 * @return	the SSLContext for creating connections to the SML
 	 * @throws SSLException	when either the key pair for client authentication or the custom trust store for server
 	 *						authentication cannot be processed
 	 */
-	private SSLContext sslContext(KeyStore.PrivateKeyEntry pk) throws SSLException {
+	private SSLContext sslContext() throws SSLException {
 		SSLContextBuilder ctxBldr = SSLContexts.custom();
 		try {
 			char[] pwd = new char[] {};
 			KeyStore keyStore = KeyStore.getInstance("JKS");
 			keyStore.load(null, null);
-			keyStore.setEntry("1", pk, new KeyStore.PasswordProtection(pwd));
+			keyStore.setEntry("1", adminSvc.getActiveKeyPair(), new KeyStore.PasswordProtection(pwd));
 			ctxBldr.loadKeyMaterial(keyStore, pwd);
 		} catch (IOException | KeyStoreException | NoSuchAlgorithmException | UnrecoverableKeyException
 				| CertificateException keyFailure) {
@@ -205,7 +208,9 @@ public class DirectoryClient implements IDirectoryIntegrator {
 		} catch (NoSuchAlgorithmException | KeyManagementException ex) {
 			Logger.getLogger(SMLClient.class.getName()).severe("Error creating SSL context : "
 																+ Utils.getExceptionTrace(ex));
-			throw new SSLException("Could not setup SSL context for SML connection", ex);
+			throw new SSLException("Could not setup SSL context for Directory connection", ex);
 		}
-	}	
+	}
+
+	
 }

@@ -16,25 +16,22 @@
  */
 package org.holodeckb2b.bdxr.smp.server.queryapi.peppol;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.security.cert.CertificateException;
-import java.util.List;
+import java.util.Collection;
 import java.util.NoSuchElementException;
 import java.util.regex.Pattern;
 
 import javax.xml.crypto.dsig.XMLSignatureException;
 
-import org.holodeckb2b.bdxr.smp.datamodel.Identifier;
-import org.holodeckb2b.bdxr.smp.server.db.SMLRegistration;
-import org.holodeckb2b.bdxr.smp.server.db.entities.ServiceMetadataBindingE;
-import org.holodeckb2b.bdxr.smp.server.db.repos.ParticipantRepository;
-import org.holodeckb2b.bdxr.smp.server.db.repos.ServiceMetadataBindingRepository;
-import org.holodeckb2b.bdxr.smp.server.queryapi.IQueryResponder;
-import org.holodeckb2b.bdxr.smp.server.queryapi.QueryResponse;
-import org.holodeckb2b.bdxr.smp.server.queryapi.XMLResponseSigner;
-import org.holodeckb2b.bdxr.smp.server.svc.IdUtils;
-import org.holodeckb2b.bdxr.smp.server.svc.peppol.SMLClient;
+import org.holodeckb2b.bdxr.common.datamodel.Identifier;
+import org.holodeckb2b.bdxr.smp.server.datamodel.Participant;
+import org.holodeckb2b.bdxr.smp.server.datamodel.ServiceMetadataTemplate;
+import org.holodeckb2b.bdxr.smp.server.queryapi.ResponseSigner;
+import org.holodeckb2b.bdxr.smp.server.services.core.ParticipantsService;
+import org.holodeckb2b.bdxr.smp.server.services.core.PersistenceException;
+import org.holodeckb2b.bdxr.smp.server.services.core.SMPServerAdminService;
+import org.holodeckb2b.bdxr.smp.server.services.query.IQueryResponder;
+import org.holodeckb2b.bdxr.smp.server.services.query.QueryResponse;
+import org.holodeckb2b.bdxr.smp.server.utils.IdUtils;
 import org.holodeckb2b.commons.util.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -64,26 +61,30 @@ public class PEPPOLQueryResponder implements IQueryResponder {
 	@Autowired
 	protected IdUtils	queryUtils;
 	@Autowired
-	protected XMLResponseSigner	signer;
+	protected ResponseSigner	signer;
 	@Autowired
-	protected ParticipantRepository participants;
+	protected ParticipantsService  participantsSvc;
 	@Autowired
-	protected ServiceMetadataBindingRepository bindings;
-	@Autowired
-	protected SMLClient		smlSvc;
-
+	protected SMPServerAdminService	adminSvc;
+	
 	private ServiceMetadataFactory smdFactory;
 	private ServiceGroupFactory sgFactory;
 
 	@Override
 	public QueryResponse processQuery(String query, HttpHeaders headers) {
-		if (Pattern.matches(".+/services/.+", query))
-			return processServiceMetadataQuery(query.substring(1));
-		else
-			return processServiceGroupQuery(query.substring(1));
+		try {
+			if (Pattern.matches(".+/services/.+", query))
+				return processServiceMetadataQuery(query.substring(1));
+			else
+				return processServiceGroupQuery(query.substring(1));
+		} catch (Throwable t) {
+			log.error("Error during processing query ({}): {}", query, Utils.getExceptionTrace(t));
+			return new QueryResponse(HttpStatus.INTERNAL_SERVER_ERROR, null, null);
+		}
 	}
 
-	private QueryResponse processServiceMetadataQuery(String query) {
+	private QueryResponse processServiceMetadataQuery(String query) throws PersistenceException, InstantiationException,
+			 																				XMLSignatureException {
 		log.trace("Process a ServiceMetadata query");
 		Identifier partID, svcID;
 		int pidEnd = query.indexOf('/', 1);
@@ -101,33 +102,24 @@ public class PEPPOLQueryResponder implements IQueryResponder {
 			log.debug("ID Scheme of queried Service ID ({}) not found!", pidString);
 			return new QueryResponse(HttpStatus.NOT_FOUND, null, null);
 		}
-		log.trace("Retrieve SMB for Participant={} and Service={}", partID.toString(), svcID.toString());
-		ServiceMetadataBindingE smb = bindings.findByParticipantAndServiceId(partID, svcID);
-		if (smb == null) {
-			log.debug("No SMB found for Participant={} and Service={}", partID.toString(), svcID.toString());
+		log.trace("Retrieve Participant={}", partID.toString());
+		Participant p = participantsSvc.getParticipant(partID);
+		ServiceMetadataTemplate smt = p == null ? null : 
+					p.getBoundSMT().stream().filter(t -> t.getService().getId().equals(svcID)).findFirst().orElse(null);
+		if (smt == null) {
+			log.debug("No template found for Participant={} and Service={}", partID.toString(), svcID.toString());
 			return new QueryResponse(HttpStatus.NOT_FOUND, null, null);
 		}
 		log.trace("Create ServiceMetadata response document");
-		Document response, signed;
-		try {
-			response = getSmdFactory().newResponse(smb);
-		} catch (InstantiationException ex) {
-			log.error("Error occurred creating the ServiceMetadata response: {}", ex.getMessage());
-			return new QueryResponse(HttpStatus.INTERNAL_SERVER_ERROR, null, null);
-		}
+		Document response = getSmdFactory().newResponse(p.getId(), smt);
 		log.trace("Sign the response document");
-		try {
-			signed = signer.signResponse(response, signingAlgorithm, digestMethod, c14nAlgorithm);
-		} catch (XMLSignatureException ex) {
-			log.error("Error occurred signing the response document. Error details: {}", Utils.getExceptionTrace(ex));
-			return new QueryResponse(HttpStatus.INTERNAL_SERVER_ERROR, null, null);
-		}
+		response = signer.signResponse(response, signingAlgorithm, digestMethod, c14nAlgorithm);
 		log.info("Completed ServiceMetadata query for Participant={} and Service={}",
 				partID.toString(), svcID.toString());
-		return new QueryResponse(HttpStatus.OK, null, signed);
+		return new QueryResponse(HttpStatus.OK, null, response);
 	}
 
-	private QueryResponse processServiceGroupQuery(String query) {
+	private QueryResponse processServiceGroupQuery(String query) throws PersistenceException, InstantiationException {
 		log.trace("Process a ServiceGroup query");
 		Identifier partID;
 		try {
@@ -137,20 +129,14 @@ public class PEPPOLQueryResponder implements IQueryResponder {
 			return new QueryResponse(HttpStatus.NOT_FOUND, null, null);
 		}
 		log.trace("Check if Participant with ID={} exists", partID.toString());
-		if (participants.findByIdentifier(partID) == null) {
+		Participant p = participantsSvc.getParticipant(partID);
+		if (p  == null) {
 			log.debug("Queried Participant ID ({}) not found!", query);
 			return new QueryResponse(HttpStatus.NOT_FOUND, null, null);
 		}
-		log.trace("Retrieve SMB for Participant={}", partID.toString());
-		List<ServiceMetadataBindingE> smb = bindings.findByParticipantId(partID);
+		Collection<ServiceMetadataTemplate> boundSMT = p.getBoundSMT();
 		log.trace("Create ServiceGroup response document");
-		Document response;
-		try {
-			response = getSvcGrpFactory().newResponse(partID, smb, getSMPURL());
-		} catch (InstantiationException ex) {
-			log.error("Error occurred creating the ServiceGroup response: {}", ex.getMessage());
-			return new QueryResponse(HttpStatus.INTERNAL_SERVER_ERROR, null, null);
-		}
+		Document response = getSvcGrpFactory().newResponse(partID, boundSMT, adminSvc.getServerMetadata().getBaseUrl());
 		log.info("Completed ServiceGroup query for Participant={}", partID.toString());
 		return new QueryResponse(HttpStatus.OK, null, response);
 	}
@@ -165,22 +151,5 @@ public class PEPPOLQueryResponder implements IQueryResponder {
 		if (sgFactory == null)
 			sgFactory = new ServiceGroupFactory();
 		return sgFactory;
-	}
-
-	private String getSMPURL() {
-		String hostname;
-		try {
-			SMLRegistration reg = smlSvc.getSMLRegistration();
-			hostname = reg.getHostname();
-		} catch (CertificateException ex) {
-			hostname = null;
-		}
-		if (Utils.isNullOrEmpty(hostname))
-			try {
-				hostname = InetAddress.getLocalHost().getHostName();
-			} catch (UnknownHostException ex) {
-				hostname = "localhost";
-			}
-		return hostname;
 	}
 }

@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.holodeckb2b.bdxr.smp.server.svc.peppol;
+package org.holodeckb2b.bdxr.smp.server.services.peppol;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,11 +25,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.time.LocalDate;
-import java.time.ZoneOffset;
 import java.util.GregorianCalendar;
 import java.util.function.Function;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.net.ssl.SSLContext;
@@ -55,18 +52,17 @@ import org.busdox.servicemetadata.locator._1.PublisherEndpointType;
 import org.busdox.servicemetadata.locator._1.ServiceMetadataPublisherServiceForParticipantType;
 import org.busdox.servicemetadata.locator._1.ServiceMetadataPublisherServiceType;
 import org.busdox.transport.identifiers._1.ParticipantIdentifierType;
+import org.holodeckb2b.bdxr.smp.datamodel.Certificate;
 import org.holodeckb2b.bdxr.smp.server.datamodel.Participant;
-import org.holodeckb2b.bdxr.smp.server.db.CertificateUpdate;
-import org.holodeckb2b.bdxr.smp.server.db.SMLRegistration;
-import org.holodeckb2b.bdxr.smp.server.db.SMLRegistrationRepository;
-import org.holodeckb2b.bdxr.smp.server.db.repos.ParticipantRepository;
-import org.holodeckb2b.bdxr.smp.server.svc.ISMLIntegrator;
-import org.holodeckb2b.bdxr.smp.server.svc.SMLException;
-import org.holodeckb2b.bdxr.smp.server.svc.SMPCertificateService;
+import org.holodeckb2b.bdxr.smp.server.datamodel.SMPServerMetadata;
+import org.holodeckb2b.bdxr.smp.server.services.core.SMPServerAdminService;
+import org.holodeckb2b.bdxr.smp.server.services.network.SMLException;
+import org.holodeckb2b.bdxr.smp.server.services.network.SMLIntegrationService;
 import org.holodeckb2b.commons.security.CertificateUtils;
 import org.holodeckb2b.commons.util.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.stereotype.Service;
 import org.springframework.ws.client.core.WebServiceTemplate;
@@ -76,39 +72,42 @@ import org.springframework.ws.transport.http.HttpComponents5MessageSender;
 
 import ec.services.wsdl.bdmsl.data._1.PrepareChangeCertificateType;
 import jakarta.xml.bind.JAXBElement;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Implements the integration of the SMP with the Peppol SML.
  *
  * @author Sander Fieten (sander at holodeck-b2b.org)
  */
+@Slf4j
 @Service("PEPPOLSMLClient")
-public class SMLClient implements ISMLIntegrator {
+public class SMLClient implements SMLIntegrationService {
 
-	@Value("${sml.sml_url:https://edelivery.tech.ec.europa.eu/edelivery-sml}")
-	protected String smlURL;
-	@Value("${sml.smk_url:https://acc.edelivery.tech.ec.europa.eu/edelivery-sml}")
-	protected String smkURL;
-	@Value("${sml.ssl-truststore:}")
+	@Value("${peppol.sml.prod.name:Peppol Production SML}")
+	protected String prodName;
+	@Value("${peppol.sml.prod.url:https://edelivery.tech.ec.europa.eu/edelivery-sml}")
+	protected String prodURL;
+
+	@Value("${peppol.sml.acc.name:Peppol Acceptance SML (SMK)}")
+	protected String testName;
+	@Value("${peppol.sml.acc.url:https://acc.edelivery.tech.ec.europa.eu/edelivery-sml}")
+	protected String testURL;
+
+	@Value("${peppol.sml.ssl.verifyhostname:true}")
+	protected boolean verifyHostname;
+
+	@Value("${peppol.sml.ssl.truststore:}")
 	protected String sslTrustStorePath;
-	@Value("${sml.ssl-truststore-pwd:}")
+	@Value("${peppol.sml.ssl.truststore.pwd:}")
 	protected String sslTrustStorePwd;
 
+	@Lazy
 	@Autowired
-	protected SMLRegistrationRepository	smlRegs;
-	@Autowired
-	protected SMPCertificateService	certSvc;
-	@Autowired
-	protected ParticipantRepository participants;
-
-	private String targetURL;
-
-	/**
-	 * @return <code>true</code> when the SMP is registered in the SML, <code>false</code> otherwise
-	 */
+	protected SMPServerAdminService	adminSvc;
+	
 	@Override
-	public boolean isSMPRegistered() {
-		return smlRegs.count() > 0;
+	public boolean requiresSMPRegistration() {
+		return true;
 	}
 
 	@Override
@@ -116,25 +115,61 @@ public class SMLClient implements ISMLIntegrator {
 		return true;
 	}
 
+	@Override
+	public String getSMLName() {
+		X509Certificate smpCert = adminSvc.getServerMetadata().getCertificate();
+		if (smpCert == null) {
+			log.warn("SML name cannot be determined as SMP certificate is not available!");
+			return null;
+		}
+		return CertificateUtils.getIssuerName(smpCert).toLowerCase().contains("test") ? testName : prodName;
+	}
+
+	@Override
+	public void registerSMPServer(SMPServerMetadata smp) throws SMLException {
+		saveSMPRegistration(smp, false);		
+	}
+
+	@Override
+	public void updateSMPServer(SMPServerMetadata smp) throws SMLException {
+		saveSMPRegistration(smp, true);
+	}
+	
+	@Override
+	public void deregisterSMPServer(String smpId) throws SMLException {
+		try {
+			webServiceTemplate().marshalSendAndReceive(baseURL() + "/manageservicemetadata",
+										new ObjectFactory().createServiceMetadataPublisherID(smpId),
+										new SoapActionCallback("http://busdox.org/serviceMetadata/ManageServiceMetadataService/1.0/:deleteIn"));
+		} catch (IOException connectionError) {
+			log.error("A connection error occurred while executing SML request (remove) : {}",
+						Utils.getExceptionTrace(connectionError));
+			throw new SMLException("Connection error", connectionError);
+		} catch (SoapFaultClientException smlError) {
+			log.warn("Error response from SML while executing SML request (remove) : {}", 
+					Utils.getRootCause(smlError).getMessage());
+			throw new SMLException("SML error response", smlError);
+		}
+	}
+	
 	/**
 	 * Saves the SMP meta-data to the SML by executing either the <i>Create</i> or <i>Update</i> operation depending
 	 * on whether the SMP was already registered at the SML.
 	 *
 	 * @param data		the meta-data of the SMP to register in the SML
 	 * @param isUpdate	indicates whether this is an update of an existing registration
-	 * @throws SSLException	if the key pair or trust store to use for the mutual TLS authentication to the SML cannot
-	 *						be loaded
-	 * @throws SoapFaultClientException when the SML responded with an error message to the registration (update)
-	 *									request
+	 * @throws SMLException if an error occurs creating/updating the SMP registration in the SML. This can be caused by
+	 * 						a connection error, missing configuration or an error response from the SML
 	 */
-	public void saveSMPRegistration(SMLRegistration data, boolean isUpdate) throws SSLException, SoapFaultClientException {
+	private void saveSMPRegistration(SMPServerMetadata data, boolean isUpdate) throws SMLException {
 		ServiceMetadataPublisherServiceType smp = new ServiceMetadataPublisherServiceType();
-		smp.setServiceMetadataPublisherID(data.getIdentifier());
+		smp.setServiceMetadataPublisherID(data.getSMPId());
 		PublisherEndpointType endpoint = new PublisherEndpointType();
-		endpoint.setPhysicalAddress(data.getIpAddress());
-		endpoint.setLogicalAddress("http://" + data.getHostname());
+		endpoint.setPhysicalAddress(data.getIPv4Address());
+		endpoint.setLogicalAddress(data.getBaseUrl().toString());
 		smp.setPublisherEndpoint(endpoint);
 
+		@SuppressWarnings("rawtypes")
 		JAXBElement request;
 		String action;
 		if (!isUpdate) {
@@ -145,108 +180,64 @@ public class SMLClient implements ISMLIntegrator {
 			action = "http://busdox.org/serviceMetadata/ManageServiceMetadataService/1.0/:updateIn";
 		}
 
-		webServiceTemplate().marshalSendAndReceive(baseURL() + "/manageservicemetadata", request,
-													new SoapActionCallback(action));
-		smlRegs.save(data);
-	}
-
-	/**
-	 * Removes the SMP meta-data from the SML by executing the <i>delete</i> operation.
-	 *
-	 * @throws SSLException	if the key pair or trust store to use for the mutual TLS authentication to the SML cannot
-	 *						be loaded
-	 * @throws SoapFaultClientException when the SML responded with an error message to the removal request
-	 */
-	public void removeSMPRegistration() throws SSLException, SoapFaultClientException {
 		try {
-			SMLRegistration reg = getSMLRegistration();
-			webServiceTemplate().marshalSendAndReceive(baseURL() + "/manageservicemetadata",
-										new ObjectFactory().createServiceMetadataPublisherID(reg.getIdentifier()),
-										new SoapActionCallback("http://busdox.org/serviceMetadata/ManageServiceMetadataService/1.0/:deleteIn"));
-			smlRegs.delete(reg);
-			participants.unregisterAllFromSML();
-		} catch (CertificateException regMissing) {
-			throw new IllegalStateException();
+			webServiceTemplate().marshalSendAndReceive(baseURL() + "/manageservicemetadata", request,
+														new SoapActionCallback(action));
+		} catch (IOException connectionError) {
+			log.error("A connection error occurred while executing SML request ({}) : {}", 
+						isUpdate ? "update" : "create", Utils.getExceptionTrace(connectionError));
+			throw new SMLException("Connection error", connectionError);
+		} catch (SoapFaultClientException smlError) {
+			log.warn("Error response from SML while executing SML request ({}) : {}", isUpdate ? "update" : "create",
+					Utils.getRootCause(smlError).getMessage());
+			throw new SMLException("SML error response", smlError);
 		}
 	}
 
-	/**
-	 * Registers the new SMP certificate in the SML and saves the pending update to the database.
-	 *
-	 * @param kp			the new key pair to activate
-	 * @param activation	date on which the certificate will be activated
-	 * @throws CertificateException when the given certificate or activation date cannot be encoded correctly
-	 * @throws SSLException	if the key pair or trust store to use for the mutual TLS authentication to the SML cannot
-	 *						be loaded
-	 * @throws SoapFaultClientException when the SML responded with an error message to the certificate update request
-	 * @since 1.1.0
-	 */
-	public void registerNewSMPCertificate(KeyStore.PrivateKeyEntry kp, LocalDate activation) throws CertificateException,
-																				SSLException, SoapFaultClientException {
-
-		if (!isSMPRegistered())
-			throw new IllegalStateException("SMP is not registred in SML");
-
+	@Override
+	public void updateSMPCertificate(String smpId, Certificate cert) throws SMLException {
 		try {
 			PrepareChangeCertificateType certUpdate = new PrepareChangeCertificateType();
 			XMLGregorianCalendar xmlDate = DatatypeFactory.newInstance()
 														  .newXMLGregorianCalendar(GregorianCalendar.from(
-																  activation.atStartOfDay(ZoneOffset.UTC)));
+																  					cert.getActivationDate()));
 			certUpdate.setMigrationDate(xmlDate);
-			certUpdate.setNewCertificatePublicKey(CertificateUtils.getPEMEncoded((X509Certificate) kp.getCertificate()));
+			certUpdate.setNewCertificatePublicKey(CertificateUtils.getPEMEncoded(cert.getX509Cert()));
 
 			webServiceTemplate().marshalSendAndReceive(baseURL() + "/bdmslservice",
 						new ec.services.wsdl.bdmsl.data._1.ObjectFactory().createPrepareChangeCertificate(certUpdate),
 						new SoapActionCallback("ec:services:wsdl:BDMSL:1.0:prepareChangeCertificateIn"));
-		} catch (DatatypeConfigurationException dex) {
-			throw new CertificateException("Could not convert activation date", dex);
-		}
-
-		SMLRegistration reg = getSMLRegistration();
-		reg.setPendingCertUpdate(new CertificateUpdate(kp, activation));
-		smlRegs.save(reg);
+		} catch (DatatypeConfigurationException | CertificateException invalidData) {
+			log.error("Invalid data for updating SMP certificate: {}", Utils.getExceptionTrace(invalidData));
+			throw new SMLException("Invalid SMP certificate data", invalidData);
+		} catch (IOException connectionError) {
+			log.error("A connection error occurred while executing SML request (cert) : {}",
+					Utils.getExceptionTrace(connectionError));
+			throw new SMLException("Connection error", connectionError);
+		} catch (SoapFaultClientException smlError) {
+			log.warn("Error response from SML while executing SML request (cert) : {}", 
+					Utils.getRootCause(smlError).getMessage());
+			throw new SMLException("SML error response", smlError);
+		}		
 	}
 	
-	/**
-	 * Removes the pending certificate update.
-	 */
-	public void clearPendingUpdate() {		
-		SMLRegistration registration;
-		try {
-			registration = getSMLRegistration();
-		} catch (CertificateException invalidConfig) {
-			registration = null;
-		}
-		if (registration == null)
-			throw new IllegalStateException("SMP is not registred in SML");
 
-		registration.setPendingCertUpdate(null);
-		smlRegs.save(registration);
+	@Override
+	public boolean isRegistered(Participant p) throws SMLException {
+		// TODO Auto-generated method stub
+		return false;
 	}
-
-	/**
-	 * Registers the Participant in the SML.
-	 *
-	 * @param p	the meta-data on the Participant to register
-	 * @throws SMLException when the Participant could not be registered in the SML
-	 */
+			
 	@Override
 	public void registerParticipant(Participant p) throws SMLException {
 		updateParticipant(p, (pi) -> new ObjectFactory().createCreateParticipantIdentifier(pi),
 						  "http://busdox.org/serviceMetadata/ManageBusinessIdentifierService/1.0/         :createIn");
 	}
 
-	/**
-	 * Removes the Participant's registration from the SML.
-	 *
-	 * @param p	the meta-data on the Participant whose registration should be removed
-	 * @throws SMLException when the Participant's registration could not be removed in the SML
-	 */
-	@Override
-	public void unregisterParticipant(Participant p) throws SMLException {
+	public void deregisterParticipant(Participant p) throws SMLException {
 		updateParticipant(p, (pi) -> new ObjectFactory().createDeleteParticipantIdentifier(pi),
 						  "http://busdox.org/serviceMetadata/ManageBusinessIdentifierService/1.0/         :deleteIn");
-	}
+	}	
 
 	/**
 	 * Executes the actual registration or removal of the Participant's registration in/from the SML.
@@ -257,11 +248,12 @@ public class SMLClient implements ISMLIntegrator {
 	 * @throws SMLException	when there is an error executing the update to the SML
 	 */
 	private void updateParticipant(Participant p,
+								   @SuppressWarnings("rawtypes") 
 								   Function<ServiceMetadataPublisherServiceForParticipantType, JAXBElement> f,
 								   String action) throws SMLException {
 		
 		ServiceMetadataPublisherServiceForParticipantType pInfo = new ServiceMetadataPublisherServiceForParticipantType();
-		pInfo.setServiceMetadataPublisherID(getSMPId());
+		pInfo.setServiceMetadataPublisherID(adminSvc.getServerMetadata().getSMPId());
 		ParticipantIdentifierType partID = new ParticipantIdentifierType();
 		partID.setScheme(p.getId().getScheme() != null ? p.getId().getScheme().getSchemeId() : null);
 		partID.setValue(p.getId().getValue());
@@ -270,21 +262,21 @@ public class SMLClient implements ISMLIntegrator {
 		try {
 			webServiceTemplate().marshalSendAndReceive(baseURL() + "/manageparticipantidentifier", f.apply(pInfo),
 													new SoapActionCallback(action));
-		} catch (Exception requestFailed) {
-			throw new SMLException(requestFailed);
-		}
+		} catch (IOException connectionError) {
+			log.error("A connection error occurred while executing SML request (cert) : {}",
+					Utils.getExceptionTrace(connectionError));
+			throw new SMLException("Connection error", connectionError);
+		} catch (SoapFaultClientException smlError) {
+			log.warn("Error response from SML while executing SML request (cert) : {}", 
+					Utils.getRootCause(smlError).getMessage());
+			throw new SMLException("SML error response", smlError);
+		}		
 	}
 	
-	/**
-	 * Prepares the migration of the Participant by registering the migration code in the SML.
-	 * 
-	 * @param p		the meta-data on the Participant
-	 * @param code	the migration code
-	 * @throws SMLException when there is an error executing the update to the SML
-	 */
+	@Override
 	public void registerMigrationCode(Participant p, String code) throws SMLException {
 		MigrationRecordType migrationRecord = new MigrationRecordType();
-		migrationRecord.setServiceMetadataPublisherID(getSMPId());
+		migrationRecord.setServiceMetadataPublisherID(adminSvc.getServerMetadata().getSMPId());
 		ParticipantIdentifierType partID = new ParticipantIdentifierType();
 		partID.setScheme(p.getId().getScheme() != null ? p.getId().getScheme().getSchemeId() : null);
 		partID.setValue(p.getId().getValue());
@@ -296,21 +288,21 @@ public class SMLClient implements ISMLIntegrator {
 				new ObjectFactory().createPrepareMigrationRecord(migrationRecord),
 				new SoapActionCallback("http://busdox.org/serviceMetadata/ManageBusinessIdentifierService/1.0/         :prepareMigrateIn")
 			);
-		} catch (Exception requestFailed) {
-			throw new SMLException(requestFailed);
-		}
+		} catch (IOException connectionError) {
+			log.error("A connection error occurred while executing SML request (prepmigrate) : {}",
+					Utils.getExceptionTrace(connectionError));
+			throw new SMLException("Connection error", connectionError);
+		} catch (SoapFaultClientException smlError) {
+			log.warn("Error response from SML while executing SML request (prepmigrate) : {}", 
+					Utils.getRootCause(smlError).getMessage());
+			throw new SMLException("SML error response", smlError);
+		}		
 	}
 
-	/**
-	 * Migrates the Participant to this SMP using the provided migration code.
-	 * 
-	 * @param p		the meta-data on the Participant being migrated
-	 * @param code	the migration code
-	 * @throws SMLException when there is an error executing the update to the SML
-	 */
+	@Override
 	public void migrateParticipant(Participant p, String code) throws SMLException {
 		MigrationRecordType migrationRecord = new MigrationRecordType();
-		migrationRecord.setServiceMetadataPublisherID(getSMPId());		
+		migrationRecord.setServiceMetadataPublisherID(adminSvc.getServerMetadata().getSMPId());		
 		ParticipantIdentifierType partID = new ParticipantIdentifierType();
 		partID.setScheme(p.getId().getScheme() != null ? p.getId().getScheme().getSchemeId() : null);
 		partID.setValue(p.getId().getValue());
@@ -322,78 +314,31 @@ public class SMLClient implements ISMLIntegrator {
 				new ObjectFactory().createCompleteMigrationRecord(migrationRecord),
 				new SoapActionCallback("http://busdox.org/serviceMetadata/ManageBusinessIdentifierService/1.0/         :migrateIn")
 			);
-		} catch (Exception requestFailed) {
-			throw new SMLException(requestFailed);
-		}
-	}
-	
-	
-	/**
-	 * Gets the SMP meta-data currently registered in the SML, or if none is registered an empty record.
-	 *
-	 * @return	the registered meta-data, or a new empty record when no data is registered.
-	 * @throws CertificateException when there is no SMP certificate installed or the installed certificate is not
-	 *								issued by the Peppol CA
-	 */
-	public SMLRegistration getSMLRegistration() throws CertificateException {
-		SMLRegistration reg = smlRegs.findAll().stream().findFirst().orElse(null);
-		if (reg == null) {
-			X509Certificate cert;
-			try {
-				KeyStore.PrivateKeyEntry keyPair = certSvc.getKeyPair();
-				cert = keyPair != null ? (X509Certificate) keyPair.getCertificate() : null;
-			} catch (CertificateException noCert) {
-				cert = null;
-			}
-			if (cert == null)
-				throw new CertificateException("There is no SMP certificate configured");
-			String issuerName = CertificateUtils.getIssuerName(cert).toLowerCase();
-			if (!issuerName.contains("peppol"))
-				throw new CertificateException("The configured SMP certificate is not a Peppol issued certificate");
-
-			reg = new SMLRegistration(issuerName.contains("test") ? "SMK" : "SML");
-		}
-		return reg;
-	}
-
-	/**
-	 * Gets the identifier of the SMP currently registered in the SML.
-	 * 
-	 * @return the SMP identifier
-	 * @throws SMLException when the SMP is not registered in the SML
-	 */
-	private String getSMPId() throws SMLException {
-		SMLRegistration smlReg;
-		try {
-			smlReg = getSMLRegistration();
-		} catch (CertificateException inavlidSMLReg) {
-			smlReg = null;
-		}
-		if (smlReg == null || Utils.isNullOrEmpty(smlReg.getIdentifier()))
-			throw new SMLException("The SMP is not registered in the SML");
-
-		return smlReg.getIdentifier();
+		} catch (IOException connectionError) {
+			log.error("A connection error occurred while executing SML request (migrate) : {}",
+					Utils.getExceptionTrace(connectionError));
+			throw new SMLException("Connection error", connectionError);
+		} catch (SoapFaultClientException smlError) {
+			log.warn("Error response from SML while executing SML request (migrate) : {}", 
+					Utils.getRootCause(smlError).getMessage());
+			throw new SMLException("SML error response", smlError);
+		}		
 	}
 	
 	/**
 	 * Determines the base URL of the SML interface based on the installed SMP certificate. The default Peppol URLs can
-	 * be overriden by setting the <code>sml.sml_url</code> and <code>sml.smk_url</code> application properties in
-	 * <code>common.properties</code>.
+	 * be overridden by setting the <code>peppol.sml.prod.url</code> and <code>peppol.sml.acc.url</code> application 
+	 * properties in <code>common.properties</code>.
 	 *
 	 * @return	the URL where the SML interface is located
 	 */
 	private String baseURL() {
-		if (targetURL == null) {
-			try {
-				KeyStore.PrivateKeyEntry keyPair = certSvc.getKeyPair();
-				targetURL = CertificateUtils.getIssuerName((X509Certificate) keyPair.getCertificate()).toLowerCase()
-						.contains("test") ? smkURL : smlURL;
-			} catch (CertificateException ex) {
-				Logger.getLogger(SMLClient.class.getName()).log(Level.SEVERE,
-																"Could not retrieve SMP cert : {0}", ex.getMessage());
-			}
-		}
-		return targetURL;
+		X509Certificate smpCert = adminSvc.getServerMetadata().getCertificate();
+		if (smpCert == null) {
+			log.error("SML function called before SMP certificate is available!");
+			return null;
+		} else
+			return CertificateUtils.getIssuerName(smpCert).toLowerCase().contains("test") ? testURL : prodURL;		
 	}
 
 	/**
@@ -410,21 +355,11 @@ public class SMLClient implements ISMLIntegrator {
 		webServiceTemplate = new WebServiceTemplate();
 		webServiceTemplate.setMarshaller(jaxb2Marshaller);
 		webServiceTemplate.setUnmarshaller(jaxb2Marshaller);
-
-		/* When the configured SML base URL is for localhost we turn off hostname verification as otherwise the
-		 * following error is probably thrown:
-		 *		java.security.cert.CertificateException: No name matching localhost found
-		 */
-		KeyStore.PrivateKeyEntry keyPair;
-		try {
-			keyPair = certSvc.getKeyPair();
-		} catch (CertificateException ex) {
-			throw new SSLException("Could not retrieve SMP key pair");
-		}
-		SSLConnectionSocketFactory sslFactory = baseURL().contains("localhost") ?
-													new SSLConnectionSocketFactory(sslContext(keyPair),
-																				   NoopHostnameVerifier.INSTANCE)
-												  : new SSLConnectionSocketFactory(sslContext(keyPair));
+		
+		SSLConnectionSocketFactory sslFactory = verifyHostname ?
+				 									new SSLConnectionSocketFactory(sslContext()) :
+													new SSLConnectionSocketFactory(sslContext(),
+																				   NoopHostnameVerifier.INSTANCE);
 
 		Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory>create()
 				.register("https", sslFactory)
@@ -448,18 +383,17 @@ public class SMLClient implements ISMLIntegrator {
 	 * customised trust store the <code>sml.ssl-truststore</code> and <code>sml.ssl-truststore-pwd</code> application
 	 * properties must be set in <code>common.properties</code>.
 	 *
-	 * @param pk	the key pair to use for client authentication
 	 * @return	the SSLContext for creating connections to the SML
 	 * @throws SSLException	when either the key pair for client authentication or the custom trust store for server
 	 *						authentication cannot be processed
 	 */
-	private SSLContext sslContext(KeyStore.PrivateKeyEntry pk) throws SSLException {
+	private SSLContext sslContext() throws SSLException {
 		SSLContextBuilder ctxBldr = SSLContexts.custom();
 		try {
 			char[] pwd = new char[] {};
 			KeyStore keyStore = KeyStore.getInstance("JKS");
 			keyStore.load(null, null);
-			keyStore.setEntry("1", pk, new KeyStore.PasswordProtection(pwd));
+			keyStore.setEntry("1", adminSvc.getActiveKeyPair(), new KeyStore.PasswordProtection(pwd));
 			ctxBldr.loadKeyMaterial(keyStore, pwd);
 		} catch (IOException | KeyStoreException | NoSuchAlgorithmException | UnrecoverableKeyException
 				| CertificateException keyFailure) {

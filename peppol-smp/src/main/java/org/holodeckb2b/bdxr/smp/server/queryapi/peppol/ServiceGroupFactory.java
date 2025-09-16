@@ -16,14 +16,16 @@
  */
 package org.holodeckb2b.bdxr.smp.server.queryapi.peppol;
 
+import java.net.URL;
+import java.util.Collection;
 import java.util.List;
 
 import org.busdox.servicemetadata.publishing._1.ServiceGroupType;
 import org.busdox.servicemetadata.publishing._1.ServiceMetadataReferenceCollectionType;
 import org.busdox.servicemetadata.publishing._1.ServiceMetadataReferenceType;
 import org.busdox.transport.identifiers._1.ParticipantIdentifierType;
-import org.holodeckb2b.bdxr.smp.datamodel.Identifier;
-import org.holodeckb2b.bdxr.smp.server.datamodel.ServiceMetadataBinding;
+import org.holodeckb2b.bdxr.common.datamodel.Identifier;
+import org.holodeckb2b.bdxr.smp.server.datamodel.ServiceMetadataTemplate;
 import org.w3c.dom.Document;
 
 /**
@@ -39,11 +41,11 @@ public class ServiceGroupFactory extends AbstractResponseFactory {
 	 * using the metadata from the given ServiceMetadata Bindings.
 	 *
 	 * @param partId	the Participant identifier
-	 * @param smb		the collection of Servicemetadata Bindings to use
+	 * @param smt		the collection of Servicemetadata Bindings to use
 	 * @param smpURL	the URL at which the SMP is registered
 	 * @return	new XML Document containing the <code>ServiceGroup</code>
 	 */
-	Document newResponse(Identifier partId, List<? extends ServiceMetadataBinding> smb, String smpURL)
+	Document newResponse(Identifier partId, Collection<? extends ServiceMetadataTemplate> smt, URL smpURL)
 																						throws InstantiationException {
 		ServiceGroupType sg = new ServiceGroupType();
 		ParticipantIdentifierType partID = new ParticipantIdentifierType();
@@ -55,10 +57,10 @@ public class ServiceGroupFactory extends AbstractResponseFactory {
 		sg.setServiceMetadataReferenceCollection(svcRefs);
 
 		List<ServiceMetadataReferenceType> refs = svcRefs.getServiceMetadataReference();
-		for(ServiceMetadataBinding b : smb) {
+		for(ServiceMetadataTemplate t : smt) {
 			ServiceMetadataReferenceType r = new ServiceMetadataReferenceType();
-			r.setHref(String.format("http://%s/%s/services/%s", smpURL,
-									b.getParticipantId().getURLEncoded(), b.getTemplate().getServiceId().getURLEncoded()));
+			r.setHref(String.format("%s/%s/services/%s", smpURL.toString(),
+									partId.getURLEncoded(), t.getService().getId().getURLEncoded()));
 			refs.add(r);
 		}
 
