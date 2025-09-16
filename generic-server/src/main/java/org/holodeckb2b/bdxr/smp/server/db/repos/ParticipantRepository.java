@@ -65,8 +65,19 @@ public interface ParticipantRepository extends JpaRepository<ParticipantEntity, 
 	 */
 	Page<ParticipantEntity> findByPublishedInDirectory(boolean published, Pageable requestSpec);
 
-	
-	Page<ParticipantEntity> findByRegisteredInSMLAndPublishedInDirectory(boolean registered, boolean published, Pageable requestSpec);
+	/**
+	 * Finds <i>Participants</i> which are/are not register in the SML service and are/are not published to the 
+	 * directory. 
+	 * 
+	 * @param registered	<code>true</code> when Participant registered in the SML should be retrieved,<br/>
+	 * 						<code>false</code> when unregistered Participants should be retrieved
+	 * @param published		<code>true</code> when Participant published to the directory should be retrieved,<br/>
+	 * 						<code>false</code> when Participants not published to the directory should be retrieved
+	 * @param request		a {@link PageRequest} specifying the requested subset 
+	 * @return the requested sub set of Participants in the given publication state
+	 */			
+	Page<ParticipantEntity> findByRegisteredInSMLAndPublishedInDirectory(boolean registered, boolean published, 
+																		Pageable requestSpec);
 	
 	/**
 	 * Find <i>Participants</i> supporting the given <i>Service Metadata Template</i>. Because the result set can be 
@@ -101,7 +112,7 @@ public interface ParticipantRepository extends JpaRepository<ParticipantEntity, 
 	/**
 	 * Set the SML registration indication to <code>false</code> for all Participants.
 	 */
-	@Modifying(clearAutomatically = true)
+	@Modifying
 	@Query("update Participant p set p.registeredInSML = false")
 	void unregisterAllFromSML();
 }
