@@ -123,7 +123,7 @@ abstract class BaseMgmtServiceImpl<I, E extends BaseMetadataRegistrationEntity<I
 			if (op == CrudOps.Delete)
 				repo.delete(entity);
 			else if (repo instanceof UniqueIdMDRRepo)
-				saved = ((UniqueIdMDRRepo<I, E>) repo).save(entity);
+				saved = ((UniqueIdMDRRepo<I, E>) repo).saveWithDuplicateCheck(entity);
 			else
 				saved = repo.save(entity);
 			log.info("{}ed {} ({})", op.prefix, mdrName, entity.getId());

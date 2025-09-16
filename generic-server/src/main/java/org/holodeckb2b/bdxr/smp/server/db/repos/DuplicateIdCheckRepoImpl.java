@@ -46,7 +46,7 @@ abstract class DuplicateIdCheckRepoImpl<I, E extends BaseMetadataRegistrationEnt
 
 	@SuppressWarnings("rawtypes")
 	@Override
-	public E save(E r) throws ConstraintViolationException {	
+	public E saveWithDuplicateCheck(E r) throws ConstraintViolationException {	
 		E existing = findByIdentifier(r.getId());		
 		if (existing != null && !existing.getOid().equals(r.getOid())) 
 			throw new ConstraintViolationException(ViolationType.DUPLICATE_ID, (MetadataRegistration) r);

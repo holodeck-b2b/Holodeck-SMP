@@ -50,5 +50,5 @@ public interface UniqueIdMDRRepo<I, E extends BaseMetadataRegistrationEntity<I>>
 	 * 										identifier
 	 */
 	@Transactional(isolation = Isolation.SERIALIZABLE, rollbackFor = ConstraintViolationException.class)
-	E save(E r) throws ConstraintViolationException;
+	E saveWithDuplicateCheck(E r) throws ConstraintViolationException;
 }
