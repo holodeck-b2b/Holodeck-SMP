@@ -8,7 +8,7 @@ package org.holodeckb2b.bdxr.smp.server.datamodel;
  * 
  * @author Sander Fieten (sander at holodeck-b2b.org)
  */
-public interface Identifier extends org.holodeckb2b.bdxr.smp.datamodel.Identifier {
+public interface Identifier extends org.holodeckb2b.bdxr.common.datamodel.Identifier {
 
 	/**
 	 * Sets the identifier scheme of the identifier.

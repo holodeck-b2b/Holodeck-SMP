@@ -219,11 +219,11 @@ public interface Participant extends MetadataRegistration<Identifier> {
 	 * 
 	 * @return the set of additional identifiers of the Participant
 	 */
-	Set<org.holodeckb2b.bdxr.smp.datamodel.Identifier> getAdditionalIds();
+	Set<org.holodeckb2b.bdxr.common.datamodel.Identifier> getAdditionalIds();
 	
 	/**
 	 * Adds an additional identifier used by the Participant. The argument passed to this method only needs to 
-	 * implement {@link org.holodeckb2b.bdxr.smp.datamodel.Identifier}, i.e. it may be a read-only object. This is 
+	 * implement {@link org.holodeckb2b.bdxr.common.datamodel.Identifier}, i.e. it may be a read-only object. This is 
 	 * because the identifier is not yet managed by the SMP server. However if the Identifier has an identifier scheme, 
 	 * the scheme SHOULD be already registered in the SMP server so the correct case-sensitivity is used for processing
 	 * of the identifier.   
@@ -234,13 +234,13 @@ public interface Participant extends MetadataRegistration<Identifier> {
 	 * 
 	 * @param id	the additional identifier to add to the Participant
 	 */
-	void addAdditionalId(org.holodeckb2b.bdxr.smp.datamodel.Identifier id);
+	void addAdditionalId(org.holodeckb2b.bdxr.common.datamodel.Identifier id);
 	
 	/**
 	 * Removes the specified additional identifier from the Participant.
 	 * 
-	 * @param id	a {@link org.holodeckb2b.bdxr.smp.datamodel.Identifier} instance from the {@link 
+	 * @param id	a {@link org.holodeckb2b.bdxr.common.datamodel.Identifier} instance from the {@link 
 	 * 				#getAdditionalIds()} collection
 	 */
-	void removeAdditionalId(org.holodeckb2b.bdxr.smp.datamodel.Identifier id);
+	void removeAdditionalId(org.holodeckb2b.bdxr.common.datamodel.Identifier id);
 }

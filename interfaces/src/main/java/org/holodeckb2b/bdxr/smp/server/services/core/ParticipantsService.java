@@ -18,7 +18,7 @@ package org.holodeckb2b.bdxr.smp.server.services.core;
 
 import java.util.Collection;
 
-import org.holodeckb2b.bdxr.smp.datamodel.Identifier;
+import org.holodeckb2b.bdxr.common.datamodel.Identifier;
 import org.holodeckb2b.bdxr.smp.server.datamodel.Participant;
 import org.holodeckb2b.bdxr.smp.server.datamodel.ServiceMetadataTemplate;
 import org.holodeckb2b.bdxr.smp.server.services.network.DirectoryException;
@@ -63,6 +63,7 @@ public interface ParticipantsService {
 	 * @param p	the updated meta-data of the Participant, MUST be an instance that was obtained from this service
 	 * @return	object representing the persisted meta-data, this object MUST be used for further processing of the 
 	 * 			Participant 
+	 * @throws DirectoryException	when the Participant's business card could not be updated in the directory
 	 * @throws PersistenceException	when an error occurs saving the Participant's meta-data, for example because no 
 	 * 								Participant registration exists with the specified internal identifier
 	 */

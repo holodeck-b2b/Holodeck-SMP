@@ -18,7 +18,7 @@ package org.holodeckb2b.bdxr.smp.server.services.core;
 
 import java.util.Collection;
 
-import org.holodeckb2b.bdxr.smp.datamodel.ProcessIdentifier;
+import org.holodeckb2b.bdxr.common.datamodel.ProcessIdentifier;
 import org.holodeckb2b.bdxr.smp.server.datamodel.Process;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

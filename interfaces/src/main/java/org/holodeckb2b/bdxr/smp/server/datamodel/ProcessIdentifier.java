@@ -7,7 +7,7 @@ package org.holodeckb2b.bdxr.smp.server.datamodel;
  * 
  * @author Sander Fieten (sander at holodeck-b2b.org)
  */
-public interface ProcessIdentifier extends Identifier, org.holodeckb2b.bdxr.smp.datamodel.ProcessIdentifier {
+public interface ProcessIdentifier extends Identifier, org.holodeckb2b.bdxr.common.datamodel.ProcessIdentifier {
 	
 	/**
 	 * Sets the indicator that this Process Identifier is the special "no process" identifier as defined in the SMP

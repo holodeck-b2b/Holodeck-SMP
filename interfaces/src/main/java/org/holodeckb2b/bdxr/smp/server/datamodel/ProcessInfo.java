@@ -42,14 +42,14 @@ public interface ProcessInfo extends org.holodeckb2b.bdxr.smp.datamodel.ProcessI
 	
 	/**
 	 * Adds the Identifier of a Role the Participant acts in. The argument passed to this method only needs to implement 
-	 * {@link org.holodeckb2b.bdxr.smp.datamodel.Identifier}, i.e. it may be a read-only object. This is because the 
+	 * {@link org.holodeckb2b.bdxr.common.datamodel.Identifier}, i.e. it may be a read-only object. This is because the 
 	 * identifier is not yet managed by the SMP server. However if the Identifier has an identifier scheme, the scheme 
 	 * MUST be already registered in the SMP server.
 	 * 
 	 * @param roleId	identifier of the Role. If <code>Identifier#getScheme()} != null</code> the returned scheme MUST
 	 * 					be a <b>managed instance</b> of {@link IDScheme}  
 	 */
-	void addRole(org.holodeckb2b.bdxr.smp.datamodel.Identifier roleId);
+	void addRole(org.holodeckb2b.bdxr.common.datamodel.Identifier roleId);
 	
 	/**
 	 * Removes the Role with the given identifier.
