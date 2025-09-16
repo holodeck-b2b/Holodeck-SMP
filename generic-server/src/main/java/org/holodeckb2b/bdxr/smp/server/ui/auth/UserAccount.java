@@ -25,6 +25,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.AttributeOverrides;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Embedded;
@@ -110,6 +112,10 @@ public class UserAccount implements UserDetails, CredentialsContainer {
 	 * Contains the password reset when it has been requested for this user
 	 */
 	@Embedded
+	@AttributeOverrides({
+		@AttributeOverride(name = "id", column = @Column(name = "PWD_RESET_ID")),
+		@AttributeOverride(name = "timestamp", column = @Column(name = "PWD_RESET_TIMESTAMP")),
+	})
 	private PasswordResetRequest	passwordResetRequest;
 	
 	@Override

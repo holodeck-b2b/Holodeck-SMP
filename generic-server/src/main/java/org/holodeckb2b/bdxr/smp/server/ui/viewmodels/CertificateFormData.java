@@ -23,6 +23,7 @@ import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 
+import org.holodeckb2b.bdxr.smp.datamodel.Certificate;
 import org.holodeckb2b.bdxr.smp.server.db.entities.EmbeddedCertificate;
 import org.holodeckb2b.commons.security.CertificateUtils;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -56,7 +57,7 @@ public class CertificateFormData {
 	@DateTimeFormat(pattern = "HH:mm")
 	private LocalTime	expirationTime;
 
-	public CertificateFormData(EmbeddedCertificate c) {
+	public CertificateFormData(Certificate c) {
 		X509Certificate x509Cert = c.getX509Cert();
 		if (x509Cert != null) {
 			try {

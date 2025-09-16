@@ -26,8 +26,9 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.holodeckb2b.bdxr.common.datamodel.impl.IdentifierImpl;
+import org.holodeckb2b.bdxr.smp.datamodel.IDScheme;
 import org.holodeckb2b.bdxr.smp.datamodel.impl.IDSchemeImpl;
-import org.holodeckb2b.bdxr.smp.datamodel.impl.IdentifierImpl;
 import org.holodeckb2b.bdxr.smp.server.datamodel.Contact;
 import org.holodeckb2b.bdxr.smp.server.datamodel.Identifier;
 import org.holodeckb2b.bdxr.smp.server.datamodel.Participant;
@@ -75,7 +76,7 @@ import lombok.Setter;
 	@NamedQuery(name = "Participant.findByAdditionalId", 
 				query = "SELECT p FROM Participant p WHERE locate(:additionalId, p.additionalIds,0) > 0"),
 	@NamedQuery(name = "Participant.countByAdditionalId", 
-	query = "SELECT count(p) FROM Participant p WHERE locate(:additionalId, p.additionalIds,0) > 0")
+				query = "SELECT count(p) FROM Participant p WHERE locate(:additionalId, p.additionalIds,0) > 0")
 })
 @NoArgsConstructor
 public class ParticipantEntity extends AbstractIdBasedEntity<Identifier, EmbeddedIdentifier> implements Participant {
@@ -110,7 +111,7 @@ public class ParticipantEntity extends AbstractIdBasedEntity<Identifier, Embedde
 	protected String	additionalIds;
 
 	@Transient
-	private Set<org.holodeckb2b.bdxr.smp.datamodel.Identifier> additionalIdsSet;
+	private Set<org.holodeckb2b.bdxr.common.datamodel.Identifier> additionalIdsSet;
 	
 	@Column
 	@Setter
@@ -252,7 +253,7 @@ public class ParticipantEntity extends AbstractIdBasedEntity<Identifier, Embedde
 	}
 
 	@Override
-	public Set<org.holodeckb2b.bdxr.smp.datamodel.Identifier> getAdditionalIds() {
+	public Set<org.holodeckb2b.bdxr.common.datamodel.Identifier> getAdditionalIds() {
 		if (additionalIdsSet == null) {
 			if (Utils.isNullOrEmpty(additionalIds))
 				additionalIdsSet = new HashSet<>();
@@ -260,11 +261,14 @@ public class ParticipantEntity extends AbstractIdBasedEntity<Identifier, Embedde
 				String[] ids = additionalIds.split(",");
 				additionalIdsSet = new HashSet<>(ids.length);
 				for (String id : ids) {
-					int sep = id.indexOf("::");
-					String sid = id.substring(0, Math.max(0, sep));
-					String val = sep < 0 ? id: id.substring(sep + 2);					
-					additionalIdsSet.add(new IdentifierImpl(val, Utils.isNullOrEmpty(sid) ? null 
-															: new IDSchemeImpl(sid, !val.equals(val.toLowerCase()))));
+					IdentifierImpl idobj = IdentifierImpl.from(id);
+					if (idobj.getScheme() != null) {
+						String sid = idobj.getScheme().getSchemeId();
+						int csi = sid.indexOf("[");
+						idobj.setValue(idobj.getValue(), new IDSchemeImpl(sid.substring(0, csi),
+															Boolean.valueOf(sid.substring(csi + 1, sid.length() - 1))));
+					}
+					additionalIdsSet.add(idobj);
 				}
 			}
 		}		
@@ -277,15 +281,17 @@ public class ParticipantEntity extends AbstractIdBasedEntity<Identifier, Embedde
 	}
 		
 	@Override
-	public void addAdditionalId(org.holodeckb2b.bdxr.smp.datamodel.Identifier id) {
+	public void addAdditionalId(org.holodeckb2b.bdxr.common.datamodel.Identifier id) {
+		if (id == null)
+			throw new IllegalArgumentException("Identifier must not be null");
 		if (additionalIdsSet == null)
 			additionalIdsSet = new HashSet<>();
-		additionalIdsSet.add(new IdentifierImpl(id));
+		additionalIdsSet.add(new IdentifierImpl(id.getValue(), id.getScheme()));
 		convertAdditionalIds();
 	}
 	
 	@Override
-	public void removeAdditionalId(org.holodeckb2b.bdxr.smp.datamodel.Identifier id) {
+	public void removeAdditionalId(org.holodeckb2b.bdxr.common.datamodel.Identifier id) {
 		if (additionalIdsSet != null)
 			additionalIdsSet.remove(id);
 		convertAdditionalIds();
@@ -299,6 +305,22 @@ public class ParticipantEntity extends AbstractIdBasedEntity<Identifier, Embedde
 		if (Utils.isNullOrEmpty(additionalIdsSet))
 			additionalIds = null;
 		else
-			additionalIds = additionalIdsSet.stream().map(id -> id.toString()).collect(Collectors.joining(","));
+			additionalIds = additionalIdsSet.stream().map(id -> convertAdditionalId(id))
+													 .collect(Collectors.joining(","));
 	}
+	
+	/**
+	 * Convert the given additional identifier to the String representation used to store it in the database.
+	 * 
+	 * @param id	the {@link org.holodeckb2b.bdxr.common.datamodel.Identifier} representation of the identifier 
+	 * @return	the String representation
+	 */
+	public static String convertAdditionalId(org.holodeckb2b.bdxr.common.datamodel.Identifier id) {	
+		IDScheme ids = null;
+		return ((ids = id.getScheme()) != null
+										? (ids.getSchemeId() + "[" + Boolean.toString(ids.isCaseSensitive()) + "]::") 
+										: "") 
+					 + (ids != null && ids.isCaseSensitive() ? id.getValue() : id.getValue().toLowerCase());
+	}
+	
 }

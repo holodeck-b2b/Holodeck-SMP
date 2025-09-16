@@ -22,8 +22,8 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.holodeckb2b.bdxr.smp.datamodel.Extension;
-import org.holodeckb2b.bdxr.smp.datamodel.Identifier;
+import org.holodeckb2b.bdxr.common.datamodel.Extension;
+import org.holodeckb2b.bdxr.common.datamodel.Identifier;
 import org.holodeckb2b.bdxr.smp.server.datamodel.Certificate;
 import org.holodeckb2b.bdxr.smp.server.datamodel.Endpoint;
 import org.holodeckb2b.bdxr.smp.server.datamodel.TransportProfile;
@@ -48,10 +48,6 @@ import lombok.Setter;
 public class EndpointEntity extends BaseMetadataRegistrationEntity<Long> implements Endpoint {
 	private static final long serialVersionUID = -2225922488197162436L;
 
-	@Setter
-	@Column
-	protected String	name;
-
 	@ManyToOne(optional = false)
 	protected TransportProfileEntity	transportProfile;
 
@@ -60,9 +56,9 @@ public class EndpointEntity extends BaseMetadataRegistrationEntity<Long> impleme
 	protected	String	url;
 
 	@Setter
-	@ElementCollection
+	@ElementCollection(targetClass = EmbeddedCertificate.class)
 	@CollectionTable(name = "EP_CERTIFICATES")
-	protected List<EmbeddedCertificate>	certificates = new ArrayList<>();
+	protected List<Certificate>	certificates = new ArrayList<>();
 
 	@Setter
 	@Column
@@ -130,7 +126,7 @@ public class EndpointEntity extends BaseMetadataRegistrationEntity<Long> impleme
 	}
 	
 	@Override
-	public List<Extension> getExtensions() {
+	public List<Extension<?>> getExtensions() {
 		return null;
 	}
 }

@@ -82,7 +82,7 @@ public class ServiceMgmtServiceImpl
 	}
 
 	@Override
-	public Service getService(org.holodeckb2b.bdxr.smp.datamodel.Identifier svcId) throws PersistenceException {
+	public Service getService(org.holodeckb2b.bdxr.common.datamodel.Identifier svcId) throws PersistenceException {
 		try {
 			return getById(idUtils.toEmbeddedIdentifier(svcId));
 		} catch (NoSuchElementException unknownScheme) {

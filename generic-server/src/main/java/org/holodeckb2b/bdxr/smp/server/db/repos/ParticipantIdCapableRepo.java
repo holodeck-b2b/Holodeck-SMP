@@ -35,5 +35,5 @@ public interface ParticipantIdCapableRepo extends UniqueIdMDRRepo<Identifier, Pa
 	 * @param id	the identifier to search for
 	 * @return	a collection of Participants for which used the given identifier as an additional identifier
 	 */
-	Collection<ParticipantEntity> findByAdditionalId(org.holodeckb2b.bdxr.smp.datamodel.Identifier id);
+	Collection<ParticipantEntity> findByAdditionalId(org.holodeckb2b.bdxr.common.datamodel.Identifier id);
 }

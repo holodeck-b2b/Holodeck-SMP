@@ -20,8 +20,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
+import org.holodeckb2b.bdxr.common.datamodel.impl.IdentifierImpl;
 import org.holodeckb2b.bdxr.smp.datamodel.impl.IDSchemeImpl;
-import org.holodeckb2b.bdxr.smp.datamodel.impl.IdentifierImpl;
 import org.holodeckb2b.bdxr.smp.server.datamodel.ServiceMetadataTemplate;
 import org.holodeckb2b.bdxr.smp.server.db.entities.ParticipantEntity;
 import org.holodeckb2b.bdxr.smp.server.db.entities.ServiceMetadataTemplateEntity;

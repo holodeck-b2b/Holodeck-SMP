@@ -25,6 +25,7 @@ import org.holodeckb2b.commons.util.Utils;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -52,6 +53,7 @@ public class EmbeddedProcessIdentifier implements ProcessIdentifier {
 	public static final String NO_PROCESS = "hb2b:no-process";
 
 	@ManyToOne(optional = true)	
+	@JoinColumn(name = "idscheme")
 	protected IDSchemeEntity		scheme;
 
 	@Setter
@@ -117,11 +119,11 @@ public class EmbeddedProcessIdentifier implements ProcessIdentifier {
 	}
 	@Override
 	public boolean equals(Object o) {
-		if (o == null || !(o instanceof org.holodeckb2b.bdxr.smp.datamodel.ProcessIdentifier))
+		if (o == null || !(o instanceof org.holodeckb2b.bdxr.common.datamodel.ProcessIdentifier))
 			return false;
 		else {
-			org.holodeckb2b.bdxr.smp.datamodel.ProcessIdentifier other = 
-															(org.holodeckb2b.bdxr.smp.datamodel.ProcessIdentifier) o;
+			org.holodeckb2b.bdxr.common.datamodel.ProcessIdentifier other = 
+															(org.holodeckb2b.bdxr.common.datamodel.ProcessIdentifier) o;
 			if (this.isNoProcess() && other.isNoProcess())
 				return true;
 			else if (this.scheme == null )

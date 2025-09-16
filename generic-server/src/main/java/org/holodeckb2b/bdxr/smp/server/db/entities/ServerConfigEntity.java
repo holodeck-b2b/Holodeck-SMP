@@ -18,7 +18,7 @@ package org.holodeckb2b.bdxr.smp.server.db.entities;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 
 import org.hibernate.annotations.UpdateTimestamp;
@@ -47,7 +47,7 @@ public class ServerConfigEntity {
 	protected Long		oid;
 	
 	@UpdateTimestamp
-	protected LocalDate lastModified;
+	protected LocalDateTime lastModified;
 	
 	@Column
 	protected String	smpId;

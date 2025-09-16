@@ -16,7 +16,7 @@
  */
 package org.holodeckb2b.bdxr.smp.server.db.entities;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import org.hibernate.annotations.UpdateTimestamp;
 import org.holodeckb2b.bdxr.smp.server.datamodel.MetadataRegistration;
@@ -51,7 +51,7 @@ public abstract class BaseMetadataRegistrationEntity<I> implements MetadataRegis
 	protected Long		oid;
 	
 	@UpdateTimestamp
-	protected LocalDate lastModified;
+	protected LocalDateTime lastModified;
 	
 	@Setter
 	@Column
@@ -64,7 +64,7 @@ public abstract class BaseMetadataRegistrationEntity<I> implements MetadataRegis
 	 * However this can be overridden by subclasses, as for example Participants will be better identified by their 
 	 * actual identifier.
 	 * 
-	 * @return	identifcation of the meta-data registration to be used in the audit log
+	 * @return	identification of the meta-data registration to be used in the audit log
 	 */
 	public String getAuditLogId() {
 		return name;

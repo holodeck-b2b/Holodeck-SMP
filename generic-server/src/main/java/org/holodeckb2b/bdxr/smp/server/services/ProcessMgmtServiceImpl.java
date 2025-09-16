@@ -83,7 +83,7 @@ public class ProcessMgmtServiceImpl
 	}
 
 	@Override
-	public Process getProcess(org.holodeckb2b.bdxr.smp.datamodel.ProcessIdentifier processId) throws PersistenceException {		
+	public Process getProcess(org.holodeckb2b.bdxr.common.datamodel.ProcessIdentifier processId) throws PersistenceException {		
 		try {
 			return getById(idUtils.toEmbeddedProcessIdentifier(processId));
 		} catch (NoSuchElementException unknownScheme) {

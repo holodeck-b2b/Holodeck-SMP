@@ -29,7 +29,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import org.holodeckb2b.bdxr.smp.datamodel.ProcessIdentifier;
+import org.holodeckb2b.bdxr.common.datamodel.ProcessIdentifier;
 import org.holodeckb2b.bdxr.smp.server.SMPServerApplication;
 import org.holodeckb2b.bdxr.smp.server.datamodel.Process;
 import org.holodeckb2b.bdxr.smp.server.datamodel.Service;

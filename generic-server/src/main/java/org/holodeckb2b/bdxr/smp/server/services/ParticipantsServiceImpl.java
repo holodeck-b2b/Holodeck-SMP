@@ -29,7 +29,6 @@ import org.holodeckb2b.bdxr.smp.server.services.network.DirectoryException;
 import org.holodeckb2b.bdxr.smp.server.services.network.DirectoryIntegrationService;
 import org.holodeckb2b.bdxr.smp.server.services.network.SMLException;
 import org.holodeckb2b.bdxr.smp.server.services.network.SMLIntegrationService;
-import org.holodeckb2b.bdxr.smp.server.ui.auth.UserAccount;
 import org.holodeckb2b.commons.util.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -37,7 +36,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.extern.slf4j.Slf4j;
@@ -56,18 +54,8 @@ public class ParticipantsServiceImpl
 	@Autowired
 	protected SMPServerAdminService	smpConfigService;
 	
-	/**
-	 * The SML Integration Service implementation. As the SML integration is optional, the component is also defined as
-	 * optional.
-	 */
-	@Autowired(required = false)
-	private SMLIntegrationService 			smlServiceImpl;
-	/**
-	 * The Directory Integration Service implementation. Similar to the SML integration service, the Directory 
-	 * integration is optional and therefore the component is as well.
-	 */
-	@Autowired(required = false)
-	private DirectoryIntegrationService 	dirServiceImpl;
+	private SMLIntegrationService 			smlService;
+	private DirectoryIntegrationService 	directoryService;
 		
 	@Override
 	protected String getAuditDetails(ParticipantEntity entity) {
@@ -161,7 +149,7 @@ public class ParticipantsServiceImpl
 		
 		if (updated.isPublishedInDirectory()) {
 			log.trace("Notify directory about update of Participant meta-data");
-			dirServiceImpl.publishParticipantInfo(updated);
+			getDirectoryService().publishParticipantInfo(updated);
 		}
 		return updated;
 	}
@@ -195,11 +183,13 @@ public class ParticipantsServiceImpl
 		try {
 			if (isPublished) {
 				log.trace("Remove Participant (ID={}) from directory", entity.getId().toString());
-				dirServiceImpl.removeParticipantInfo(entity);
+				getDirectoryService().removeParticipantInfo(entity);
 			}
-			if (entity.isRegisteredInSML()) {
+			if (entity.isRegisteredInSML() && Utils.isNullOrEmpty(entity.getSMLMigrationCode())) {
 				log.trace("Remove Participant (ID={}) from SML", entity.getId().toString());
-				smlServiceImpl.deregisterParticipant(entity);
+				getSMLService().deregisterParticipant(entity);
+			} else if (entity.isRegisteredInSML()) {
+				log.debug("Not removing Participant (ID={}) from SML as it is migrated", entity.getId().toString());
 			}
 			executeCRUD(CrudOps.Delete, user, entity);
 		} catch (DirectoryException directoryRemovalFailed) {
@@ -212,7 +202,7 @@ public class ParticipantsServiceImpl
 			if (isPublished) {
 				log.debug("Try to republish Participant in directory");
 				try {
-					dirServiceImpl.publishParticipantInfo(entity);
+					getDirectoryService().publishParticipantInfo(entity);
 					log.debug("Republished Participant in directory");
 				} catch (DirectoryException directoryRepublishFailed) {
 					log.error("Could not republish Participant to directory : {}", 
@@ -232,7 +222,7 @@ public class ParticipantsServiceImpl
 	}
 
 	@Override
-	public Participant getParticipant(org.holodeckb2b.bdxr.smp.datamodel.Identifier pid) throws PersistenceException {
+	public Participant getParticipant(org.holodeckb2b.bdxr.common.datamodel.Identifier pid) throws PersistenceException {
 		try {
 			return getById(idUtils.toEmbeddedIdentifier(pid));
 		} catch (NoSuchElementException unknownScheme) {			
@@ -247,7 +237,7 @@ public class ParticipantsServiceImpl
 	}
 
 	@Override
-	public Collection<? extends Participant> findParticipantsByAdditionalId(org.holodeckb2b.bdxr.smp.datamodel.Identifier id)
+	public Collection<? extends Participant> findParticipantsByAdditionalId(org.holodeckb2b.bdxr.common.datamodel.Identifier id)
 																						throws PersistenceException {
 		log.trace("Retrieving participants with additional Id {}", id.toString());
 		return repo.findByAdditionalId(id);
@@ -381,7 +371,7 @@ public class ParticipantsServiceImpl
 			entity.setRegisteredInSML(true);
 			repo.save(entity);
 			log.trace("Registering Participant (ID={}) in SML", entity.getId().toString());
-			smlServiceImpl.registerParticipant(entity);
+			getSMLService().registerParticipant(entity);
 			auditSvc.log(new AuditLogRecord(Instant.now(), user.getUsername(), "Register in SML", 
 						entity.getAuditLogId(), null));
 			log.info("Registered Participant (ID={}) in SML", entity.getId().toString());
@@ -411,7 +401,7 @@ public class ParticipantsServiceImpl
 			entity.setRegisteredInSML(true);
 			repo.save(entity);
 			log.trace("Migrating Participant (ID={}) in SML", entity.getId().toString());
-			smlServiceImpl.migrateParticipant(entity, migrationCode);
+			getSMLService().migrateParticipant(entity, migrationCode);
 			auditSvc.log(new AuditLogRecord(Instant.now(), user.getUsername(), "Migrate in SML", 
 						entity.getAuditLogId(), "Used migration code : " + migrationCode));
 			log.info("Migrated Participant (ID={}) in SML", entity.getId().toString());
@@ -447,7 +437,7 @@ public class ParticipantsServiceImpl
 			entity.setSMLMigrationCode(migrationCode);
 			repo.save(entity);
 			log.trace("Prepare migration of Participant (ID={}) in SML", entity.getId().toString());
-			smlServiceImpl.registerMigrationCode(entity, migrationCode);
+			getSMLService().registerMigrationCode(entity, migrationCode);
 			auditSvc.log(new AuditLogRecord(Instant.now(), user.getUsername(), "Prepare SML migration", 
 						entity.getAuditLogId(), "Used migration code : " + migrationCode));
 			return entity;			
@@ -504,7 +494,7 @@ public class ParticipantsServiceImpl
 			log.trace("Cancel migration of Participant (ID={}) in SML", entity.getId().toString());
 			// As the SML API does not support cancelling migrations, cancelling the migration is done by migrating the
 			// participant to self
-			smlServiceImpl.migrateParticipant(entity, migrationCode);
+			getSMLService().migrateParticipant(entity, migrationCode);
 			auditSvc.log(new AuditLogRecord(Instant.now(), user.getUsername(), "Cancel SML migration", 
 						entity.getAuditLogId(), null));
 			
@@ -527,7 +517,7 @@ public class ParticipantsServiceImpl
 			return entity;
 		} 	
 		if (entity.isPublishedInDirectory() 
-									&& dirServiceImpl.isSMLRegistrationRequired()) {
+									&& getDirectoryService().isSMLRegistrationRequired()) {
 			log.warn("Cannot remove Participant (ID={}) from SML as it's published in directory", 
 					entity.getId().toString());
 			throw new SMLException("Participant is still published in directory");
@@ -537,7 +527,7 @@ public class ParticipantsServiceImpl
 			entity.setRegisteredInSML(false);
 			repo.save(entity);
 			log.trace("Removing Participant (ID={}) from SML", p.getId().toString());
-			smlServiceImpl.deregisterParticipant(entity);
+			getSMLService().deregisterParticipant(entity);
 			auditSvc.log(new AuditLogRecord(Instant.now(), user.getUsername(), "Remove from SML", 
 					entity.getAuditLogId(), null));
 			log.info("Removed Participant (ID={}) from SML", entity.getId().toString());
@@ -551,7 +541,7 @@ public class ParticipantsServiceImpl
 
 	@Override
 	public boolean isDirectoryPublicationAvailable() {
-		DirectoryIntegrationService dirService = dirServiceImpl;
+		DirectoryIntegrationService dirService = getDirectoryService();
 		return dirService != null && dirService.isSMLRegistrationRequired() ? isSMLRegistrationAvailable() 
 																			: dirService != null;		
 	}
@@ -572,7 +562,7 @@ public class ParticipantsServiceImpl
 			entity.setPublishedInDirectory(true);
 			repo.save(entity);
 			log.trace("Publishing Participant (ID={}) to directory", entity.getId().toString());
-			dirServiceImpl.publishParticipantInfo(entity);
+			getDirectoryService().publishParticipantInfo(entity);
 			auditSvc.log(new AuditLogRecord(Instant.now(), user.getUsername(), "Publish in directory", 
 						entity.getAuditLogId(), null));
 			log.info("Published Participant (ID={}) in directory", entity.getId().toString());
@@ -598,7 +588,7 @@ public class ParticipantsServiceImpl
 			entity.setPublishedInDirectory(false);
 			repo.save(entity);
 			log.trace("Removing Participant (ID={}) from directory", entity.getId().toString());
-			dirServiceImpl.removeParticipantInfo(entity);
+			getDirectoryService().removeParticipantInfo(entity);
 			auditSvc.log(new AuditLogRecord(Instant.now(), user.getUsername(), "Remove from directory", 
 						entity.getAuditLogId(), null));
 			log.info("Removed Participant (ID={}) from directory", entity.getId().toString());
@@ -610,6 +600,15 @@ public class ParticipantsServiceImpl
 		} 	
 	}
 	
+	private SMLIntegrationService getSMLService() {
+		return smlService == null ? smlService = smpConfigService.getSMLIntegrationService() : smlService;
+	}
+	
+	private DirectoryIntegrationService getDirectoryService() {
+		return directoryService == null ? directoryService = smpConfigService.getDirectoryIntegrationService() 
+										: directoryService;
+	}
+
 	/**
 	 * Checks if the given Participant is managed by the server and reloads the meta-data from the database. Using this 
 	 * method prevents that changes made to the entity object are accidently saved to the database.

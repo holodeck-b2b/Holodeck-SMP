@@ -23,7 +23,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.List;
 
-import org.holodeckb2b.bdxr.smp.datamodel.Extension;
+import org.holodeckb2b.bdxr.common.datamodel.Extension;
 import org.holodeckb2b.bdxr.smp.datamodel.ProcessGroup;
 import org.holodeckb2b.bdxr.smp.datamodel.Redirection;
 import org.holodeckb2b.bdxr.smp.datamodel.RedirectionV2;
@@ -88,7 +88,7 @@ public class EmbeddedRedirection implements RedirectionV2 {
 	}
 
 	@Override
-	public List<Extension> getExtensions() {
+	public List<Extension<?>> getExtensions() {
 		return null;
 	}
 }

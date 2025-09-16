@@ -23,7 +23,7 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Objects;
 
-import org.holodeckb2b.bdxr.smp.datamodel.Extension;
+import org.holodeckb2b.bdxr.common.datamodel.Extension;
 import org.holodeckb2b.bdxr.smp.server.datamodel.Certificate;
 import org.holodeckb2b.bdxr.smp.server.datamodel.Endpoint;
 import org.holodeckb2b.commons.security.CertificateUtils;
@@ -136,7 +136,7 @@ public class EmbeddedCertificate implements Certificate {
 	}
 	
 	@Override
-	public List<Extension> getExtensions() {
+	public List<Extension<?>> getExtensions() {
 		return null;
 	}
 	

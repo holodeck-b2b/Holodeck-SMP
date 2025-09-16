@@ -26,7 +26,6 @@ import java.util.List;
 import org.holodeckb2b.bdxr.smp.datamodel.Certificate;
 import org.holodeckb2b.bdxr.smp.server.datamodel.Endpoint;
 import org.holodeckb2b.bdxr.smp.server.datamodel.TransportProfile;
-import org.holodeckb2b.bdxr.smp.server.db.entities.EmbeddedCertificate;
 import org.holodeckb2b.bdxr.smp.server.db.entities.EndpointEntity;
 import org.holodeckb2b.bdxr.smp.server.db.entities.TransportProfileEntity;
 import org.holodeckb2b.bdxr.smp.server.db.repos.EndpointRepository;
@@ -70,13 +69,13 @@ public class EndpointMgmtServiceImpl extends BaseMgmtServiceImpl<Long, EndpointE
 		return sb.toString();
 	}
 
-	private String getCertDetails(List<EmbeddedCertificate> certificates) {
+	private String getCertDetails(List<? extends Certificate> certificates) {
 		if (Utils.isNullOrEmpty(certificates))
 			return "";
 		
 		StringBuilder sb = new StringBuilder('{');
-		for (Iterator<EmbeddedCertificate> it = certificates.iterator(); it.hasNext(); ) {
-			EmbeddedCertificate cert = it.next();		
+		for (Iterator<? extends Certificate> it = certificates.iterator(); it.hasNext(); ) {
+			Certificate cert = it.next();		
 			X509Certificate c = cert.getX509Cert();
 			sb.append("subject=").append(CertificateUtils.getIssuerName(c))
 			  .append(",issuer/serialNo=").append(CertificateUtils.getIssuerName(c))

@@ -101,10 +101,10 @@ public class EmbeddedIdentifier implements Identifier {
 
 	@Override
 	public boolean equals(Object o) {
-		if (o == null || !(o instanceof org.holodeckb2b.bdxr.smp.datamodel.Identifier))
+		if (o == null || !(o instanceof org.holodeckb2b.bdxr.common.datamodel.Identifier))
 			return false;
 		else {
-			org.holodeckb2b.bdxr.smp.datamodel.Identifier other = (org.holodeckb2b.bdxr.smp.datamodel.Identifier) o;
+			org.holodeckb2b.bdxr.common.datamodel.Identifier other = (org.holodeckb2b.bdxr.common.datamodel.Identifier) o;
 			if (this.scheme == null )
 				return other.getScheme() == null && Utils.nullSafeEqual(this.value, other.getValue());
 			else

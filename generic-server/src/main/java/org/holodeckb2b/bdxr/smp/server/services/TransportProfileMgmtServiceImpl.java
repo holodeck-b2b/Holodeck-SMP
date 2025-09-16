@@ -83,7 +83,7 @@ public class TransportProfileMgmtServiceImpl
 	}
 
 	@Override
-	public TransportProfile getTransportProfile(org.holodeckb2b.bdxr.smp.datamodel.Identifier profileId) throws PersistenceException {		
+	public TransportProfile getTransportProfile(org.holodeckb2b.bdxr.common.datamodel.Identifier profileId) throws PersistenceException {		
 		try {
 			return getById(idUtils.toEmbeddedIdentifier(profileId));
 		} catch (NoSuchElementException unknownScheme) {

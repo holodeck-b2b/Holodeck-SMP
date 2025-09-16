@@ -28,6 +28,7 @@ import org.holodeckb2b.commons.security.CertificateUtils;
 import org.holodeckb2b.commons.security.KeystoreUtils;
 import org.holodeckb2b.commons.util.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -59,14 +60,15 @@ public class SMPServerAdminServiceImpl implements SMPServerAdminService {
 	private DataEncryptor	encryptor;
 	
 	/**
-	 * The SML Integration Service implementation. As the SML integration is optional, the component is also defined as
-	 * optional.
+	 * The SML Integration Service implementation. As the SML integration is optional the autowiring is optional. 
+	 * To allow the SML integration service to reference this service (because it may need information provided by it) 
+	 * the implementation is loaded lazily. 
 	 */
 	@Autowired(required = false)
 	private SMLIntegrationService 			smlServiceImpl;
 	/**
-	 * The Directory Integration Service implementation. Similar to the SML integration service, the Directory 
-	 * integration is optional and therefore the component is as well.
+	 * The Directory Integration Service implementation. Same as for the SML integration, the directory integration is 
+	 * optional and may need information from this service and the autowiring is therefore optional and lazy.
 	 */
 	@Autowired(required = false)
 	private DirectoryIntegrationService 	dirServiceImpl;
@@ -112,7 +114,7 @@ public class SMPServerAdminServiceImpl implements SMPServerAdminService {
 		if (config.isRegisteredSML() && smlServiceImpl.requiresSMPCertRegistration()) {
 			try {
 				log.debug("Register new server certificate in SML");
-				smlServiceImpl.updateSMPCertificate(updateInfo);
+				smlServiceImpl.updateSMPCertificate(config.getSmpId(), updateInfo);
 			} catch (SMLException smlUpdateFailed) {
 				log.error("Failed to register new server certificate in SML : {}", 
 							Utils.getExceptionTrace(smlUpdateFailed));
@@ -201,6 +203,11 @@ public class SMPServerAdminServiceImpl implements SMPServerAdminService {
 	}
 	
 	@Override
+	public SMLIntegrationService getSMLIntegrationService() {						
+		return smlServiceImpl;
+	}
+
+	@Override
 	@Transactional(rollbackFor = { SMLException.class })
 	public void registerServerInSML(UserDetails user) throws SMLException {
 		if (smlServiceImpl == null) {
@@ -252,6 +259,7 @@ public class SMPServerAdminServiceImpl implements SMPServerAdminService {
 		}		
 		config.setRegisteredSML(false);
 		configRepo.save(config);
+		participants.unregisterAllFromSML();
 		try {
 			log.trace("Remove server from SML");
 			smlServiceImpl.deregisterSMPServer(config.getSmpId());
@@ -263,6 +271,11 @@ public class SMPServerAdminServiceImpl implements SMPServerAdminService {
 		log.trace("Update audit log");
 		auditSvc.log(new AuditLogRecord(Instant.now(), user.getUsername(), "Remove from SML", "Server", null));
 		log.info("Removed server from SML");
+	}
+
+	@Override
+	public DirectoryIntegrationService getDirectoryIntegrationService() {
+		return dirServiceImpl;
 	}
 
 	/**

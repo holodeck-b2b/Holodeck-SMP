@@ -20,7 +20,7 @@ import java.security.cert.CertificateEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.holodeckb2b.bdxr.smp.datamodel.Extension;
+import org.holodeckb2b.bdxr.common.datamodel.Extension;
 import org.holodeckb2b.bdxr.smp.datamodel.RedirectionV2;
 import org.holodeckb2b.bdxr.smp.server.datamodel.Endpoint;
 import org.holodeckb2b.bdxr.smp.server.datamodel.ProcessGroup;
@@ -32,6 +32,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
@@ -61,6 +62,7 @@ public class ProcessGroupEntity implements ProcessGroup {
 	protected List<ProcessInfoEntity>	processInfo = new ArrayList<>();
 
 	@ManyToMany
+	@JoinTable(name = "PROCESS_GROUP_ENDPOINTS")
 	protected List<EndpointEntity>	endpoints = new ArrayList<>();
 
 	@Embedded
@@ -128,7 +130,7 @@ public class ProcessGroupEntity implements ProcessGroup {
 	}
 	
 	@Override
-	public List<Extension> getExtensions() {
+	public List<Extension<?>> getExtensions() {
 		return null;
 	}
 }

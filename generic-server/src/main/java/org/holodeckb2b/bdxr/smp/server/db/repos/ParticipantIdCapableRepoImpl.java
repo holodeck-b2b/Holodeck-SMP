@@ -34,9 +34,9 @@ public class ParticipantIdCapableRepoImpl extends IdentifierSearchRepoImpl<Ident
 		return ParticipantEntity.class;
 	}
 	
-	public Collection<ParticipantEntity> findByAdditionalId(org.holodeckb2b.bdxr.smp.datamodel.Identifier id) {
+	public Collection<ParticipantEntity> findByAdditionalId(org.holodeckb2b.bdxr.common.datamodel.Identifier id) {
 		return em.createNamedQuery("Participant.findByAdditionalId", ParticipantEntity.class)
-									.setParameter("additionalId", id.toString())
+									.setParameter("additionalId", ParticipantEntity.convertAdditionalId(id))
 									.getResultList();
 //		long total = em.createNamedQuery("Participant.countByAdditionalId", Long.class)
 //										.setParameter("additionalId", id.toString()).getSingleResult();

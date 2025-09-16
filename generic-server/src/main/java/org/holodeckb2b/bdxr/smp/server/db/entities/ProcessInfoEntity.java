@@ -20,7 +20,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.holodeckb2b.bdxr.smp.datamodel.Extension;
+import org.holodeckb2b.bdxr.common.datamodel.Extension;
 import org.holodeckb2b.bdxr.smp.server.datamodel.Identifier;
 import org.holodeckb2b.bdxr.smp.server.datamodel.Process;
 import org.holodeckb2b.bdxr.smp.server.datamodel.ProcessIdentifier;
@@ -86,7 +86,7 @@ public class ProcessInfoEntity implements ProcessInfo {
 	}
 	
 	@Override
-	public void addRole(org.holodeckb2b.bdxr.smp.datamodel.Identifier roleId) {
+	public void addRole(org.holodeckb2b.bdxr.common.datamodel.Identifier roleId) {
 		if (roleId == null )
 			throw new IllegalArgumentException("RoleID shall not be null");
 		IdUtils.checkManagedScheme(roleId.getScheme());		
@@ -99,7 +99,7 @@ public class ProcessInfoEntity implements ProcessInfo {
 	}
 	
 	@Override
-	public List<Extension> getExtensions() {
+	public List<Extension<?>> getExtensions() {
 		return null;
 	}
 }
