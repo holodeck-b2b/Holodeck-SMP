@@ -69,7 +69,6 @@ public class NetworkRegistrationViewController {
 
 	@ModelAttribute("netInfo")
 	public NetworkServicesData populateNetworkInfo() {
-//		return new NetworkServicesData(true, "UITest SML", true, true, false, "DevTest Dir");		
 		return configSvc.getNetworkServicesInfo();										   
 	}
 		
@@ -152,7 +151,7 @@ public class NetworkRegistrationViewController {
 	}
 
 	private boolean verifyHostAddr(List<InetAddress> hostAddrs, InetAddress input) {
-		return hostAddrs.parallelStream().anyMatch(a -> a.equals(input));
+		return hostAddrs != null && hostAddrs.parallelStream().anyMatch(a -> a.equals(input));
 	}
 	
 	@GetMapping("/remove")
@@ -160,6 +159,7 @@ public class NetworkRegistrationViewController {
 		ModelAndView mv = new ModelAndView("networkregistration", R_ATTR, configSvc.getServerMetadata());
 		try {
 			configSvc.removeServerFromSML(user);
+			mv.addObject("smpRegistered", false);
 		} catch (SMLException smlError) {
 			mv.addObject("errorMessage", "There was an error removing the registration from the SML : "
 										+ smlError.getMessage());

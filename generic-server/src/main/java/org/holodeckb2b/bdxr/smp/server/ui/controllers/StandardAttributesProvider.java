@@ -24,8 +24,8 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import jakarta.servlet.http.HttpServletRequest;
 
 /**
- * Is a Spring {@link ControllerAdvice} that ensures that the request URI and information about SML integration are 
- * always available when processing the Thymeleaf templates. 
+ * Is a Spring {@link ControllerAdvice} that ensures that the request URI is always available when processing the 
+ * Thymeleaf templates. 
  * 
  * @author Sander Fieten (sander at holodeck-b2b.org)
  */
@@ -39,10 +39,5 @@ public class StandardAttributesProvider {
     String getRequestServletPath(HttpServletRequest request) {
         return request.getServletPath();
     }
-	
-	@ModelAttribute("smlRegNeeded")
-	boolean getSMLRegistrationNeeded(HttpServletRequest request) {		
-		return Boolean.TRUE.equals(configSvc.getNetworkServicesInfo().smlRegistrationRequired()); 
-	}
 	
 }

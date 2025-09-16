@@ -22,7 +22,9 @@
 <body>
 <section layout:fragment="settings-content">
 <div class="container">
-	<div th:if="${netInfo.smlCertificateRegistrationRequired && !certRegistered}" class="row">
+
+	<div th:if="${#bools.isTrue(netInfo.smlServiceAvailable) && #bools.isTrue(netInfo.smlCertificateRegistrationRequired) 
+					&& !certRegistered}" class="row">
 		<div class="col mx-2 p-2 alert alert-danger">
 			<div class="row align-items-center">
 				<div class="col-auto">
@@ -37,15 +39,16 @@
 		</div>
 	</div>
 
-	<div th:unless="${netInfo.smlCertificateRegistrationRequired && !certRegistered}">
-		<form id="smlForm" method="post" th:action="@{/settings/network/update}" th:object="${registration}">
+	<div th:unless="${#bools.isTrue(netInfo.smlServiceAvailable) 
+						&& #bools.isTrue(netInfo.smlCertificateRegistrationRequired) && !certRegistered}">
+		<form method="post" th:action="@{/settings/network/update}" th:object="${registration}">
 		<div class="card">
 			<div class="card-header">
 				SMP Registration data
 			</div>
 			<div class="card-body">		
 				<div class="row mb-3">
-					<div th:unless="${smpRegistered}" class="col">
+					<div th:if="${#bools.isTrue(netInfo.smlServiceAvailable) && !smpRegistered}" class="col">
 						For the correct operation of the SMP service the server needs to be registered with the
 						network's SML service. Use the form below to provide the required server meta-data
 						to complete the registration of this SMP server with the SML service.  
@@ -56,7 +59,7 @@
 						changed once the server has been registered.  
 					</div>					
 				</div>				
-				<div class="row mb-3">
+				<div th:if="${#bools.isTrue(netInfo.smlServiceAvailable)}" class="row mb-3">
 					<div class="col alert mx-2 p-2" th:classappend="${smpRegistered ? 'alert-success' : 'alert-info'}">
 						The SMP server 
 						<span th:unless="${smpRegistered}">will be</span>
@@ -108,14 +111,16 @@
 			<div class="col-auto">
 				<button type='submit' class="btn btn-primary">
 					<span th:unless="${smpRegistered}">Register SMP</span>
-					<span th:if="${smpRegistered}">Update SMP data</span> in SML
+					<span th:if="${smpRegistered}">Update SMP data</span>
+					<span th:if="${#bools.isTrue(netInfo.smlServiceAvailable)}">in SML</span>	
+					<span th:unless="${#bools.isTrue(netInfo.smlServiceAvailable)}">data</span>	
 				</button>
 			</div>
 			<div class="col-auto">
 				<button type="button" class="btn btn-secondary" data-bs-toggle="modal" 
 					data-bs-target="#confirmCancel">Reload registered data</button>
 			</div>
-			<div class="col-auto">
+			<div th:if="${#bools.isTrue(netInfo.smlServiceAvailable)}" class="col-auto">
 				<button type="button" class="btn btn-danger" th:disabled="${!smpRegistered}" 
 					data-bs-toggle="modal" data-bs-target="#confirmDelete">Remove SMP from SML</button>
 			</div>
