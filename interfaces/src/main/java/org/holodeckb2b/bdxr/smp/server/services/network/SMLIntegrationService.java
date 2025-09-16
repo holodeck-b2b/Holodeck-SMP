@@ -78,11 +78,12 @@ public interface SMLIntegrationService {
 	/**
 	 * Registers the SMP server's certificate update in the SML.
 	 *
+	 * @param smpId	the identifier of the SMP which certificate is updated
 	 * @param cert	the meta-data of the certificate update. Only the X509.v3 certificate is required and optionally the
 	 * 				date it will be activated. 
 	 * @throws SMLException	when the certificate update could not be registered in the SML
 	 */
-	void updateSMPCertificate(Certificate cert) throws SMLException;
+	void updateSMPCertificate(String smpId, Certificate cert) throws SMLException;
 	
 	/**
 	 * Removes the SMP registration from the SML.
