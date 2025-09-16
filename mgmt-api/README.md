@@ -13,7 +13,7 @@ If Participants and their associated business info should be registered in the S
 
 #### Managing Participants
 Participant registrations are managed using the `/participants` resource. 
-A new Participant registration is added by executing a PUT request with the Participant Identifier added to the URL, i.e. `/participants/«ParticipantID»`. The identifier should be in the URL encoded format specified in [section 3.6.3](https://docs.oasis-open.org/bdxr/bdx-smp/v2.0/os/bdx-smp-v2.0-os.html#_Toc62566898) of the OASIS SMP Version 2.0 specification. When automatic SML registratio is enabled, an optional query parameter `migrationCode` may be added to provide the _migration code_ when the Participant is moved from another SMP to this SMP, e.g. `/participants/«ParticipantID»?migrationCode=«migration code»`.
+A new Participant registration is added by executing a PUT request with the Participant Identifier added to the URL, i.e. `/participants/«ParticipantID»`. The identifier should be in the URL encoded format specified in [section 3.6.3](https://docs.oasis-open.org/bdxr/bdx-smp/v2.0/os/bdx-smp-v2.0-os.html#_Toc62566898) of the OASIS SMP Version 2.0 specification. When automatic SML registration is enabled, an optional query parameter `migrationCode` may be added to provide the _migration code_ when the Participant is moved from another SMP to this SMP, e.g. `/participants/«ParticipantID»?migrationCode=«migration code»`.
 The server will respond with following HTTP response codes to indicate how the request was processed:
 
 | HTTP status                 | Indicates      |

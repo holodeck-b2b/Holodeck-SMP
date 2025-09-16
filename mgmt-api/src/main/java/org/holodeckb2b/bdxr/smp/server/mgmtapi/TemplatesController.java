@@ -16,21 +16,12 @@
  */
 package org.holodeckb2b.bdxr.smp.server.mgmtapi;
 
-import java.math.BigInteger;
-
-import org.holodeckb2b.bdxr.smp.server.db.entities.IdentifierE;
-import org.holodeckb2b.bdxr.smp.server.db.entities.ProcessGroupE;
-import org.holodeckb2b.bdxr.smp.server.db.entities.ServiceMetadataTemplateE;
-import org.holodeckb2b.bdxr.smp.server.db.repos.ServiceMetadataTemplateRepository;
-import org.holodeckb2b.bdxr.smp.server.mgmtapi.xml.ServiceMetadataTemplate;
-import org.holodeckb2b.bdxr.smp.server.mgmtapi.xml.ServiceMetadataTemplates;
-import org.holodeckb2b.bdxr.smp.server.queryapi.oasisv2.ServiceMetadataFactory;
-import org.holodeckb2b.bdxr.smp.server.svc.IdUtils;
+import org.holodeckb2b.bdxr.smp.server.mgmtapi.xml.ResponseFactory;
+import org.holodeckb2b.bdxr.smp.server.mgmtapi.xml.v2025.ServiceMetadataTemplatesElement;
+import org.holodeckb2b.bdxr.smp.server.services.core.PersistenceException;
+import org.holodeckb2b.bdxr.smp.server.services.core.SMTMgmtService;
 import org.holodeckb2b.commons.util.Utils;
-import org.oasis_open.docs.bdxr.ns.smp._2.basiccomponents.IDType;
-import org.oasis_open.docs.bdxr.ns.smp._2.extensioncomponents.NameType;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -45,47 +36,20 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class TemplatesController {
 
-	@Value("${smp.smp2_cert_mime-type:application/pkix-cert}")
-	protected String certMimeType;
-	
 	@Autowired
-	protected ServiceMetadataTemplateRepository templates;
-	
-	@Autowired
-	protected IdUtils idUtils;
-
+	protected SMTMgmtService  smtSvc;
 	
 	@GetMapping(produces = MediaType.APPLICATION_XML_VALUE)
-	public ServiceMetadataTemplates getAll() {
+	public ServiceMetadataTemplatesElement getAll() {
 		log.debug("Request for all SMT");
 		
-		ServiceMetadataTemplates tempList = new ServiceMetadataTemplates();		
-		ServiceMetadataFactory factory = new ServiceMetadataFactory(certMimeType);
-				
-		for(ServiceMetadataTemplateE t : templates.findAll()) {
-			ServiceMetadataTemplate tempElem = new ServiceMetadataTemplate();
-			tempElem.setTemplateId(BigInteger.valueOf(t.getOid()));
-			NameType name = new NameType();
-			name.setValue(t.getName());
-			tempElem.setName(name);
-			IdentifierE svcID = t.getService().getId();
-			IDType sidElem = new IDType();
-			if (svcID.getScheme() != null)
-				sidElem.setSchemeID(svcID.getScheme().getSchemeId());
-			sidElem.setValue(svcID.getValue());
-			tempElem.setID(sidElem);
-			
-			for (ProcessGroupE pg : t.getProcessMetadata())
-				try {
-					tempElem.getProcessMetadatas().add(factory.createProcessMetadata(pg));
-				} catch (InstantiationException e) {
-					log.error("An error occurred while constructing the ProcessMetadata of SMT ({}-{}) : {}",
-							 t.getOid(), t.getName(), Utils.getExceptionTrace(e));
-					throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
-				}
-			tempList.getServiceMetadataTemplates().add(tempElem);
-		}
-		
-		return tempList;
+		try {
+			return ResponseFactory.createSMTResponse(smtSvc.getTemplates());
+		} catch (InstantiationException | PersistenceException e) {
+			log.error("Error while creating ServiceMetadataTemplates XML document : {}", Utils.getExceptionTrace(e));
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR); 
+		}			
 	}
+	
+	
 }

@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
+    xmlns:smp="http://docs.oasis-open.org/bdxr/ns/SMP/2/ServiceMetadata"
+    xmlns:sma="http://docs.oasis-open.org/bdxr/ns/SMP/2/AggregateComponents"
+    xmlns:smb="http://docs.oasis-open.org/bdxr/ns/SMP/2/BasicComponents"
+    xmlns:ext="http://docs.oasis-open.org/bdxr/ns/SMP/2/ExtensionComponents"
+    xmlns:ccts="urn:un:unece:uncefact:documentation:2"
+    targetNamespace="http://holodeck-smp.org/schemas/2025/05/server/api/metadata"
+    xmlns="http://holodeck-smp.org/schemas/2025/05/server/api/metadata">
+    <xs:import namespace="http://docs.oasis-open.org/bdxr/ns/SMP/2/AggregateComponents"
+        schemaLocation="../../../../oasis-smp2/src/main/xsd/common/SMP-AggregateComponents-2.0.xsd"/>
+    <xs:import namespace="http://docs.oasis-open.org/bdxr/ns/SMP/2/BasicComponents"
+        schemaLocation="../../../../oasis-smp2/src/main/xsd/common/SMP-BasicComponents-2.0.xsd"/>
+    <xs:import namespace="http://docs.oasis-open.org/bdxr/ns/SMP/2/ExtensionComponents"
+        schemaLocation="../../../../oasis-smp2/src/main/xsd/common/SMP-ExtensionComponents-2.0.xsd"/>
+    <xs:element name="ServiceMetadataTemplates">
+        <xs:annotation>
+            <xs:documentation>Contains a list of Service Metatdata Templates and is the root element of the response to the GET request for /templates</xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element maxOccurs="unbounded" minOccurs="0" ref="ServiceMetadataTemplate"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="ServiceMetadataTemplate" type="ServiceMetadataTemplateType">
+        <xs:annotation>
+            <xs:documentation>Contains the data of the Service Metadata Template.</xs:documentation>
+        </xs:annotation>
+    </xs:element>
+    <xs:element name="ServiceMetadataBindings" type="ServiceMetadataBindingsType">
+        <xs:annotation>
+            <xs:documentation>Represents the bindings of Service Metadata Templates to a Participant. This is the root element of the response to the GET request for /participants/«Participant ID»/bindings</xs:documentation>
+        </xs:annotation>
+    </xs:element>
+    <xs:element name="TemplateId" type="xs:unsignedLong"/>
+    <xs:complexType name="ServiceMetadataTemplateType">
+        <xs:sequence>
+            <xs:element ref="TemplateId">
+                <xs:annotation>
+                    <xs:documentation>Contains the identifier of this template; which is used in the API to manage the binding of the template to a Participant.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element minOccurs="0" ref="ext:Name">
+                <xs:annotation>
+                    <xs:documentation>Contains a descriptive name of the template for easy identification when presenting the template to the user. This name isn't used for providing the service meta-data to other Access Points.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element ref="smb:ID">
+                <xs:annotation>
+                    <xs:documentation>Contains the Identifier of the Service this template applies to.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element maxOccurs="unbounded" ref="ProcessMetadata">
+                <xs:annotation>
+                    <xs:documentation>Contains the Process Group meta-data. </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="ServiceMetadataBindingsType">
+        <xs:sequence>
+            <xs:element ref="smb:ParticipantID"/>
+            <xs:element ref="TemplateId" maxOccurs="unbounded" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:element name="ProcessMetadata" type="ProcessMetadataType"/>
+    <xs:complexType name="ProcessMetadataType">
+        <xs:sequence>
+            <xs:element maxOccurs="unbounded" minOccurs="0" ref="sma:Process">
+                <xs:annotation>
+                    <xs:documentation>
+                  <ccts:Component>
+                     <ccts:ComponentType>ASBIE</ccts:ComponentType>
+                     <ccts:DictionaryEntryName>Process Metadata. Process</ccts:DictionaryEntryName>
+                     <ccts:Definition>Information about the process of which the service of the participant is a part.</ccts:Definition>
+                     <ccts:Cardinality>0..n</ccts:Cardinality>
+                     <ccts:ObjectClass>Process Metadata</ccts:ObjectClass>
+                     <ccts:PropertyTerm>Process</ccts:PropertyTerm>
+                     <ccts:AssociatedObjectClass>Process</ccts:AssociatedObjectClass>
+                     <ccts:RepresentationTerm>Process</ccts:RepresentationTerm>
+                  </ccts:Component>
+               </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:choice>
+                <xs:element ref="Endpoint" maxOccurs="unbounded" minOccurs="0"/>
+                <xs:element maxOccurs="1" minOccurs="0" ref="sma:Redirect">
+                    <xs:annotation>
+                        <xs:documentation>
+                  <ccts:Component>
+                     <ccts:ComponentType>ASBIE</ccts:ComponentType>
+                     <ccts:DictionaryEntryName>Process Metadata. Redirect</ccts:DictionaryEntryName>
+                     <ccts:Definition>The presence of a Redirect element indicates that a client MUST follow the URL in the PublisherURI element of the Redirect class.</ccts:Definition>
+                     <ccts:Cardinality>0..1</ccts:Cardinality>
+                     <ccts:ObjectClass>Process Metadata</ccts:ObjectClass>
+                     <ccts:PropertyTerm>Redirect</ccts:PropertyTerm>
+                     <ccts:AssociatedObjectClass>Redirect</ccts:AssociatedObjectClass>
+                     <ccts:RepresentationTerm>Redirect</ccts:RepresentationTerm>
+                  </ccts:Component>
+               </xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+            </xs:choice>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:element name="Endpoint" type="EndpointType"/>
+    <xs:complexType name="EndpointType">
+        <xs:sequence>
+            <xs:element name="EndpointId" type="xs:unsignedLong" maxOccurs="1" minOccurs="0"/>
+            <xs:element ref="ext:SMPExtensions" minOccurs="0" maxOccurs="1"/>
+            <xs:element ref="smb:TransportProfileID" minOccurs="0" maxOccurs="1"/>
+            <xs:element ref="smb:Description" minOccurs="0" maxOccurs="1"/>
+            <xs:element ref="smb:Contact" minOccurs="0" maxOccurs="1"/>
+            <xs:element ref="smb:AddressURI" minOccurs="0" maxOccurs="1"/>
+            <xs:element ref="smb:ActivationDate" minOccurs="0" maxOccurs="1"/>
+            <xs:element ref="smb:ExpirationDate" minOccurs="0" maxOccurs="1"/>
+            <xs:element ref="Certificate" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:element name="Certificate" type="CertificateType"/>
+    <xs:complexType mixed="false" name="CertificateType">
+        <xs:complexContent>
+            <xs:extension base="sma:CertificateType">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="Password" type="xs:string"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:element name="IdentifierMetadata" type="IDMetadataType"/>
+    <xs:complexType name="IDMetadataType">
+        <xs:sequence>
+            <xs:element ref="smb:ID"/>
+            <xs:element minOccurs="0" ref="ext:Name"/>
+            <xs:element minOccurs="0" name="SpecificationURL" type="xs:anyURI"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:element name="IdSchemeMetadata" type="IdSchemeMetadataType"/>
+    <xs:complexType name="IdSchemeMetadataType">
+        <xs:sequence>
+            <xs:element name="ID" type="xs:normalizedString"/>
+            <xs:element default="false" minOccurs="0" name="CaseSensitiveIdentifiers"
+                type="xs:boolean"/>
+            <xs:element maxOccurs="1" minOccurs="0" ref="ext:Name"/>
+            <xs:element minOccurs="0" name="Agency" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+</xs:schema>

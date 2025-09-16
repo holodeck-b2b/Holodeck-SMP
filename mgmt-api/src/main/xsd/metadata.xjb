@@ -1,0 +1,301 @@
+<?xml version="1.0"?>
+<bindings version="3.0" xmlns="https://jakarta.ee/xml/ns/jaxb"
+	xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
+	extensionBindingPrefixes="xjc"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+	<globalBindings>
+		<xjc:simple />
+	</globalBindings>
+
+	<bindings schemaLocation="metadata.xsd" node="/xs:schema">
+		<schemaBindings>
+			<package
+				name="org.holodeckb2b.bdxr.smp.server.mgmtapi.xml.v2025" />
+			<nameXmlTransform>
+				<elementName suffix="Element" />				
+			</nameXmlTransform>
+		</schemaBindings>
+
+	</bindings>
+
+	<bindings scd="x-schema::tns"
+		xmlns:tns="http://docs.oasis-open.org/bdxr/ns/SMP/2/AggregateComponents">
+		<schemaBindings map="false">
+			<package
+				name="org.oasis_open.docs.bdxr.ns.smp._2.aggregatecomponents" />
+		</schemaBindings>
+		<bindings scd="~tns:CertificateType">
+			<class
+				ref="org.oasis_open.docs.bdxr.ns.smp._2.aggregatecomponents.CertificateType" />
+		</bindings>
+		<bindings scd="~tns:EndpointType">
+			<class
+				ref="org.oasis_open.docs.bdxr.ns.smp._2.aggregatecomponents.EndpointType" />
+		</bindings>
+		<bindings scd="~tns:ProcessType">
+			<class
+				ref="org.oasis_open.docs.bdxr.ns.smp._2.aggregatecomponents.ProcessType" />
+		</bindings>
+		<bindings scd="~tns:ProcessMetadataType">
+			<class
+				ref="org.oasis_open.docs.bdxr.ns.smp._2.aggregatecomponents.ProcessMetadataType" />
+		</bindings>
+		<bindings scd="~tns:RedirectType">
+			<class
+				ref="org.oasis_open.docs.bdxr.ns.smp._2.aggregatecomponents.RedirectType" />
+		</bindings>
+		<bindings scd="~tns:ServiceReferenceType">
+			<class
+				ref="org.oasis_open.docs.bdxr.ns.smp._2.aggregatecomponents.ServiceReferenceType" />
+		</bindings>
+		<bindings scd="~tns:PayloadContentType">
+			<class
+				ref="org.oasis_open.docs.bdxr.ns.smp._2.aggregatecomponents.PayloadContentType" />
+		</bindings>
+	</bindings>
+	<bindings scd="x-schema::tns"
+		xmlns:tns="http://docs.oasis-open.org/bdxr/ns/SMP/2/BasicComponents">
+		<schemaBindings map="false">
+			<package
+				name="org.oasis_open.docs.bdxr.ns.smp._2.basiccomponents" />
+		</schemaBindings>
+		<bindings scd="~tns:ActivationDateType">
+			<class
+				ref="org.oasis_open.docs.bdxr.ns.smp._2.basiccomponents.ActivationDateType" />
+		</bindings>
+		<bindings scd="~tns:AddressURIType">
+			<class
+				ref="org.oasis_open.docs.bdxr.ns.smp._2.basiccomponents.AddressURIType" />
+		</bindings>
+		<bindings scd="~tns:ContactType">
+			<class
+				ref="org.oasis_open.docs.bdxr.ns.smp._2.basiccomponents.ContactType" />
+		</bindings>
+		<bindings scd="~tns:ContentBinaryObjectType">
+			<class
+				ref="org.oasis_open.docs.bdxr.ns.smp._2.basiccomponents.ContentBinaryObjectType" />
+		</bindings>
+		<bindings scd="~tns:DescriptionType">
+			<class
+				ref="org.oasis_open.docs.bdxr.ns.smp._2.basiccomponents.DescriptionType" />
+		</bindings>
+		<bindings scd="~tns:ExpirationDateType">
+			<class
+				ref="org.oasis_open.docs.bdxr.ns.smp._2.basiccomponents.ExpirationDateType" />
+		</bindings>
+		<bindings scd="~tns:IDType">
+			<class
+				ref="org.oasis_open.docs.bdxr.ns.smp._2.basiccomponents.IDType" />
+		</bindings>
+		<bindings scd="~tns:ParticipantIDType">
+			<class
+				ref="org.oasis_open.docs.bdxr.ns.smp._2.basiccomponents.ParticipantIDType" />
+		</bindings>
+		<bindings scd="~tns:PublisherURIType">
+			<class
+				ref="org.oasis_open.docs.bdxr.ns.smp._2.basiccomponents.PublisherURIType" />
+		</bindings>
+		<bindings scd="~tns:RoleIDType">
+			<class
+				ref="org.oasis_open.docs.bdxr.ns.smp._2.basiccomponents.RoleIDType" />
+		</bindings>
+		<bindings scd="~tns:SMPVersionIDType">
+			<class
+				ref="org.oasis_open.docs.bdxr.ns.smp._2.basiccomponents.SMPVersionIDType" />
+		</bindings>
+		<bindings scd="~tns:TransportProfileIDType">
+			<class
+				ref="org.oasis_open.docs.bdxr.ns.smp._2.basiccomponents.TransportProfileIDType" />
+		</bindings>
+		<bindings scd="~tns:TypeCodeType">
+			<class
+				ref="org.oasis_open.docs.bdxr.ns.smp._2.basiccomponents.TypeCodeType" />
+		</bindings>
+	</bindings>
+	<bindings scd="x-schema::tns"
+		xmlns:tns="http://docs.oasis-open.org/bdxr/ns/SMP/2/UnqualifiedDataTypes">
+		<schemaBindings map="false">
+			<package
+				name="org.oasis_open.docs.bdxr.ns.smp._2.unqualifieddatatypes" />
+		</schemaBindings>
+		<bindings scd="~tns:AmountType">
+			<class
+				ref="org.oasis_open.docs.bdxr.ns.smp._2.unqualifieddatatypes.AmountType" />
+		</bindings>
+		<bindings scd="~tns:BinaryObjectType">
+			<class
+				ref="org.oasis_open.docs.bdxr.ns.smp._2.unqualifieddatatypes.BinaryObjectType" />
+		</bindings>
+		<bindings scd="~tns:GraphicType">
+			<class
+				ref="org.oasis_open.docs.bdxr.ns.smp._2.unqualifieddatatypes.GraphicType" />
+		</bindings>
+		<bindings scd="~tns:PictureType">
+			<class
+				ref="org.oasis_open.docs.bdxr.ns.smp._2.unqualifieddatatypes.PictureType" />
+		</bindings>
+		<bindings scd="~tns:SoundType">
+			<class
+				ref="org.oasis_open.docs.bdxr.ns.smp._2.unqualifieddatatypes.SoundType" />
+		</bindings>
+		<bindings scd="~tns:VideoType">
+			<class
+				ref="org.oasis_open.docs.bdxr.ns.smp._2.unqualifieddatatypes.VideoType" />
+		</bindings>
+		<bindings scd="~tns:CodeType">
+			<class
+				ref="org.oasis_open.docs.bdxr.ns.smp._2.unqualifieddatatypes.CodeType" />
+		</bindings>
+		<bindings scd="~tns:DateTimeType">
+			<class
+				ref="org.oasis_open.docs.bdxr.ns.smp._2.unqualifieddatatypes.DateTimeType" />
+		</bindings>
+		<bindings scd="~tns:DateType">
+			<class
+				ref="org.oasis_open.docs.bdxr.ns.smp._2.unqualifieddatatypes.DateType" />
+		</bindings>
+		<bindings scd="~tns:TimeType">
+			<class
+				ref="org.oasis_open.docs.bdxr.ns.smp._2.unqualifieddatatypes.TimeType" />
+		</bindings>
+		<bindings scd="~tns:IdentifierType">
+			<class
+				ref="org.oasis_open.docs.bdxr.ns.smp._2.unqualifieddatatypes.IdentifierType" />
+		</bindings>
+		<bindings scd="~tns:IndicatorType">
+			<class
+				ref="org.oasis_open.docs.bdxr.ns.smp._2.unqualifieddatatypes.IndicatorType" />
+		</bindings>
+		<bindings scd="~tns:MeasureType">
+			<class
+				ref="org.oasis_open.docs.bdxr.ns.smp._2.unqualifieddatatypes.MeasureType" />
+		</bindings>
+		<bindings scd="~tns:NumericType">
+			<class
+				ref="org.oasis_open.docs.bdxr.ns.smp._2.unqualifieddatatypes.NumericType" />
+		</bindings>
+		<bindings scd="~tns:ValueType">
+			<class
+				ref="org.oasis_open.docs.bdxr.ns.smp._2.unqualifieddatatypes.ValueType" />
+		</bindings>
+		<bindings scd="~tns:PercentType">
+			<class
+				ref="org.oasis_open.docs.bdxr.ns.smp._2.unqualifieddatatypes.PercentType" />
+		</bindings>
+		<bindings scd="~tns:RateType">
+			<class
+				ref="org.oasis_open.docs.bdxr.ns.smp._2.unqualifieddatatypes.RateType" />
+		</bindings>
+		<bindings scd="~tns:QuantityType">
+			<class
+				ref="org.oasis_open.docs.bdxr.ns.smp._2.unqualifieddatatypes.QuantityType" />
+		</bindings>
+		<bindings scd="~tns:TextType">
+			<class
+				ref="org.oasis_open.docs.bdxr.ns.smp._2.unqualifieddatatypes.TextType" />
+		</bindings>
+		<bindings scd="~tns:NameType">
+			<class
+				ref="org.oasis_open.docs.bdxr.ns.smp._2.unqualifieddatatypes.NameType" />
+		</bindings>
+	</bindings>
+	<bindings scd="x-schema::tns"
+		xmlns:tns="urn:un:unece:uncefact:data:specification:CoreComponentTypeSchemaModule:2">
+		<schemaBindings map="false">
+			<package
+				name="un.unece.uncefact.data.specification.corecomponenttypeschemamodule._2" />
+		</schemaBindings>
+		<bindings scd="~tns:AmountType">
+			<class
+				ref="un.unece.uncefact.data.specification.corecomponenttypeschemamodule._2.AmountType" />
+		</bindings>
+		<bindings scd="~tns:BinaryObjectType">
+			<class
+				ref="un.unece.uncefact.data.specification.corecomponenttypeschemamodule._2.BinaryObjectType" />
+		</bindings>
+		<bindings scd="~tns:CodeType">
+			<class
+				ref="un.unece.uncefact.data.specification.corecomponenttypeschemamodule._2.CodeType" />
+		</bindings>
+		<bindings scd="~tns:DateTimeType">
+			<class
+				ref="un.unece.uncefact.data.specification.corecomponenttypeschemamodule._2.DateTimeType" />
+		</bindings>
+		<bindings scd="~tns:IdentifierType">
+			<class
+				ref="un.unece.uncefact.data.specification.corecomponenttypeschemamodule._2.IdentifierType" />
+		</bindings>
+		<bindings scd="~tns:IndicatorType">
+			<class
+				ref="un.unece.uncefact.data.specification.corecomponenttypeschemamodule._2.IndicatorType" />
+		</bindings>
+		<bindings scd="~tns:MeasureType">
+			<class
+				ref="un.unece.uncefact.data.specification.corecomponenttypeschemamodule._2.MeasureType" />
+		</bindings>
+		<bindings scd="~tns:NumericType">
+			<class
+				ref="un.unece.uncefact.data.specification.corecomponenttypeschemamodule._2.NumericType" />
+		</bindings>
+		<bindings scd="~tns:QuantityType">
+			<class
+				ref="un.unece.uncefact.data.specification.corecomponenttypeschemamodule._2.QuantityType" />
+		</bindings>
+		<bindings scd="~tns:TextType">
+			<class
+				ref="un.unece.uncefact.data.specification.corecomponenttypeschemamodule._2.TextType" />
+		</bindings>
+	</bindings>
+	<bindings scd="x-schema::tns"
+		xmlns:tns="http://docs.oasis-open.org/bdxr/ns/SMP/2/ExtensionComponents">
+		<schemaBindings map="false">
+			<package
+				name="org.oasis_open.docs.bdxr.ns.smp._2.extensioncomponents" />
+		</schemaBindings>
+		<bindings scd="~tns:SMPExtensionsType">
+			<class
+				ref="org.oasis_open.docs.bdxr.ns.smp._2.extensioncomponents.SMPExtensionsType" />
+		</bindings>
+		<bindings scd="~tns:SMPExtensionType">
+			<class
+				ref="org.oasis_open.docs.bdxr.ns.smp._2.extensioncomponents.SMPExtensionType" />
+		</bindings>
+		<bindings scd="~tns:NameType">
+			<class
+				ref="org.oasis_open.docs.bdxr.ns.smp._2.extensioncomponents.NameType" />
+		</bindings>
+		<bindings scd="~tns:ExtensionAgencyIDType">
+			<class
+				ref="org.oasis_open.docs.bdxr.ns.smp._2.extensioncomponents.ExtensionAgencyIDType" />
+		</bindings>
+		<bindings scd="~tns:ExtensionAgencyNameType">
+			<class
+				ref="org.oasis_open.docs.bdxr.ns.smp._2.extensioncomponents.ExtensionAgencyNameType" />
+		</bindings>
+		<bindings scd="~tns:ExtensionAgencyURIType">
+			<class
+				ref="org.oasis_open.docs.bdxr.ns.smp._2.extensioncomponents.ExtensionAgencyURIType" />
+		</bindings>
+		<bindings scd="~tns:ExtensionContentType">
+			<class
+				ref="org.oasis_open.docs.bdxr.ns.smp._2.extensioncomponents.ExtensionContentType" />
+		</bindings>
+		<bindings scd="~tns:ExtensionReasonType">
+			<class
+				ref="org.oasis_open.docs.bdxr.ns.smp._2.extensioncomponents.ExtensionReasonType" />
+		</bindings>
+		<bindings scd="~tns:ExtensionReasonCodeType">
+			<class
+				ref="org.oasis_open.docs.bdxr.ns.smp._2.extensioncomponents.ExtensionReasonCodeType" />
+		</bindings>
+		<bindings scd="~tns:ExtensionURIType">
+			<class
+				ref="org.oasis_open.docs.bdxr.ns.smp._2.extensioncomponents.ExtensionURIType" />
+		</bindings>
+		<bindings scd="~tns:ExtensionVersionIDType">
+			<class
+				ref="org.oasis_open.docs.bdxr.ns.smp._2.extensioncomponents.ExtensionVersionIDType" />
+		</bindings>
+	</bindings>
+</bindings>
