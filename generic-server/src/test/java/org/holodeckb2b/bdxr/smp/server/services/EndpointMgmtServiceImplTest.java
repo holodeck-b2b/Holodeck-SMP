@@ -172,7 +172,7 @@ class EndpointMgmtServiceImplTest {
 		assertNotNull(ar.timestamp());
 		assertEquals(T_USER.getUsername(), ar.username());
 		assertEquals("Add Endpoint", ar.action());
-		assertEquals(saved.getId().toString(), ar.subject());
+		assertEquals(saved.getName(), ar.subject());
 	}
 
 	@Test
@@ -199,7 +199,7 @@ class EndpointMgmtServiceImplTest {
 		assertNotNull(ar.timestamp());
 		assertEquals(T_USER.getUsername(), ar.username());
 		assertEquals("Update Endpoint", ar.action());
-		assertEquals(saved.getId().toString(), ar.subject());
+		assertEquals(saved.getName(), ar.subject());
 	}
 	
 	@Test
@@ -221,7 +221,7 @@ class EndpointMgmtServiceImplTest {
 		assertNotNull(ar.timestamp());
 		assertEquals(T_USER.getUsername(), ar.username());
 		assertEquals("Delete Endpoint", ar.action());
-		assertEquals(saved.getId().toString(), ar.subject());
+		assertEquals(saved.getName(), ar.subject());
 	}
 	
 	@Test	

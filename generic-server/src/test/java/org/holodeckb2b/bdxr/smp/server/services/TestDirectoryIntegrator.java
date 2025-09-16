@@ -19,7 +19,7 @@ package org.holodeckb2b.bdxr.smp.server.services;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.holodeckb2b.bdxr.smp.datamodel.Identifier;
+import org.holodeckb2b.bdxr.common.datamodel.Identifier;
 import org.holodeckb2b.bdxr.smp.server.datamodel.Participant;
 import org.holodeckb2b.bdxr.smp.server.services.network.DirectoryException;
 import org.holodeckb2b.bdxr.smp.server.services.network.DirectoryIntegrationService;

@@ -19,8 +19,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.holodeckb2b.bdxr.common.datamodel.Identifier;
 import org.holodeckb2b.bdxr.smp.datamodel.Certificate;
-import org.holodeckb2b.bdxr.smp.datamodel.Identifier;
 import org.holodeckb2b.bdxr.smp.server.datamodel.Participant;
 import org.holodeckb2b.bdxr.smp.server.datamodel.SMPServerMetadata;
 import org.holodeckb2b.bdxr.smp.server.services.network.SMLException;
@@ -86,7 +86,7 @@ public class TestSMLIntegrator implements SMLIntegrationService {
 	}
 
 	@Override
-	public void updateSMPCertificate(Certificate cert) throws SMLException {
+	public void updateSMPCertificate(String smpId, Certificate cert) throws SMLException {
 		checkRejection();
 		this.cert = cert;
 	}

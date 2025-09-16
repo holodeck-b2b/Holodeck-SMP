@@ -62,7 +62,8 @@ class IDSchemeRepoImplTest {
 
 		IDSchemeEntity scheme2 = new IDSchemeEntity(scheme.getSchemeId(), true, null, null, null);
 		
-		ConstraintViolationException cve = assertThrows(ConstraintViolationException.class, () -> repo.save(scheme2));
+		ConstraintViolationException cve = assertThrows(ConstraintViolationException.class,
+														() -> repo.saveWithDuplicateCheck(scheme2));
 		assertEquals(ViolationType.DUPLICATE_ID, cve.getViolation());
 		assertEquals(scheme2, cve.getSubject());
 		

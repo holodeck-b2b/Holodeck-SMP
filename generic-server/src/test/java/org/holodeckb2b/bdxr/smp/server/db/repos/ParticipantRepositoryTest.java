@@ -28,8 +28,8 @@ import org.holodeckb2b.bdxr.smp.server.CommonServerConfig;
 import org.holodeckb2b.bdxr.smp.server.db.entities.EmbeddedIdentifier;
 import org.holodeckb2b.bdxr.smp.server.db.entities.IDSchemeEntity;
 import org.holodeckb2b.bdxr.smp.server.db.entities.ParticipantEntity;
-import org.holodeckb2b.bdxr.smp.server.db.entities.ServiceMetadataTemplateEntity;
 import org.holodeckb2b.bdxr.smp.server.db.entities.ServiceEntity;
+import org.holodeckb2b.bdxr.smp.server.db.entities.ServiceMetadataTemplateEntity;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -175,7 +175,7 @@ class ParticipantRepositoryTest {
 			ParticipantEntity p = new ParticipantEntity();
 			p.setId(new EmbeddedIdentifier("PartId-T-"+i));
 			p.setName("Participant " + i);
-			p.setRegisteredInSML(null);
+			p.setRegisteredInSML(i % 2 == 0);
 			repo.save(p);
 		}
 		
@@ -236,6 +236,7 @@ class ParticipantRepositoryTest {
 		}
 		
 		assertDoesNotThrow(() -> repo.unregisterAllFromSML());
+		em.clear();
 		assertTrue(repo.findAll().stream().noneMatch(p -> p.isRegisteredInSML()));
 	}
 

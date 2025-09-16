@@ -26,8 +26,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.net.URL;
 import java.time.LocalDate;
 
-import org.holodeckb2b.bdxr.smp.datamodel.impl.IdentifierImpl;
+import org.holodeckb2b.bdxr.common.datamodel.Identifier;
+import org.holodeckb2b.bdxr.common.datamodel.impl.IdentifierImpl;
+import org.holodeckb2b.bdxr.smp.datamodel.impl.IDSchemeImpl;
 import org.holodeckb2b.bdxr.smp.server.datamodel.Contact;
+import org.holodeckb2b.commons.util.Utils;
 import org.junit.jupiter.api.Test;
 
 class ParticipantEntityTest extends BaseEntityTest<ParticipantEntity> {
@@ -115,21 +118,33 @@ class ParticipantEntityTest extends BaseEntityTest<ParticipantEntity> {
 	}
 	
 	@Test
+	void testConvertAdditionalId() {
+		assertEquals("addid-1", ParticipantEntity.convertAdditionalId(new IdentifierImpl("ADDID-1")));
+		assertEquals("ids-1[false]::addid-1", 
+						ParticipantEntity.convertAdditionalId(new IdentifierImpl("ADDID-1", "ids-1")));
+		assertEquals("ids-2[true]::AddId-1", 
+				ParticipantEntity.convertAdditionalId(new IdentifierImpl("AddId-1", new IDSchemeImpl("ids-2", true))));
+	}
+	
+	@Test
 	void testAddAdditionalId() {
-		IDSchemeEntity ids = new IDSchemeEntity("T-IDS-1", true);
-		em.persist(ids);
+		IDSchemeEntity ids1 = new IDSchemeEntity("T-IDS-1", true);
+		IDSchemeEntity ids2 = new IDSchemeEntity("T-IDS-2", false);
+		em.persist(ids1);
+		em.persist(ids2);
 		
 		ParticipantEntity pe = new ParticipantEntity();
 		pe.setId(new EmbeddedIdentifier("T-PID-1"));
 		
-		pe.addAdditionalId(new EmbeddedIdentifier(ids, "ADDID-1"));
-		pe.addAdditionalId(new EmbeddedIdentifier(ids, "AddId-1"));
+		pe.addAdditionalId(new EmbeddedIdentifier(ids1, "ADDID-1"));
+		pe.addAdditionalId(new EmbeddedIdentifier(ids1, "AddId-1"));
+		pe.addAdditionalId(new EmbeddedIdentifier(ids2, "AddId-2"));
 		
 		assertDoesNotThrow(() -> em.persist(pe));
 		
 		ParticipantEntity found = em.find(ParticipantEntity.class, pe.getOid());
 		
-		assertEquals(2, found.getAdditionalIds().size());
+		assertTrue(Utils.areEqual(pe.getAdditionalIds(), found.getAdditionalIds()));
 	}
 
 	@Test
@@ -170,7 +185,7 @@ class ParticipantEntityTest extends BaseEntityTest<ParticipantEntity> {
 		ParticipantEntity found = reload(pe);
 		
 		assertEquals(2, found.getAdditionalIds().size());
-		org.holodeckb2b.bdxr.smp.datamodel.Identifier id2rm = found.getAdditionalIds().iterator().next();
+		org.holodeckb2b.bdxr.common.datamodel.Identifier id2rm = found.getAdditionalIds().iterator().next();
 		found.removeAdditionalId(id2rm);
 		
 		assertDoesNotThrow(() -> save(found));

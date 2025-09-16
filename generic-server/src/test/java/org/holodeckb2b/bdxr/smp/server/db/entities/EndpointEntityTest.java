@@ -141,7 +141,7 @@ class EndpointEntityTest extends BaseEntityTest<EndpointEntity> {
 		
 		assertEquals(2, found.getCertificates().size());		
 		
-		EmbeddedCertificate c2rm = found.getCertificates().get(0);
+		EmbeddedCertificate c2rm = (EmbeddedCertificate) found.getCertificates().get(0);
 		found.removeCertificate(c2rm);
 		
 		assertDoesNotThrow(() -> save(found));

@@ -31,6 +31,7 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.UUID;
 
+import org.holodeckb2b.bdxr.smp.datamodel.EndpointInfo;
 import org.holodeckb2b.bdxr.smp.server.CommonServerConfig;
 import org.holodeckb2b.bdxr.smp.server.auditlogging.AuditLogRecord;
 import org.holodeckb2b.bdxr.smp.server.auditlogging.AuditLogService;
@@ -39,15 +40,14 @@ import org.holodeckb2b.bdxr.smp.server.datamodel.Process;
 import org.holodeckb2b.bdxr.smp.server.datamodel.ProcessGroup;
 import org.holodeckb2b.bdxr.smp.server.datamodel.ProcessInfo;
 import org.holodeckb2b.bdxr.smp.server.datamodel.Service;
-import org.holodeckb2b.bdxr.smp.datamodel.EndpointInfo;
 import org.holodeckb2b.bdxr.smp.server.datamodel.ServiceMetadataTemplate;
 import org.holodeckb2b.bdxr.smp.server.db.entities.EmbeddedIdentifier;
 import org.holodeckb2b.bdxr.smp.server.db.entities.EmbeddedProcessIdentifier;
 import org.holodeckb2b.bdxr.smp.server.db.entities.EndpointEntity;
 import org.holodeckb2b.bdxr.smp.server.db.entities.ProcessEntity;
 import org.holodeckb2b.bdxr.smp.server.db.entities.ProcessInfoEntity;
-import org.holodeckb2b.bdxr.smp.server.db.entities.ServiceMetadataTemplateEntity;
 import org.holodeckb2b.bdxr.smp.server.db.entities.ServiceEntity;
+import org.holodeckb2b.bdxr.smp.server.db.entities.ServiceMetadataTemplateEntity;
 import org.holodeckb2b.bdxr.smp.server.db.entities.TransportProfileEntity;
 import org.holodeckb2b.bdxr.smp.server.db.repos.EndpointRepository;
 import org.holodeckb2b.bdxr.smp.server.db.repos.ProcessRepository;
@@ -125,8 +125,8 @@ class SMTMgmtServiceImplTest {
 		AuditLogRecord ar = captor.getValue();
 		assertNotNull(ar.timestamp());
 		assertEquals(T_USER.getUsername(), ar.username());
-		assertEquals("Add SMT", ar.action());
-		assertEquals(saved.getId().toString(), ar.subject());	
+		assertEquals("Add ServiceMetadataTemplate", ar.action());
+		assertEquals(saved.getName(), ar.subject());	
 	}
 	
 	@Test
@@ -170,8 +170,8 @@ class SMTMgmtServiceImplTest {
 		AuditLogRecord ar = captor.getValue();
 		assertNotNull(ar.timestamp());
 		assertEquals(T_USER.getUsername(), ar.username());
-		assertEquals("Update SMT", ar.action());
-		assertEquals(smt.getId().toString(), ar.subject());	
+		assertEquals("Update ServiceMetadataTemplate", ar.action());
+		assertEquals(smt.getName(), ar.subject());	
 	}	
 	
 	@Test
@@ -201,8 +201,8 @@ class SMTMgmtServiceImplTest {
 		AuditLogRecord ar = captor.getValue();
 		assertNotNull(ar.timestamp());
 		assertEquals(T_USER.getUsername(), ar.username());
-		assertEquals("Update SMT", ar.action());
-		assertEquals(smt.getId().toString(), ar.subject());	
+		assertEquals("Update ServiceMetadataTemplate", ar.action());
+		assertEquals(smt.getName(), ar.subject());	
 	}
 	
 	@Test
@@ -230,8 +230,8 @@ class SMTMgmtServiceImplTest {
 		AuditLogRecord ar = captor.getValue();
 		assertNotNull(ar.timestamp());
 		assertEquals(T_USER.getUsername(), ar.username());
-		assertEquals("Update SMT", ar.action());
-		assertEquals(smt.getId().toString(), ar.subject());	
+		assertEquals("Update ServiceMetadataTemplate", ar.action());
+		assertEquals(smt.getName(), ar.subject());	
 	}	
 	
 	@Test
@@ -250,8 +250,8 @@ class SMTMgmtServiceImplTest {
 		AuditLogRecord ar = captor.getValue();
 		assertNotNull(ar.timestamp());
 		assertEquals(T_USER.getUsername(), ar.username());
-		assertEquals("Update SMT", ar.action());
-		assertEquals(smt.getId().toString(), ar.subject());	
+		assertEquals("Update ServiceMetadataTemplate", ar.action());
+		assertEquals(smt.getName(), ar.subject());	
 	}
 	
 	@Test

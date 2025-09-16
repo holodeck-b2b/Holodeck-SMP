@@ -52,7 +52,7 @@ class IdentifierBasedRepoImplTest {
 		EmbeddedProcessIdentifier id = new EmbeddedProcessIdentifier("local-test");
 		p.setId(id);
 		
-		assertDoesNotThrow(() -> repo.save(p));
+		assertDoesNotThrow(() -> repo.saveWithDuplicateCheck(p));
 		assertEquals(1, repo.count());
 		assertEquals(p, repo.findByIdentifier(id));
 	}
@@ -85,7 +85,7 @@ class IdentifierBasedRepoImplTest {
 		EmbeddedProcessIdentifier id = new EmbeddedProcessIdentifier("local-test");
 		p.setId(id);
 		
-		assertDoesNotThrow(() -> repo.save(p));
+		assertDoesNotThrow(() -> repo.saveWithDuplicateCheck(p));
 		assertEquals(1, repo.count());
 		assertEquals(p, repo.findByIdentifier(id));
 		
@@ -93,7 +93,8 @@ class IdentifierBasedRepoImplTest {
 		EmbeddedProcessIdentifier id2 = new EmbeddedProcessIdentifier("local-test");
 		p2.setId(id2);
 		
-		ConstraintViolationException cve = assertThrows(ConstraintViolationException.class, () -> repo.save(p2));
+		ConstraintViolationException cve = assertThrows(ConstraintViolationException.class, 
+														() -> repo.saveWithDuplicateCheck(p2));
 		assertEquals(ViolationType.DUPLICATE_ID, cve.getViolation());
 		assertEquals(p2, cve.getSubject());
 		
@@ -117,7 +118,8 @@ class IdentifierBasedRepoImplTest {
 		EmbeddedProcessIdentifier id2 = new EmbeddedProcessIdentifier("Local-Test");
 		p2.setId(id2);
 		
-		ConstraintViolationException cve = assertThrows(ConstraintViolationException.class, () -> repo.save(p2));
+		ConstraintViolationException cve = assertThrows(ConstraintViolationException.class,
+														() -> repo.saveWithDuplicateCheck(p2));
 		assertEquals(ViolationType.DUPLICATE_ID, cve.getViolation());
 		assertEquals(p2, cve.getSubject());
 		

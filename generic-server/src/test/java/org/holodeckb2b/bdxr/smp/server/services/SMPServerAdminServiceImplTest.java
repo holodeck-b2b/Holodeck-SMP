@@ -55,12 +55,17 @@ import org.holodeckb2b.commons.security.KeystoreUtils;
 import org.holodeckb2b.commons.testing.TestUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import jakarta.persistence.EntityManager;
 
 @SpringBootTest(classes = { CommonServerConfig.class })
 class SMPServerAdminServiceImplTest {
@@ -101,7 +106,7 @@ class SMPServerAdminServiceImplTest {
 		}
 	}
 	
-	@AfterEach
+	@BeforeEach
 	void cleanup() {
 		configRepo.deleteAll();
 		participants.deleteAll();
@@ -111,7 +116,7 @@ class SMPServerAdminServiceImplTest {
 		
 	@Test
 	void testGetters() {
-		ServerConfigEntity config = createTestConfig();
+		ServerConfigEntity config = createTestConfig(false);
 		
 		config.setNextKeyPair(assertDoesNotThrow(() -> {
 			DataEncryptor encryptor = new DataEncryptor(masterPwd);
@@ -141,7 +146,7 @@ class SMPServerAdminServiceImplTest {
 	
 	@Test
 	void testRegisterSML() {
-		ServerConfigEntity config = createTestConfig();
+		ServerConfigEntity config = createTestConfig(false);
 		
 		assertDoesNotThrow(() -> adminService.registerServerInSML(T_USER));
 		
@@ -166,9 +171,7 @@ class SMPServerAdminServiceImplTest {
 	
 	@Test
 	void testRemoveFromSML() {
-		ServerConfigEntity config = createTestConfig();
-		config.setRegisteredSML(true);
-		configRepo.save(config);
+		ServerConfigEntity config = createTestConfig(true);
 		
 		smlIntegrator.requireSMPCertRegistration = true;
 		smlIntegrator.smp = new SMPServerMetadataImpl(config.getSmpId(), config.getBaseUrl(), config.getIpv4Address(), 
@@ -191,10 +194,7 @@ class SMPServerAdminServiceImplTest {
 	
 	@Test
 	void testRejectRemoveFromSML() {
-		ServerConfigEntity config = createTestConfig();
-		config.setRegisteredSML(true);
-		configRepo.save(config);
-		
+		ServerConfigEntity config = createTestConfig(true);
 		dirIntegrator.requireSMLRegistration = true;
 		
 		smlIntegrator.smp = new SMPServerMetadataImpl(config.getSmpId(), 
@@ -216,9 +216,7 @@ class SMPServerAdminServiceImplTest {
 	
 	@Test
 	void testRegisterCert() {
-		ServerConfigEntity config = createTestConfig();		
-		config.setRegisteredSML(true);
-		configRepo.save(config);
+		ServerConfigEntity config = createTestConfig(true);		
 		smlIntegrator.requireSMPCertRegistration = true;
 		
 		assertDoesNotThrow(() -> adminService.registerCertificate(T_USER, T_KEYPAIR_2));
@@ -248,9 +246,7 @@ class SMPServerAdminServiceImplTest {
 	
 	@Test
 	void testRegisterCertScheduled() {
-		ServerConfigEntity config = createTestConfig();		
-		config.setRegisteredSML(true);
-		configRepo.save(config);
+		ServerConfigEntity config = createTestConfig(true);		
 		smlIntegrator.requireSMPCertRegistration = true;
 		
 		ZonedDateTime tommorrow = ZonedDateTime.now().plusDays(1);
@@ -282,7 +278,7 @@ class SMPServerAdminServiceImplTest {
 
 	@Test
 	void testCertSwitch() {
-		ServerConfigEntity config = createTestConfig();		
+		ServerConfigEntity config = createTestConfig(false);		
 		config.setNextKeyPair(assertDoesNotThrow(() -> {
 			DataEncryptor encryptor = new DataEncryptor(masterPwd);
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -300,9 +296,7 @@ class SMPServerAdminServiceImplTest {
 	
 	@Test
 	void testRegisterCertWithoutSML() {
-		ServerConfigEntity config = createTestConfig();		
-		config.setRegisteredSML(true);
-		configRepo.save(config);
+		createTestConfig(true);		
 		
 		assertDoesNotThrow(() -> adminService.registerCertificate(T_USER, T_KEYPAIR_2));
 		
@@ -311,9 +305,7 @@ class SMPServerAdminServiceImplTest {
 	
 	@Test
 	void testRemoveCert() {
-		ServerConfigEntity config = createTestConfig();		
-		config.setRegisteredSML(true);
-		configRepo.save(config);
+		ServerConfigEntity config = createTestConfig(true);		
 		
 		assertDoesNotThrow(() -> adminService.removeCertificate(T_USER));
 		
@@ -335,9 +327,8 @@ class SMPServerAdminServiceImplTest {
 	
 	@Test
 	void testRejectRemoval() {
-		ServerConfigEntity config = createTestConfig();		
-		config.setRegisteredSML(true);
-		configRepo.save(config);
+		ServerConfigEntity config = createTestConfig(true);		
+		
 		smlIntegrator.requireSMPCertRegistration = true;
 		smlIntegrator.smp = new SMPServerMetadataImpl(config.getSmpId(), config.getBaseUrl(), config.getIpv4Address(), 
 											config.getIpv6Address(), null, null);
@@ -352,12 +343,13 @@ class SMPServerAdminServiceImplTest {
 		verify(auditService, never()).log(any(AuditLogRecord.class));
 	}	
 	
-	private ServerConfigEntity createTestConfig() {
+	private ServerConfigEntity createTestConfig(boolean registeredSML) {
 		ServerConfigEntity config = new ServerConfigEntity();
 		config.setSmpId(UUID.randomUUID().toString());
 		config.setBaseUrl(assertDoesNotThrow(() -> new URL("https://test.smp.holodeck-b2b.org")));
 		config.setIpv4Address("127.0.0.1");
-		config.setIpv6Address("::1");		
+		config.setIpv6Address("::1");				
+		config.setRegisteredSML(registeredSML);
 		
 		assertDoesNotThrow(() -> {
 			DataEncryptor encryptor = new DataEncryptor(masterPwd);

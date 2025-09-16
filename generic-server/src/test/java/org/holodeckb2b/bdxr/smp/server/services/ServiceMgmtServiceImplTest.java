@@ -99,7 +99,7 @@ public class ServiceMgmtServiceImplTest {
 		assertNotNull(ar.timestamp());
 		assertEquals(T_USER.getUsername(), ar.username());
 		assertEquals("Add Service", ar.action());
-		assertEquals(svc.getId().toString(), ar.subject());		
+		assertEquals(svc.getName(), ar.subject());		
 	}
 
 	@Test	
@@ -144,7 +144,7 @@ public class ServiceMgmtServiceImplTest {
 		assertNotNull(ar.timestamp());
 		assertEquals(T_USER.getUsername(), ar.username());
 		assertEquals("Update Service", ar.action());
-		assertEquals(svc.getId().toString(), ar.subject());	
+		assertEquals(saved.getName(), ar.subject());	
 	}
 	
 	@Test	
@@ -185,7 +185,7 @@ public class ServiceMgmtServiceImplTest {
 		assertNotNull(ar.timestamp());
 		assertEquals(T_USER.getUsername(), ar.username());
 		assertEquals("Delete Service", ar.action());
-		assertEquals(svc.getId().toString(), ar.subject());	
+		assertEquals(svc.getName(), ar.subject());	
 	}
 
 	@Test

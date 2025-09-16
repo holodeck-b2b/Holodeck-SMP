@@ -88,7 +88,7 @@ class AuditLogServiceImplTest {
         CriteriaQuery<AuditLogEntity> query = mock(CriteriaQuery.class);
         Root<AuditLogEntity> root = mock(Root.class);
         
-        Predicate predicate = captor.getValue().toPredicate(root, query, cb);
+        captor.getValue().toPredicate(root, query, cb);
 		
         verify(cb).isTrue(any());
 		verify(cb).literal(true);
