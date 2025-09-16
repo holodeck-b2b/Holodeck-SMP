@@ -23,6 +23,7 @@ import java.util.concurrent.Future;
 
 import org.holodeckb2b.bdxr.smp.server.datamodel.NetworkServicesData;
 import org.holodeckb2b.bdxr.smp.server.datamodel.SMPServerMetadata;
+import org.holodeckb2b.bdxr.smp.server.services.network.DirectoryIntegrationService;
 import org.holodeckb2b.bdxr.smp.server.services.network.SMLException;
 import org.holodeckb2b.bdxr.smp.server.services.network.SMLIntegrationService;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -113,6 +114,24 @@ public interface SMPServerAdminService {
 	 */
 	NetworkServicesData getNetworkServicesInfo();
 	
+	/**
+	 * Gets the SML integration service that must be used to manage Participant registrations in the network's SML 
+	 * service. Only available if the SMP server is connected to a network's SML service, i.e. <code>{@link 
+	 * #getNetworkServicesInfo()}.smlServiceAvailable == true</code> 
+	 *  
+	 * @return the SML integration service to manage Participant registrations in the network's SML service
+	 */
+	SMLIntegrationService getSMLIntegrationService();
+	
+	/**
+	 * Gets the Directory integration service that must be used to manage Participant publication to the network's 
+	 * Directory service. Only available if the SMP server is connected to a network's Directory service, i.e. <code>
+	 * {@link #getNetworkServicesInfo()}.directoryServiceAvailable == true</code> 
+	 *  
+	 * @return the SML integration service to manage Participant registrations in the network's SML service
+	 */
+	DirectoryIntegrationService getDirectoryIntegrationService();
+		
 	/**
 	 * Registers the SMP server with the network SML. Note that this operation only needs to be executed if the 
 	 * network's SML requires SMP server to register themselves. This method only needs to be called once as updates to
