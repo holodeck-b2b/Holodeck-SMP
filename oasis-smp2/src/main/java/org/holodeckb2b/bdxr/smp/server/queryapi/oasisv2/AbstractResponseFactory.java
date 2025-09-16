@@ -25,8 +25,8 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import javax.xml.transform.dom.DOMResult;
 
+import org.holodeckb2b.bdxr.common.datamodel.Identifier;
 import org.holodeckb2b.bdxr.smp.datamodel.IDScheme;
-import org.holodeckb2b.bdxr.smp.datamodel.Identifier;
 import org.holodeckb2b.commons.util.Utils;
 import org.oasis_open.docs.bdxr.ns.smp._2.basiccomponents.SMPVersionIDType;
 import org.oasis_open.docs.bdxr.ns.smp._2.servicegroup.ServiceGroupType;
@@ -44,7 +44,7 @@ import jakarta.xml.bind.JAXBException;
  *
  * @author Sander Fieten (sander at holodeck-b2b.org)
  */
-abstract class AbstractResponseFactory {
+public abstract class AbstractResponseFactory {
 	protected static final SMPVersionIDType SMP_VERSION_ID;
 
 	private final static QName ServiceMetadata_QNAME = new QName("http://docs.oasis-open.org/bdxr/ns/SMP/2/ServiceMetadata", "ServiceMetadata");

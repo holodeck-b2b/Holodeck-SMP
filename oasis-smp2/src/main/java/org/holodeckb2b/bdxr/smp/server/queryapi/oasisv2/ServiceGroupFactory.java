@@ -18,12 +18,10 @@ package org.holodeckb2b.bdxr.smp.server.queryapi.oasisv2;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
-import lombok.extern.slf4j.Slf4j;
-import org.holodeckb2b.bdxr.smp.datamodel.Identifier;
+
+import org.holodeckb2b.bdxr.common.datamodel.Identifier;
 import org.holodeckb2b.bdxr.smp.datamodel.ProcessGroup;
 import org.holodeckb2b.bdxr.smp.datamodel.ProcessInfo;
-import org.holodeckb2b.bdxr.smp.server.datamodel.ServiceMetadataBinding;
 import org.holodeckb2b.bdxr.smp.server.datamodel.ServiceMetadataTemplate;
 import org.oasis_open.docs.bdxr.ns.smp._2.aggregatecomponents.ProcessType;
 import org.oasis_open.docs.bdxr.ns.smp._2.aggregatecomponents.ServiceReferenceType;
@@ -32,6 +30,8 @@ import org.oasis_open.docs.bdxr.ns.smp._2.basiccomponents.ParticipantIDType;
 import org.oasis_open.docs.bdxr.ns.smp._2.basiccomponents.RoleIDType;
 import org.oasis_open.docs.bdxr.ns.smp._2.servicegroup.ServiceGroupType;
 import org.w3c.dom.Document;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Is a factory for <code>ServiceGroup</code> XML documents as specified by the OASIS SMP V2 Specification.
@@ -44,24 +44,25 @@ public class ServiceGroupFactory extends AbstractResponseFactory {
 	/**
 	 * Creates a XML Document with <code>ServiceGroup</code> root element as defined by the OASIS SMP2 Specification
 	 * using the metadata from the given ServiceMetadata Bindings.
-	 *
-	 * @param smb	the collection of Servicemetadata Bindings to use
+	 * 
+	 * @param partID	the Participant identifier
+	 * @param smb		the collection of Service Metadata Templates to use
 	 * @return	new XML Document containing the <code>ServiceGroup</code>
 	 */
-	Document newResponse(List<? extends ServiceMetadataBinding> smb) throws InstantiationException {
+	Document newResponse(Identifier partID, Collection<? extends ServiceMetadataTemplate> smt) 
+																						throws InstantiationException {
 		ServiceGroupType sg = new ServiceGroupType();
 		sg.setSMPVersionID(SMP_VERSION_ID);
-		sg.setParticipantID(convertID(smb.get(0).getParticipantId(), ParticipantIDType.class));
-
-		for(ServiceMetadataBinding b : smb)
-			sg.getServiceReference().add(createServiceReference(b.getTemplate()));
+		sg.setParticipantID(convertID(partID, ParticipantIDType.class));
+		for(ServiceMetadataTemplate t : smt)
+			sg.getServiceReference().add(createServiceReference(t));
 
 		return jaxb2dom(sg);
 	}
 
 	private ServiceReferenceType createServiceReference(ServiceMetadataTemplate t) throws InstantiationException {
 		ServiceReferenceType r = new ServiceReferenceType();
-		r.setID(convertID(t.getServiceId(), IDType.class));
+		r.setID(convertID(t.getService().getId(), IDType.class));
 		Collection<? extends ProcessGroup> pg = t.getProcessMetadata();
 		Collection<ProcessInfo> procs = new ArrayList<>();
 		// Only add unique Process element, i.e. that represent the same Process and collection of Roles
