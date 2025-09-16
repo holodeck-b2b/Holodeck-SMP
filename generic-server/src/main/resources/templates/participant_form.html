@@ -58,7 +58,7 @@
  			<div th:if="${smlAvailable}" class="card-body">
 				<div class="row align-items-center">			
 					<div class="col-3">
-						<label class="form-check-label me-5">Register participant in SML?</label>
+						<label class="form-check-label me-5">Register participant in SML</label>
 						<input class="form-check-input" type="checkbox" id="smlRegistration"  
 							th:field="*{registeredInSML}" onchange="validateSMLInput(event)" th:disabled="*{Migrating}">						
 					</div>
@@ -155,7 +155,7 @@
 			</div>	
 			<div class="card-body row g-2">
 				<div th:if="${smlAvailable && directoryAvailable}" class="col-9">
-					<label class="form-check-label me-5">Publish in network Directory?</label>
+					<label class="form-check-label me-5">Publish in network Directory</label>
 					<input class="form-check-input" type="checkbox" th:field="*{publishedInDirectory}"
 					  th:errorclass="is-invalid"/>
 					<div id="invalidDirectoryMsg"
