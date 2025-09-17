@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## 2.1.2
+##### 2025-09-17
+### Fixed
+* Signature//Reference includes two Transform elements instead of one [#16](https://github.com/holodeck-b2b/Holodeck-SMP/issues/16)
+
 ## 2.1.1
 ##### 2025-09-02
 ### Fixed

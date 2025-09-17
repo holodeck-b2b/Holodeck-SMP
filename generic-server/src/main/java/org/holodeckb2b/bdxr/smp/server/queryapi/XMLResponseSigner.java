@@ -115,8 +115,7 @@ public class XMLResponseSigner {
 		Reference r;
 		try {
 			r = f.newReference("", dm, Arrays.asList(new Transform[] {
-													f.newTransform(Transform.ENVELOPED, (TransformParameterSpec) null),
-													f.newTransform(c14nAlg, (TransformParameterSpec) null)
+													f.newTransform(Transform.ENVELOPED, (TransformParameterSpec) null)													
 												}), null, null);
 		} catch (NoSuchAlgorithmException | InvalidAlgorithmParameterException unsupportedTransform) {
 			throw new XMLSignatureException("Enveloped signature not supported");
