@@ -18,7 +18,7 @@
 		OASIS BDXR Technical Committee and its predecessor developed within PEPPOL.
 	</description>
 	<inceptionYear>2022</inceptionYear>
-	<url>http://www.holodeck-b2b.org/</url>
+	<url>http://www.holodeck-smp.org/</url>
 	<scm>
 		<url>https://github.com/holodeck-b2b/Holodeck-SMP.git</url>
 		<connection>scm:git:https://github.com/holodeck-b2b/Holodeck-SMP.git</connection>
