@@ -22,6 +22,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 * Slow loading of the Participant overview page when there are many Participants registrations.
+* Signature//Reference includes two Transform element instead of one [#16](https://github.com/holodeck-b2b/Holodeck-SMP/issues/16)
  
 
 ## 2.1.0
