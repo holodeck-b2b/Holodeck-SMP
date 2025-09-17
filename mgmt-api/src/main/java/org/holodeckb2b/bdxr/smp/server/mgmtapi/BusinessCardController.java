@@ -24,6 +24,7 @@ import org.holodeckb2b.bdxr.smp.server.db.entities.EmbeddedIdentifier;
 import org.holodeckb2b.bdxr.smp.server.mgmtapi.xml.BusinessEntity;
 import org.holodeckb2b.bdxr.smp.server.services.core.ParticipantsService;
 import org.holodeckb2b.bdxr.smp.server.services.core.PersistenceException;
+import org.holodeckb2b.bdxr.smp.server.services.network.DirectoryException;
 import org.holodeckb2b.bdxr.smp.server.services.network.SMLException;
 import org.holodeckb2b.bdxr.smp.server.utils.IdUtils;
 import org.holodeckb2b.commons.util.Utils;
@@ -74,8 +75,16 @@ public class BusinessCardController {
 		bc.getIdentifier().forEach(id -> p.addAdditionalId(new IdentifierImpl(id.getValue(), id.getScheme())));
 		log.trace("Updating business card info");
 		try {
-			participantsSvc.updateParticipant(mgmtAPIUser, p);
+			Participant updated = participantsSvc.updateParticipant(mgmtAPIUser, p);
 			log.info("Updated business card info of Participant {}", p.getId().toString());
+			if (!p.isPublishedInDirectory() && participantsSvc.isDirectoryPublicationAvailable()) {
+				log.debug("Publish Participant to Directory");
+				participantsSvc.publishInDirectory(mgmtAPIUser, updated);			
+			}
+		} catch (DirectoryException directoryError) {
+			log.error("Error occurred publishing updated Participant (ID={}) to Directory : {}", partID,
+					  Utils.getExceptionTrace(directoryError));
+			throw new ResponseStatusException(HttpStatus.PARTIAL_CONTENT);
 		} catch (PersistenceException e) {
 			log.error("Error in updating Participant info ({}) : {}", p.getId().toString(), Utils.getExceptionTrace(e));
 			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -89,7 +98,7 @@ public class BusinessCardController {
 		try {
 			participantsSvc.removeFromDirectory(mgmtAPIUser, findParticipant(partID));
 			log.info("Removed Participant {} from directory", partID);
-		} catch (SMLException directoryError) {
+		} catch (DirectoryException directoryError) {
 			log.error("Error occurred removing Participant (ID={}) from Directory : {}", partID,
 					  Utils.getExceptionTrace(directoryError));
 			throw new ResponseStatusException(HttpStatus.FAILED_DEPENDENCY);
