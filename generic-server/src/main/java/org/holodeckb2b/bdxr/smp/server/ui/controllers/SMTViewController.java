@@ -135,9 +135,10 @@ public class SMTViewController {
 		ServiceMetadataTemplateEntity smt = null;
 		if (!Utils.isNullOrEmpty(id))
 			smt = (ServiceMetadataTemplateEntity) smtMgmtSvc.getTemplate(Long.valueOf(id));
-		else 
+		else {
 			smt = new ServiceMetadataTemplateEntity();
-		
+			smt.addProcessGroup(new ProcessGroupEntity());
+		}
 		s.setAttribute(SMT_ATTR, smt);
 		return new ModelAndView("smt_form", SMT_ATTR, s.getAttribute(SMT_ATTR));		
 	}
