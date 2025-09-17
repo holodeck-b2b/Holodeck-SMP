@@ -110,6 +110,21 @@ public class ParticipantsController {
 		}
 	}
 	
+	@GetMapping("/{partID}/sml")
+	@ResponseStatus(HttpStatus.OK)
+	public void checkParticipantSMLRegistration(@PathVariable("partID") String partID) {
+		log.debug("Request to check SML registration of Participant with ID={}", partID);
+		Participant p = findParticipant(partID);
+		if (p == null || !p.isRegisteredInSML()) {
+			log.debug("Participant not found or not registered in SML");
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+		} else if (!Utils.isNullOrEmpty(p.getSMLMigrationCode())) {
+			log.debug("Participant is being migrated");
+			throw new ResponseStatusException(HttpStatus.MOVED_TEMPORARILY);
+		} else
+			log.trace("Participant is registered in SML", partID);
+	}
+	
 	@PutMapping("/{partID}/sml")
 	@ResponseStatus(HttpStatus.CREATED)
 	public void registerParticipantInSML(@PathVariable("partID") String partID, 
