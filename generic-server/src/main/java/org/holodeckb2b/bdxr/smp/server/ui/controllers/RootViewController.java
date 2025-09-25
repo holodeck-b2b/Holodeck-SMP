@@ -20,9 +20,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.holodeckb2b.bdxr.smp.server.services.core.SMPServerAdminService;
+import org.holodeckb2b.bdxr.smp.server.ui.auth.UserAccount;
+import org.holodeckb2b.bdxr.smp.server.ui.auth.UserRole;
 import org.holodeckb2b.commons.util.Utils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,9 +38,21 @@ import org.springframework.web.server.ResponseStatusException;
 @RequestMapping({"", "/"})
 public class RootViewController {
 
+	@Autowired
+	protected SMPServerAdminService		configSvc;
+
     @GetMapping
-    public String getMainView() {
-        return "redirect:/participants";
+    public String getMainView(@AuthenticationPrincipal UserAccount user) {
+    	if (!user.getRoles().contains(UserRole.ADMIN)) 
+    		return "redirect:/participants";
+    	else if (configSvc.getServerMetadata().getCertificate() == null) 
+	    	return "redirect:/settings/cert";
+    	else if (configSvc.getNetworkServicesInfo().smlServiceAvailable() 
+    			&& Boolean.TRUE.equals(configSvc.getNetworkServicesInfo().smlRegistrationRequired())
+    			&& Utils.isNullOrEmpty(configSvc.getServerMetadata().getSMPId()))
+			return "redirect:/settings/network";
+		else
+			return "redirect:/participants";
     }
 
 	@GetMapping(value = "/favicon.ico", produces = "image/x-icon")	
