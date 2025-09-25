@@ -46,7 +46,7 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * Is a utility component for sending emails from the SMP Server. It is based on the {@link JavaMailSender} Spring 
  * component and therefore configured through the <code>spring.mail.*</code> properties in the server's main
- * configuration file <code>common.properties</code>. In addition to the regular properties the <i>sender</i> property 
+ * configuration file <code>admin-ui.properties</code>. In addition to the regular properties the <i>sender</i> property 
  * is added which must include the email address to use as sender of the messages.
  * <p>
  * The message body is a plain text created using Thymeleaf templates. The templates should be located in the <code>
@@ -284,7 +284,6 @@ public class MailSenderUtil {
 
         final ClassLoaderTemplateResolver templateResolver = new ClassLoaderTemplateResolver();
         templateResolver.setOrder(Integer.valueOf(1));
-        templateResolver.setResolvablePatterns(Collections.singleton("text/*"));
         templateResolver.setPrefix("/mail/");
         templateResolver.setSuffix(".txt");
         templateResolver.setTemplateMode(TemplateMode.TEXT);
