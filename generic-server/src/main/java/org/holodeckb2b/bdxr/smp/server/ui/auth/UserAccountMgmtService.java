@@ -50,10 +50,6 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 public class UserAccountMgmtService {
-
-	
-	@Value("${smp.auth.pwd-reset-expiration:24}")
-	private int pwdResetExpiration;
 	
 	@Autowired
 	protected UserAccountRepository		users;
@@ -64,18 +60,25 @@ public class UserAccountMgmtService {
 	@Autowired
 	protected AuditLogService	auditSvc;
 	
+	private static final String PWD_RST_SUBJECT = "Password reset link";
+
 	/**
 	 * The base URL to include in the password reset messages 
 	 */
 	@Value("${smp.ui.external-url:http://localhost:${server.port:8080}}")
 	private String portalUrl;
+	
+	/**
+	 * The context path that is configured for the Admin UI
+	 */
+	@Value("${server.servlet.context-path:}")
+	private String contextPath;
+	
 	/**
 	 * The number of hours after which a password reset request expires.
 	 */
 	@Value("${smp.auth.pwd-reset-expiration:24}")
-	protected int	expiration;
-
-	private static final String PWD_RST_SUBJECT = "Password reset link";
+	private int pwdResetExpiration;
 	
 	/**
 	 * Indicates whether the SMP server is connected to an email server and can send password reset links to users. If
@@ -95,7 +98,7 @@ public class UserAccountMgmtService {
 	 * @return	a {@link Pair} containing the complete password reset link and the number of hours the link can be used
 	 */	
 	public Pair<String, Integer> getPwdResetLink(String requestId) {
-		return new Pair<String, Integer>(portalUrl + "/reset/" + requestId, expiration);
+		return new Pair<String, Integer>(portalUrl + contextPath + "/reset/" + requestId, pwdResetExpiration);
 	}	
 	
 	/**
@@ -152,7 +155,7 @@ public class UserAccountMgmtService {
 	public boolean isValidRequest(String pwdResetReqId) {
 		UserAccount user = users.findByPasswordResetRequestId(pwdResetReqId).orElse(null);
 		return user != null
-				&& LocalDateTime.now().isBefore(user.getPasswordResetRequest().getTimestamp().plusHours(expiration));
+				&& LocalDateTime.now().isBefore(user.getPasswordResetRequest().getTimestamp().plusHours(pwdResetExpiration));
 	}
 
 	/**
@@ -235,8 +238,8 @@ public class UserAccountMgmtService {
 				log.trace("Prepare email message");
 				Map<String, Object> vars = new HashMap<>(2);
 				vars.put("name", user.getFullName());
-				vars.put("resetLink", getPwdResetLink(pr.getId()));
-				vars.put("expiration", expiration);
+				vars.put("resetLink", getPwdResetLink(pr.getId()).value1());
+				vars.put("expiration", pwdResetExpiration);
 				log.trace("Send email");
 				mailer.sendMail(user.getEmailAddress(), PWD_RST_SUBJECT, "pwd_reset", vars);
 				log.trace("Sent email");
