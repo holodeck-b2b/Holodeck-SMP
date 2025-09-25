@@ -17,11 +17,8 @@
 package org.holodeckb2b.bdxr.smp.server.services;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
-import java.util.List;
 import java.util.Set;
 
 import org.holodeckb2b.bdxr.smp.server.auditlogging.AuditLogRecord;
@@ -135,7 +132,6 @@ public class AuditLogServiceImpl implements AuditLogService {
 			logMsg.append("ANYTIME");
 		 
 		try {
-			List<AuditLogEntity> auditLogRecords; 		
 			log.trace(logMsg.toString(), request.getPageNumber(), request.getPageSize());
 			return auditLog.findAll(AuditLogRepository.orderByTimestamp(querySpec), request)
 							.map(auditLogRecord -> auditLogRecord.toAuditLogRecord());			 
