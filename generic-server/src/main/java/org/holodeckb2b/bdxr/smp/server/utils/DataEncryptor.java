@@ -31,8 +31,6 @@ import javax.crypto.spec.SecretKeySpec;
 
 import org.bouncycastle.crypto.CryptoException;
 import org.holodeckb2b.commons.util.Utils;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -42,7 +40,6 @@ import lombok.extern.slf4j.Slf4j;
  * @author Sander Fieten (sander at holodeck-b2b.org)
  */
 @Slf4j
-@Component
 public class DataEncryptor {
 	private static final byte[] SALT = new byte[]
 			{ -123, -5,  75,  88,   4, 13, -27,  37,  87,  11, 121, 117,  92, 111,   7, -71,
@@ -54,7 +51,7 @@ public class DataEncryptor {
 	// Random generator for IV
 	private final SecureRandom random = new SecureRandom();
 	
-	public DataEncryptor(@Value("${smp.masterpwd}") final String masterPwd) {
+	public DataEncryptor(final String masterPwd) {
 		try {
 		    SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
 		    KeySpec spec = new PBEKeySpec(masterPwd.toCharArray(), SALT, 65536, 256);
