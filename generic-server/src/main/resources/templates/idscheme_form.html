@@ -33,13 +33,13 @@
 			<label for="schemeID" class="col-2 col-form-label">Scheme identifier</label>
 			<div class="col-7">
 				<input type="text" class="form-control" th:errorclass="is-invalid"
-					   th:readonly="!${#strings.isEmpty(scheme.schemeId)}"
+					   th:disabled="!*{#strings.isEmpty(schemeId)}"
 					   id="schemeID" th:field="*{schemeId}"
 					   placeholder="Scheme identifier" />
 				<div id="invalidIdentifierMsg"
 					 th:if="${#fields.hasErrors('schemeId')}" class="invalid-feedback"
 					 th:errors="*{schemeId}">
-				</div>
+				</div>				
 			</div>
 		</div>
 		<fieldset class="row mb-3">

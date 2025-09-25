@@ -48,7 +48,7 @@
 							<i class="bi fs-5 ms-1" 
 							th:classappend="${smlCertRegRequired ? 'bi-exclamation-circle' : 'bi-info-circle'}"></i>
 						</div>
-						<div class="col-8 ps-0">
+						<div class="col-9 ps-0">
 							<div class="container">
 								A certificate update has already been registered and is planned to be activated on 
 								<span th:text="${plannedUpdate.activateOn}">27/11/2024</span>.
@@ -58,7 +58,7 @@
 								</span>
 							</div>
 						</div>
-						<div class="col-3 ps-2 text-center">
+						<div class="col-2 ps-2 text-end">
 							<button class="btn btn-sm" data-bs-toggle="modal" data-bs-target="#certUpdInfoDialog"
 								th:classappend="${smlCertRegRequired ? 'btn-warning' : 'btn-info'}"
 								>View new certificate</button>
@@ -75,7 +75,7 @@
 			</div>
 			<div th:replace="~{fragments/cert_info::display (cert=${newCert})}"></div>
 			<form th:if="${valid}" method="POST" th:action="@{/settings/cert/apply}">
-			<div class="row mb-3 me-2">
+			<div th:if="${currentCert}" class="row mb-3 me-2">
 				<span class="col-2">Activate</span>		
 				<div class="col-4">
 					<div class="row">
@@ -116,9 +116,15 @@
 				situation. 
 				</div>
 			</div>
+			<div th:unless="${currentCert}" class="d-none">
+				<input type="hidden" name="activation" value="now">
+				<input type="hidden" name="activateOn" value="${#dates.createNow()}">
+			</div>
 			<div class="row justify-content-center mt-3">
 				<div class="col-auto">
-					<button class="btn btn-primary" th:classappend="${!valid?'pe-none':_}" th:disabled="${!valid}" type='submit'>
+					<button type='submit' class="btn btn-primary" th:classappend="${!valid?'pe-none':_}" 
+						th:disabled="${!valid}" 
+						th:text="${currentCert != null ? 'Apply certificate update' : 'Install uploaded key pair'}">
 					Apply certificate update
 					</button>
 				</div>
