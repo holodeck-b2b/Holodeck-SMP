@@ -16,8 +16,8 @@
  -->
 <html lang="en" xmlns:th="http://www.thymeleaf.org"
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-	layout:decorate="~{layouts/main-layout}">
-<section layout:fragment="dynamic-content">
+	layout:decorate="~{layouts/settings-layout}">
+<section layout:fragment="settings-content">
 	
 <div class="card">
 	<div class="card-header">
@@ -47,7 +47,7 @@
 		<div th:unless="*{oid} == null" class="row mb-3">
 			<label class="col-2 form-check-label" for="isAdmin">Account is locked?</label>
 			<div class="col-4">
-				<input class="form-check-input" type="checkbox" id="isLocked" th:value="*{isLocked}">
+				<input class="form-check-input" type="checkbox" id="isLocked" th:field="*{locked}">
 			</div>
 		</div>		
 		<div class="row mb-3">
@@ -103,7 +103,7 @@
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Go back</button>
-				<a th:href="@{${returnTo}}"><button id="confirmBtn" type="button" class="btn btn-danger">Discard changes</button></a>
+				<a th:href="@{/settings/users}"><button id="confirmBtn" type="button" class="btn btn-danger">Discard changes</button></a>
 			</div>
 		</div>
 	</div>
