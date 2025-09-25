@@ -23,6 +23,7 @@ import org.holodeckb2b.bdxr.common.datamodel.Identifier;
 import org.holodeckb2b.bdxr.smp.server.datamodel.Participant;
 import org.holodeckb2b.bdxr.smp.server.services.network.DirectoryException;
 import org.holodeckb2b.bdxr.smp.server.services.network.DirectoryIntegrationService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 /**
@@ -31,7 +32,8 @@ import org.springframework.stereotype.Service;
 @Service("TestDirectoryIntegrator")
 public class TestDirectoryIntegrator implements DirectoryIntegrationService {
 
-	public boolean requireSMLRegistration = false;
+	@Value("${test.directory.requireSMLRegistration:false}")
+	public boolean requireSMLRegistration;
 
 	public List<Identifier> publications = new ArrayList<>();	
 	

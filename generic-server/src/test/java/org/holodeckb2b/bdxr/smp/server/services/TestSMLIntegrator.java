@@ -25,6 +25,7 @@ import org.holodeckb2b.bdxr.smp.server.datamodel.Participant;
 import org.holodeckb2b.bdxr.smp.server.datamodel.SMPServerMetadata;
 import org.holodeckb2b.bdxr.smp.server.services.network.SMLException;
 import org.holodeckb2b.bdxr.smp.server.services.network.SMLIntegrationService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 /**
@@ -33,8 +34,11 @@ import org.springframework.stereotype.Service;
 @Service("TestSMLIntegrator")
 public class TestSMLIntegrator implements SMLIntegrationService {
 
-	public boolean requireSMPRegistration = false;
-	public boolean requireSMPCertRegistration = false;
+	@Value("${test.sml.requireSMPRegistration:false}")
+	public boolean requireSMPRegistration;
+	
+	@Value("${test.sml.requireCertRegistration:false}")
+	public boolean requireSMPCertRegistration;
 
 	public SMPServerMetadata smp;
 	public Certificate cert; 
