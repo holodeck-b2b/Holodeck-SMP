@@ -36,8 +36,8 @@ public class StandardAttributesProvider {
 	protected SMPServerAdminService configSvc;
 	
 	@ModelAttribute("requestURI")
-    String getRequestServletPath(HttpServletRequest request) {
-        return request.getServletPath();
+    String getRequestRequestURI(HttpServletRequest request) {
+        return request.getRequestURI();
     }
 	
 }
