@@ -57,7 +57,7 @@ public class AuditLogServiceImpl implements AuditLogService {
 	/**
 	 * The retention period for audit log records (in days)
 	 */
-	@Value("${auditlog.retention:30}")
+	@Value("${smp.auditlog.retention:30}")
 	private int retentionPeriod;
 	
 	@Override

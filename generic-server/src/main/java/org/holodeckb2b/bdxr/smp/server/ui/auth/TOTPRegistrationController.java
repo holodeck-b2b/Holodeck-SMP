@@ -64,7 +64,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class TOTPRegistrationController {
 
-	@Value("${smp.external-url:http://localhost:${server.port:8080}}")
+	@Value("${smp.ui.external-url:http://localhost:${server.port:8080}}")
 	private String portalUrl;
 	
 	@Autowired

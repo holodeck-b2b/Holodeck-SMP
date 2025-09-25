@@ -51,8 +51,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class UserAccountMgmtService {
 
-	@Value("${smp.external-url:http://localhost:${server.port:8080}}")
-	private String portalUrl;
 	
 	@Value("${smp.auth.pwd-reset-expiration:24}")
 	private int pwdResetExpiration;
@@ -66,6 +64,11 @@ public class UserAccountMgmtService {
 	@Autowired
 	protected AuditLogService	auditSvc;
 	
+	/**
+	 * The base URL to include in the password reset messages 
+	 */
+	@Value("${smp.ui.external-url:http://localhost:${server.port:8080}}")
+	private String portalUrl;
 	/**
 	 * The number of hours after which a password reset request expires.
 	 */
