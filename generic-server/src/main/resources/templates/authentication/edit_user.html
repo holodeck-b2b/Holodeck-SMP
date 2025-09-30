@@ -24,12 +24,12 @@
 		<h5 class="card-title">User account info</h5>		
 	</div>
 	<div class="card-body">
-	<form class="form" method="post" th:action="@{/settings/users/update}" th:object="${user}">
+	<form method="post" th:action="@{/settings/users/update}" th:object="${user}">
 		<input type="hidden" th:field="*{oid}">
 		<div class="row mb-3">
 			<label class="col-sm-2 col-form-label">Email address</label>
 			<div class="col-sm-6">
-				<input type="email" class="form-control" th:field="*{emailAddress}">
+				<input type="email" class="form-control" th:field="*{emailAddress}" th:errorclass="is-invalid">
 				<div id="invalidEmailAddressMsg"
 					 th:if="${#fields.hasErrors('emailAddress')}" class="invalid-feedback"
 					 th:errors="*{emailAddress}">
@@ -39,13 +39,14 @@
 		<div class="row mb-3">
 			<label class="col-sm-2 col-form-label">Full name</label>
 			<div class="col-sm-4">
-				<input type="text" class="form-control" th:field="*{fullName}">
-				<div id="invalidFullNameMsg" class="invalid-feedback" th:errors="*{fullName}">
+				<input type="text" class="form-control" th:field="*{fullName}" th:errorclass="is-invalid">
+				<div th:if="${#fields.hasErrors('fullName')}"
+					id="invalidFullNameMsg" class="invalid-feedback" th:errors="*{fullName}">
 				</div>
 			</div>
 		</div>
 		<div th:unless="*{oid} == null" class="row mb-3">
-			<label class="col-2 form-check-label" for="isAdmin">Account is locked?</label>
+			<label class="col-2 form-check-label" for="isAdmin">Account is locked</label>
 			<div class="col-4">
 				<input class="form-check-input" type="checkbox" id="isLocked" th:field="*{locked}">
 			</div>
@@ -72,7 +73,7 @@
     		</label>			
 		</div>
 		<div th:unless="*{oid} == null" class="row mb-3">
-			<label class="col-2 form-check-label" for="has2FA">Has 2FA enabled?</label>
+			<label class="col-2 form-check-label" for="has2FA">Has 2FA enabled</label>
 			<div class="col-auto">
 				<input class="form-check-input" type="checkbox" id="has2FA" name="has2FA"
 					th:checked="*{totpSecret}" th:value="*{totpSecret != null}" th:onclick="|return *{totpSecret != null}|">
@@ -81,7 +82,7 @@
 				<span th:text="*{totpDevice}"></span>)</label>
 		</div>
 		<div class="row mb-3">
-			<label class="col-2 form-check-label" for="isAdmin">Is administrator?</label>
+			<label class="col-2 form-check-label" for="isAdmin">Is administrator</label>
 			<div class="col-4">
 				<input class="form-check-input" type="checkbox" id="isAdmin" th:field="*{roles}" 
 					th:value="${T(org.holodeckb2b.bdxr.smp.server.ui.auth.UserRole).ADMIN}">
