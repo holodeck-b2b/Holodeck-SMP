@@ -84,6 +84,9 @@ public class UserAccountsViewController {
 	@ResponseBody
 	@GetMapping("settings/users/requestpwdreset")
 	public String requestPwdReset(@AuthenticationPrincipal UserAccount admin, @RequestParam("uid") Long oid) throws Exception {
+		UserAccount userAccount = userMgmtSvc.getUserInfo(admin, oid);
+		if (userAccount.isLocked())
+			userMgmtSvc.unlockUser(admin, oid);
 		Pair<String, Integer> linkInfo = 
 			userMgmtSvc.getPwdResetLink(userMgmtSvc.requestPasswordReset(admin, oid).getPasswordResetRequest().getId());
 		return linkInfo.value1() + "," + linkInfo.value2(); 

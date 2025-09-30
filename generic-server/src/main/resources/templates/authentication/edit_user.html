@@ -63,7 +63,11 @@
 	    		 	<a th:unless="${mailEnabled}" href="#" onclick="performAction(this, showLinkDlg)"  
 						th:attr="data-action-link=@{/settings/users/requestpwdreset(uid=*{oid})}, 
 		    			data-failed='Could not generate password reset link for ' + *{fullName}">generate a password reset link</a> 
-		    			to allow the user to set the password
+		    			to allow the user to set the password.
+		    		<span id="unlockMsg" th:if="*{locked}"><br class="mb-2"/>
+		    			<span class="px-2 py-1 alert alert-primary">
+		    				<i class="bi bi-info-circle me-1"></i> Generating a password reset link will also unlock the account</span>
+		    		</span>
 				</span>
     		</label>			
 		</div>
@@ -161,6 +165,10 @@ function copyLink() {
 
 function showLinkDlg(response) {
 	if (response.ok) {
+		document.getElementById('isLocked').checked = false;
+		let unlockMsg = document.getElementById('unlockMsg');
+		if (unlockMsg)
+			unlockMsg.classList.add('d-none');
 		response.text().then(linkInfo => {			
 			resetLinkEl.textContent = linkInfo.split(',')[0];
 			document.getElementById('linkExpires').textContent = linkInfo.split(',')[1];
