@@ -333,7 +333,7 @@ class SMPServerAdminServiceImplTest {
 		smlIntegrator.smp = new SMPServerMetadataImpl(config.getSmpId(), config.getBaseUrl(), config.getIpv4Address(), 
 											config.getIpv6Address(), null, null);
 		
-		assertThrows(CertificateException.class, () -> adminService.removeCertificate(T_USER));
+		assertThrows(SMLException.class, () -> adminService.removeCertificate(T_USER));
 		
 		assertNotNull(smlIntegrator.smp);
 		

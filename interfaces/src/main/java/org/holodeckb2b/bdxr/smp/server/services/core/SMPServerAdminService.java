@@ -54,10 +54,10 @@ public interface SMPServerAdminService {
 	 * @param user		the User registering the new SMP certificate
 	 * @param keypair	the new key pair to be used by the SMP for signing responses	
 	 * @throws CertificateException when the key pair could not be registered, for example because the certificate is 
-	 * 								currently not valid. It may also be caused by a problem in the registration of the 
-	 * 								certificate with SML service.
+	 * 								currently not valid. 
+	 * @throws SMLException when the certificate update could not be registered in the SML
 	 */
-	void registerCertificate(UserDetails user, PrivateKeyEntry keypair) throws CertificateException;
+	void registerCertificate(UserDetails user, PrivateKeyEntry keypair) throws CertificateException, SMLException;
 
 	/**
 	 * Registers a new key pair that should be used from the specified activation date for signing responses. After
@@ -67,20 +67,22 @@ public interface SMPServerAdminService {
 	 * @param keypair	 the new key pair to be used by the SMP for signing responses	
 	 * @param activation the date and time when the key pair should be used
 	 * @throws CertificateException when the key pair update could not be registered, for example because the 
-	 * 								certificate is not valid at the specified activation time. Another cause can be a 
-	 * 								problem in the registration of the certificate with SML service.
+	 * 								certificate is not valid at the specified activation time.
+	 * @throws SMLException when the certificate update could not be registered in the SML
 	 */	
-	void registerCertificate(UserDetails user, PrivateKeyEntry keypair, ZonedDateTime activation) throws CertificateException;
+	void registerCertificate(UserDetails user, PrivateKeyEntry keypair, ZonedDateTime activation) 
+																			throws CertificateException, SMLException;
 
 	/**
 	 * Removes the registered SMP certificate, including any pending update. When the SMP server is integrated with a 
-	 * SML service that requires registration the SMP certificate, the certificate will also be removed from the SML.
+	 * SML service that requires registration the SMP certificate, the SMP server registration first needs to be removed
+	 * from the SML before the certificate can be removed. 
 	 * 
 	 * @param user		the User removing the SMP certificate
-	 * @throws CertificateException when the SMP certificate could not be removed. Could be caused by a problem in the 
-	 * 								removal of the certificate with SML service.
+	 * @throws SMLException when the SMP server is still registered with the SML
+	 * @throws PersistenceException when the SMP certificate could not be removed. 
 	 */
-	void removeCertificate(UserDetails user) throws CertificateException;
+	void removeCertificate(UserDetails user) throws SMLException, PersistenceException;
 			
 	/**
 	 * Updates the SMP server's meta-data. When the SMP server is registered with the network's SML service the update

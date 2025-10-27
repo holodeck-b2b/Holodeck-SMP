@@ -79,9 +79,9 @@ public class SMPServerAdminServiceImpl implements SMPServerAdminService {
 	}
 
 	@Override
-	@Transactional(rollbackFor = { CertificateException.class })
+	@Transactional(rollbackFor = SMLException.class)
 	public void registerCertificate(UserDetails user, PrivateKeyEntry keypair, ZonedDateTime activation)
-																						throws CertificateException {
+																			throws CertificateException, SMLException {
 		if (activation != null) 
 			log.trace("Request to schedule server certificate update");
 		else
@@ -108,17 +108,17 @@ public class SMPServerAdminServiceImpl implements SMPServerAdminService {
 			config.setNextKeyPair(encrypt(keypair));
 		configRepo.save(config);
 				
-		EmbeddedCertificate updateInfo = new EmbeddedCertificate();
-		updateInfo.setActivationDate(activation);
-		updateInfo.setX509Cert(newCert);
 		if (config.isRegisteredSML() && smlServiceImpl.requiresSMPCertRegistration()) {
 			try {
 				log.debug("Register new server certificate in SML");
+				EmbeddedCertificate updateInfo = new EmbeddedCertificate();
+				updateInfo.setX509Cert(newCert);
+				updateInfo.setActivationDate(activation);
 				smlServiceImpl.updateSMPCertificate(config.getSmpId(), updateInfo);
 			} catch (SMLException smlUpdateFailed) {
 				log.error("Failed to register new server certificate in SML : {}", 
 							Utils.getExceptionTrace(smlUpdateFailed));
-				throw new CertificateException("Failed to register new server certificate in SML", smlUpdateFailed);
+				throw smlUpdateFailed;
 			}
 		} 
 		log.trace("Update audit log");
@@ -129,7 +129,7 @@ public class SMPServerAdminServiceImpl implements SMPServerAdminService {
 	}
 
 	@Override
-	public void removeCertificate(UserDetails user) throws CertificateException {
+	public void removeCertificate(UserDetails user) throws PersistenceException, SMLException {
 		log.trace("Request to remove server certificate");
 		ServerConfigEntity config = getConfig();
 		
@@ -138,7 +138,7 @@ public class SMPServerAdminServiceImpl implements SMPServerAdminService {
 			return;
 		} else if (config.isRegisteredSML() && smlServiceImpl.requiresSMPCertRegistration()) {
 			log.warn("Attempt to remove server certificate while registered in SML");
-			throw new CertificateException("Cannot remove certificate while registered in SML");
+			throw new SMLException("Cannot remove certificate while registered in SML");
 		} 		
 		config.setCurrentKeyPair(null);
 		config.setNextKeyPair(null);
@@ -150,7 +150,7 @@ public class SMPServerAdminServiceImpl implements SMPServerAdminService {
 	}
 	
 	@Override
-	@Transactional(rollbackFor = { SMLException.class })
+	@Transactional(rollbackFor = SMLException.class)
 	public void updateServerMetadata(UserDetails user, SMPServerMetadata serverData) throws PersistenceException {
 		log.trace("Request to update server metadata");
 		ServerConfigEntity config = getConfig();
@@ -208,7 +208,7 @@ public class SMPServerAdminServiceImpl implements SMPServerAdminService {
 	}
 
 	@Override
-	@Transactional(rollbackFor = { SMLException.class })
+	@Transactional(rollbackFor = SMLException.class)
 	public void registerServerInSML(UserDetails user) throws SMLException {
 		if (smlServiceImpl == null) {
 			log.warn("Request to register server in SML, but no SML integration available!");
@@ -242,7 +242,7 @@ public class SMPServerAdminServiceImpl implements SMPServerAdminService {
 	}
 	
 	@Override
-	@Transactional(rollbackFor = { SMLException.class })
+	@Transactional(rollbackFor = SMLException.class)
 	public void removeServerFromSML(UserDetails user) throws SMLException {
 		ServerConfigEntity config = getConfig();
 		if (!config.isRegisteredSML()) {

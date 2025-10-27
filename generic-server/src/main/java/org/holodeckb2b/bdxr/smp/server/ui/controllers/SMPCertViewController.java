@@ -132,7 +132,11 @@ public class SMPCertViewController {
 					configSvc.registerCertificate(user, kp, activationDate.atStartOfDay(ZoneOffset.UTC));				
 				s.removeAttribute(NEW_ATTR);
 			} catch (CertificateException certActivationError) {
-				
+				m.addAttribute(ACT_ERR_ATTR, certActivationError.getMessage());
+				return "smpcert";
+			} catch (SMLException smlRegistrationError) {
+				m.addAttribute("errorMessage", "There was an error registering the new certificate in the SML : <p>"
+						+ Utils.getRootCause(smlRegistrationError).getMessage());
 				return "smpcert";
 			}
 		}
