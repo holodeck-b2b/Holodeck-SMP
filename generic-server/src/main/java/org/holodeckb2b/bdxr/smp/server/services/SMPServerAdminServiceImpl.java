@@ -61,14 +61,12 @@ public class SMPServerAdminServiceImpl implements SMPServerAdminService {
 	
 	/**
 	 * The SML Integration Service implementation. As the SML integration is optional the autowiring is optional. 
-	 * To allow the SML integration service to reference this service (because it may need information provided by it) 
-	 * the implementation is loaded lazily. 
 	 */
 	@Autowired(required = false)
 	private SMLIntegrationService 			smlServiceImpl;
 	/**
 	 * The Directory Integration Service implementation. Same as for the SML integration, the directory integration is 
-	 * optional and may need information from this service and the autowiring is therefore optional and lazy.
+	 * optional and the autowiring is therefore optional as well.
 	 */
 	@Autowired(required = false)
 	private DirectoryIntegrationService 	dirServiceImpl;
