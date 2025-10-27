@@ -2,8 +2,18 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## 3.0.0
+## 3.0.1
 ##### 
+### Fixed
+* Internal server error when relative URL is provided in the SMP server configuration.
+* Internal server error when trying to register a new SMP server certificate in the Peppol SML with current date as 
+ activation date
+* Certificate update not rolled back on SML registration error
+* Missing error message when an error occurs registering the new SMP certificate with the SML
+* Logging in audit log service 
+
+## 3.0.0
+##### Unreleased
 ### Added 
 * Support for TOTP based two factor authentication. Use of 2FA can be configured to be required for all users.
 * Locking of users accounts. Accounts will automatically be locked after, a configurable, number of failed login 
