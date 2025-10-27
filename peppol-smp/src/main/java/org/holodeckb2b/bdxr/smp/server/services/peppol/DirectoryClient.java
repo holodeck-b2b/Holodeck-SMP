@@ -141,7 +141,8 @@ public class DirectoryClient implements DirectoryIntegrationService {
 			log.error("Directory function called before SMP certificate is available!");
 			return null;
 		} else
-			return CertificateUtils.getIssuerName(smpCert).toLowerCase().contains("test") ? testURL : prodURL;		
+			return (CertificateUtils.getIssuerName(smpCert).toLowerCase().contains("test") ? testURL : prodURL)
+					+ "indexer/1.0/";		
 	}
 	
 	/**
