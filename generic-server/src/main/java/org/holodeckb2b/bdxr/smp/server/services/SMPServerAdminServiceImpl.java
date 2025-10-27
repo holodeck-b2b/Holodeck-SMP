@@ -74,7 +74,9 @@ public class SMPServerAdminServiceImpl implements SMPServerAdminService {
 	private DirectoryIntegrationService 	dirServiceImpl;
 	
 	@Override
-	public void registerCertificate(UserDetails user, PrivateKeyEntry keypair) throws CertificateException {
+	@Transactional(rollbackFor = SMLException.class)
+	public void registerCertificate(UserDetails user, PrivateKeyEntry keypair) 
+																			throws CertificateException, SMLException {
 		registerCertificate(user, keypair, null);
 	}
 

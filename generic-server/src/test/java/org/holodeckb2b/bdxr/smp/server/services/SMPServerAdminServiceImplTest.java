@@ -277,6 +277,27 @@ class SMPServerAdminServiceImplTest {
 	}
 
 	@Test
+	void testRejectRegisterCert() {
+		ServerConfigEntity config = createTestConfig(true);		
+		smlIntegrator.requireSMPCertRegistration = true;
+		
+		SMLException smlException = new SMLException("Not allowed");
+		
+		smlIntegrator.rejectNextWith(smlException);
+		
+		assertEquals(smlException, 
+					 assertThrows(SMLException.class, () -> adminService.registerCertificate(T_USER, T_KEYPAIR_2)));
+		
+		ServerConfigEntity stored = configRepo.findById(config.getOid()).get();
+		
+		assertEquals(T_KEYPAIR_1.getCertificate(), decrypt(stored.getCurrentKeyPair()).getCertificate());
+		assertNull(stored.getActivationDate());
+		assertNull(stored.getNextKeyPair());
+		
+		verify(auditService, never()).log(any(AuditLogRecord.class));
+	}
+	
+	@Test
 	void testCertSwitch() {
 		ServerConfigEntity config = createTestConfig(false);		
 		config.setNextKeyPair(assertDoesNotThrow(() -> {

@@ -25,6 +25,7 @@ import java.time.ZoneOffset;
 
 import org.holodeckb2b.bdxr.smp.datamodel.Certificate;
 import org.holodeckb2b.bdxr.smp.server.services.core.SMPServerAdminService;
+import org.holodeckb2b.bdxr.smp.server.services.network.SMLException;
 import org.holodeckb2b.bdxr.smp.server.ui.viewmodels.PendingCertUpdateData;
 import org.holodeckb2b.bdxr.smp.server.ui.viewmodels.X509CertificateData;
 import org.holodeckb2b.commons.security.KeystoreUtils;
