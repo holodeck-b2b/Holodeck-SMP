@@ -61,8 +61,8 @@ public class AuditLogServiceImpl implements AuditLogService {
 	public void log(AuditLogRecord record) {
 		log.trace("Adding audit log record"); 
 		auditLog.save(new AuditLogEntity(record));
-		log.debug("Added audit log record : (t={0,date short}T{0,time short}, u={1}, a={2}, s={3})", 
-					record.timestamp(), record.username(), record.action(), record.subject());			
+		log.debug("Added audit log record : t={}, u={}, a={}, s={})", record.timestamp(), record.username(), 
+				record.action(), record.subject());			
 	}
 
 	@Override
