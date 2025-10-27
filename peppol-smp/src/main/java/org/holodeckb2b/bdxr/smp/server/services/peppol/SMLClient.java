@@ -217,7 +217,7 @@ public class SMLClient implements SMLIntegrationService {
 		} catch (SoapFaultClientException smlError) {
 			log.warn("Error response from SML while executing SML request (cert) : {}", 
 					Utils.getRootCause(smlError).getMessage());
-			throw new SMLException("SML error response", smlError);
+			throw new SMLException("SML operation failed" , smlError);
 		}		
 	}
 	
