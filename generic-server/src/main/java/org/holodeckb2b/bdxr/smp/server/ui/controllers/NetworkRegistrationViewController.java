@@ -114,27 +114,27 @@ public class NetworkRegistrationViewController {
 			br.rejectValue("IPv6Address", "IPV6_REQUIRED", "The external IPv6 address of the SMP must be provided");
 		else if (!Utils.isNullOrEmpty(ipv6)) 
 			try {
-				ip6addr =  Inet4Address.getByName(ipv6);
+				ip6addr =  Inet6Address.getByName(ipv6);
 			} catch (UnknownHostException invalidAddr) {
 				br.rejectValue("IPv6Address", "INVALID", "Please provide a valid IPv6 address");				
 			}
 		
-		List<InetAddress> allAddrs = null;
-		try {
-			allAddrs = Arrays.asList(Inet6Address.getAllByName(input.getBaseUrl().getHost()));
-		} catch (UnknownHostException e) {
-			br.rejectValue("baseUrl", "UNKNOWN_HOST", "The specified hostname is not registered in the DNS");
-		}
+		if (input.getBaseUrl() != null) {
+			try {
+				List<InetAddress> allAddrs = Arrays.asList(Inet6Address.getAllByName(input.getBaseUrl().getHost()));
+				if (ip4addr != null && validateIPv4 && !verifyHostAddr(allAddrs, ip4addr)) {
+					br.rejectValue("IPv4Address", "NO_MATCH", "The specified IPv4 address is not registered in DNS for the given hostname");
+					br.rejectValue("baseUrl", "NO_MATCH", "");			
+				}
+				if (ip6addr != null && validateIPv6 && !verifyHostAddr(allAddrs, ip6addr)) {
+					br.rejectValue("IPv6Address", "NO_MATCH", "The specified IPv6 address is not registered in DNS for the given hostname");
+					br.rejectValue("baseUrl", "NO_MATCH", "");
+				}
+			} catch (UnknownHostException e) {				
+				br.rejectValue("baseUrl", "UNKNOWN_HOST", "The specified hostname is not registered in the DNS");
+			}			
+		} 
 		
-		if (ip4addr != null && validateIPv4 && !verifyHostAddr(allAddrs, ip4addr)) {
-			br.rejectValue("IPv4Address", "NO_MATCH", "The specified IPv4 address is not registered in DNS for the given hostname");
-			br.rejectValue("baseUrl", "NO_MATCH", "");			
-		}
-		if (ip6addr != null && validateIPv6 && !verifyHostAddr(allAddrs, ip6addr)) {
-			br.rejectValue("IPv6Address", "NO_MATCH", "The specified IPv6 address is not registered in DNS for the given hostname");
-			br.rejectValue("baseUrl", "NO_MATCH", "");
-		}
-				
 		if (!br.hasErrors()) {
 			try {				
 				configSvc.updateServerMetadata(user, input);
@@ -143,7 +143,7 @@ public class NetworkRegistrationViewController {
 				return "redirect:/settings/network";
 			} catch (SMLException smlError) {
 				m.addAttribute("errorMessage", "There was an error updating the registration in the SML : "
-											 + smlError.getMessage());
+											 + Utils.getRootCause(smlError).getMessage());
 			}
 		}
 
@@ -162,7 +162,7 @@ public class NetworkRegistrationViewController {
 			mv.addObject("smpRegistered", false);
 		} catch (SMLException smlError) {
 			mv.addObject("errorMessage", "There was an error removing the registration from the SML : "
-										+ smlError.getMessage());
+										+ Utils.getRootCause(smlError).getMessage());
 		}
 		return mv;
 	}
