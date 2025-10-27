@@ -16,6 +16,7 @@
  */
 package org.holodeckb2b.bdxr.smp.server.services;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.cert.X509Certificate;
 
@@ -24,7 +25,6 @@ import org.holodeckb2b.bdxr.smp.server.datamodel.SMPServerMetadata;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -42,8 +42,7 @@ public class SMPServerMetadataImpl implements SMPServerMetadata {
 	@NotBlank(message = "A SMP ID must be provided")
 	String 	SMPId;
 
-	@Setter	
-	@NotNull(message = "The base URL for SMP queries must be provided")
+	@NotNull(message = "An absolute base URL for SMP queries must be provided")
 	URL 	baseUrl;
 
 	@Setter
@@ -55,4 +54,16 @@ public class SMPServerMetadataImpl implements SMPServerMetadata {
 	X509Certificate certificate;
 	
 	Certificate 	pendingCertificateUpdate;
+	
+	public void setBaseUrl(String url) {
+		try {
+			baseUrl = new URL(url);
+		} catch (MalformedURLException invalidURL) {
+			baseUrl = null;
+		}
+	}
+	
+	public void setBaseUrl(URL url) {
+		baseUrl = url;
+	}
 }
