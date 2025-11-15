@@ -1,0 +1,15 @@
+# Java/Maven build output
+target/
+*.log
+
+# IDE and OS cruft
+.idea/
+*.iml
+*.class
+.DS_Store
+
+# Docker / git
+.dockerignore
+Dockerfile
+.git
+.gitignore
