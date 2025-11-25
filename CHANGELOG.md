@@ -2,8 +2,14 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## 3.0.2
+##### 2025-11-25
+### Fixed
+* Validation error on schemeId when updating an ID Scheme
+* Internal error when trying to edit a meta-data registration with an identifier that contains a '+' character
+
 ## 3.0.1
-##### 
+##### Unreleased
 ### Fixed
 * Internal server error when relative URL is provided in the SMP server configuration.
 * Internal server error when trying to register a new SMP server certificate in the Peppol SML with current date as 
