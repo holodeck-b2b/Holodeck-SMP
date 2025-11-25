@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 * Validation error on schemeId when updating an ID Scheme
 * Internal error when trying to edit a meta-data registration with an identifier that contains a '+' character
+* Admin role lost when administrator updates own account  
 
 ## 3.0.1
 ##### Unreleased

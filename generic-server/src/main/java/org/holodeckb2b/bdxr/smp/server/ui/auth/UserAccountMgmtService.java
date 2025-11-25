@@ -320,7 +320,7 @@ public class UserAccountMgmtService {
 		user.setEmailAddress(updatedUser.getEmailAddress().toLowerCase());
 		if (!Utils.isNullOrEmpty(updatedUser.getRoles()))
 			user.setRoles(updatedUser.getRoles());
-		else 
+		else if (admin.getOid() != updatedUser.getOid())
 			user.setRoles(List.of(UserRole.USER));
 		if (!Utils.isNullOrEmpty(updatedUser.getPassword()))
 			user.setPassword(pwdEncoder.encode(updatedUser.getPassword()));
