@@ -141,7 +141,7 @@ public class IdUtils {
 	 * @throws NoSuchElementException
 	 */
 	private Pair<String, IDSchemeEntity> _parseIDString(String idString) throws NoSuchElementException {
-		final String decoded = URLDecoder.decode(idString, StandardCharsets.UTF_8);
+		final String decoded = URLDecoder.decode(idString.replaceAll("\\+", "%2B"), StandardCharsets.UTF_8);
 		int sep = decoded.indexOf("::");
 		String ids = decoded.substring(0, Math.max(0, sep));
 		String idv = sep < 0 ? decoded : decoded.substring(sep + 2);
