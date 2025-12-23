@@ -16,14 +16,32 @@
  */
 package org.holodeckb2b.bdxr.smp.server.db.repos;
 
-import org.holodeckb2b.bdxr.smp.server.db.entities.EndpointInfoE;
+import java.util.Collection;
+
+import org.holodeckb2b.bdxr.smp.server.db.entities.EndpointEntity;
+import org.holodeckb2b.bdxr.smp.server.db.entities.TransportProfileEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
- * The Spring JPA repository for endpoint meta-data.
+ * The Spring JPA repository for Endpoint meta-data.
  *
  * @author Sander Fieten (sander at holodeck-b2b.org)
  */
-public interface EndpointRepository extends JpaRepository<EndpointInfoE, Long> {
+public interface EndpointRepository extends JpaRepository<EndpointEntity, Long> {
 
+	/**
+	 * Counts all Endpoints that use the given Transport Profile.
+	 * 
+	 * @param tp	the Transport Profile to select the Endpoints
+	 * @return		number of Endpoints that support the given profile
+	 */
+	int countByTransportProfile(TransportProfileEntity tp);
+
+	/**
+	 * Finds all Endpoints that use the given Transport Profile.
+	 * 
+	 * @param tp	the Transport Profile to select the Endpoints
+	 * @return		Collection with all Endpoints that support the given profile
+	 */
+	Collection<EndpointEntity> findByTransportProfile(TransportProfileEntity tp);
 }

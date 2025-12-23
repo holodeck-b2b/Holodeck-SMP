@@ -1,0 +1,364 @@
+<!-- 
+ * Copyright (C) 2025 The Holodeck B2B Team
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the Affero GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ -->
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main-layout}"
+>
+<body>
+<section layout:fragment="dynamic-content">
+	<form id="participantForm" method="post" th:action="@{/participants/update}" th:object="${participant}" >
+		<input type="hidden" th:field="*{oid}">
+		<input type="hidden" th:field="*{Migrating}">
+		<input type="hidden" th:field="*{inSML}">		
+		<h5 th:text="(*{oid} ? 'Edit' : 'Add') + ' Participant'">Add new Participant</h5>
+		<div class="card">
+			<div class="card-header">
+				Network Identification
+			</div>
+			<div class="card-body row g-3">
+				<div class="col-3">
+					<label for="inputIdScheme" class="form-label">Identifier Scheme</label>
+					<select class="form-select" th:errorclass="is-invalid"
+							id="inputIdScheme" th:field="*{id.scheme}" th:disabled="*{inSML}">
+						<option value="-1">Without scheme</option>
+						<option th:each="ids : ${idSchemes}" th:value="${ids.schemeId}"
+								th:text="${ids.schemeId}">Wireframe</option>
+					</select>
+					<input th:if="*{inSML}" type="hidden" th:field="*{id.scheme}">
+				</div>
+				<div class="col-6">
+					<label for="inputIdValue" class="form-label">Identifier Value</label>
+					<input type="text" class="form-control" th:errorclass="is-invalid"
+						   id="inputIdValue" th:field="*{id.value}" th:disabled="*{inSML}"
+						   placeholder="Participant identifier" />
+					<div id="invalidIdentifierMsg" class="invalid-feedback" th:errors="*{id.value}">
+					</div>
+					<input th:if="*{inSML}" type="hidden" th:field="*{id.value}">
+					<div th:if="*{inSML}" class="small">The identifier cannot be changed when the Participant is registered in the SML</div>
+				</div>
+			</div>
+ 			<div th:if="${smlAvailable}" class="card-header">
+				SML Registration
+			</div>	
+ 			<div th:if="${smlAvailable}" class="card-body">
+				<div class="row align-items-center">			
+					<div class="col-3">
+						<label class="form-check-label me-5">Register participant in SML</label>
+						<input class="form-check-input" type="checkbox" id="smlRegistration"  
+							th:field="*{registeredInSML}" onchange="validateSMLInput(event)" th:disabled="*{Migrating}">						
+					</div>
+					<div th:unless="*{inSML}" class="col-9 row align-items-center">	
+						<label class="form-col-label col-2">Migration code</label>
+						<div class="col-4">
+							<input type="text" class="form-control" id="migrationCode" th:field="*{SMLMigrationCode}" 
+								placeholder="Enter code received from other SP" onchange="validateSMLInput(event)">
+						</div>
+					</div>
+					<script>
+						function validateSMLInput(e) {
+							let smlRegChkBox = $("#smlRegistration");
+							let migrationCode = $("#migrationCode");
+							let generateBtn = $("#btnGenerateMigrationCode");
+							if ($(e.target).is(smlRegChkBox) && !smlRegChkBox.prop("checked")) {
+								migrationCode.val("");
+								migrationCode.prop("disabled", true);
+								generateBtn.prop("disabled", true);
+							} else if ($(e.target).is(smlRegChkBox)) {
+								migrationCode.prop("disabled", false); 
+								generateBtn.prop("disabled", false);
+							} else if ($(e.target).is(migrationCode) && migrationCode.val().trim().length > 0 
+									&& !smlRegChkBox.prop("checked"))
+								smlRegChkBox.prop("checked", true);
+						}
+					</script>												
+					<div th:if="*{inSML && !Migrating}"
+						class="col-9 row align-items-center"> 
+						<div class="col-3">
+							<button id="btnGenerateMigrationCode" type="button" class="btn btn-sm btn-primary" onclick="generateMigrationCode()">Generate migration code</button>
+						</div>
+						<script>
+							function generateMigrationCode(e) {							
+							    const upperCase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+							    const lowerCase = "abcdefghijklmnopqrstuvwxyz";
+							    const numbers = "0123456789";
+							    const specialChars = "@#$%()[]{}*^-!~|+=";
+							    
+							    const getRandomChar = (charSet) => charSet[Math.floor(Math.random() * charSet.length)];
+							    
+							    let code = [
+							        getRandomChar(upperCase), getRandomChar(upperCase),
+							        getRandomChar(lowerCase), getRandomChar(lowerCase),
+							        getRandomChar(numbers), getRandomChar(numbers),
+							        getRandomChar(specialChars), getRandomChar(specialChars)
+							    ];
+							    
+							    const allChars = upperCase + lowerCase + numbers + specialChars;
+							    for (let i = 0; i < 16; i++) {
+							        code.push(getRandomChar(allChars));
+							    }
+							    
+							    code = code.sort(() => Math.random() - 0.5).join("");									
+								$("#migrationCode").val(code);
+							}							
+						</script>														
+						<div class="col-5">
+							<div class="input-group">
+								<input type="text" class="form-control" id="migrationCode" th:field="*{SMLMigrationCode}" 
+									placeholder="Migration code to provide to other SP" readonly>
+								<button type="button" onclick="$('#migrationCode').val('');" class="btn" 
+									style="border: var(--bs-border-width) solid var(--bs-border-color);">
+									<i class="bi bi-backspace text-body"></i>
+								</button>
+							</div>									
+						</div>
+					</div>
+					<div th:if="*{Migrating}"
+						 class="col-9 row align-items-center">	
+						<label class="form-col-label col-2">Migration code</label>
+						<div class="col-4">
+							<input type="text" class="form-control" id="migrationCode" th:field="*{SMLMigrationCode}" 
+								disabled>
+						</div>
+						<div class="col-2">
+							<button class="btn btn-sm btn-outline-danger" type="submit" name="cancelMigration">Cancel migration</button>
+						</div>
+					</div>					
+				</div>
+				<div th:if="*{Migrating}"
+					class="row mt-2 mx-1 align-items-center bg-warning-subtle text-warning-emphasis">
+					<div class="col-auto">
+						<i class="fs-5 bi bi-exclamation-triangle"></i>
+					</div> 
+					<div class="col">
+						As a migration of the Participant to another SMP is planned it cannot be removed from the SML 
+						and changes made in the Participant's data may not become available in the network. 					
+					</div>							
+				</div>
+			</div>
+			<div class="card-header">
+				Business Entity Information
+			</div>	
+			<div class="card-body row g-2">
+				<div th:if="${smlAvailable && directoryAvailable}" class="col-9">
+					<label class="form-check-label me-5">Publish in network Directory</label>
+					<input class="form-check-input" type="checkbox" th:field="*{publishedInDirectory}"
+					  th:errorclass="is-invalid"/>
+					<div id="invalidDirectoryMsg"
+						 th:if="${#fields.hasErrors('publishedInDirectory')}" class="invalid-feedback"
+						 th:errors="*{publishedInDirectory}">
+					</div>					
+				</div>				
+				<div class="col-6">
+					<label for="inputName" class="form-label">Name</label>
+					<input type="text" class="form-control" id="inputName" th:field="*{name}"
+						   th:errorclass="is-invalid"
+						   placeholder="Participant's name">
+					<div id="invalidNameMsg"
+						 th:if="${#fields.hasErrors('name')}" class="invalid-feedback"
+						 th:errors="*{name}">
+					</div>
+				</div>
+				<div class="col-3">
+					<label for="country" class="form-label">Country</label>
+					<select class="form-select" th:field="*{registrationCountry}" th:include="fragments/country_select::iso2"
+						th:errorclass="is-invalid"></select> 
+					<div id="invalidNameMsg" class="invalid-feedback"
+						 th:errors="*{registrationCountry}">Please select the country where the business entity is located</div>					
+				</div>
+				<div if="${smlAvailable && directoryAvailable}">
+				<div class="row g-2">
+					<label for="inputRegDate" class="col-4 col-form-label">Date of first registration in the network (optional)</label>
+					<div class="col-3">
+						<input type="date" class="form-control" id="inputRegDate" th:field="*{firstRegistrationDate}">
+					</div>				
+				</div>				
+				</div>				
+				<div class="col-7">
+					<label for="inputAddrInfo" class="form-label">Additional address information (optional)</label>
+					<textarea class="form-control" id="inputAddrInfo" rows="2" th:field="*{locationInfo}"></textarea>
+				</div>
+				<div if="${smlAvailable && directoryAvailable}" class="col-5">
+					<input type="text" id="additionalIds" th:field="*{additionalIdsCSL}" hidden>
+					<label for="usage" class="form-label">Additional identifiers (optional)</label>
+					<div>
+						<div style='min-height: fit-content; max-height: 200px; overflow-y: scroll'>
+						<ul id="additionalIdsList" class="list-group">
+						</ul>
+						</div>
+						<div id="idEditor" class="input-group mb-3">
+							<input type="text" class="form-control" id="additionalID" placeholder="[«IDScheme»::]«Identifier»">
+							<button class="btn btn-outline-primary disabled" type="button" id="addIdBtn" disabled>Add</button>
+							<div id="invalidIdMsg" class="invalid-feedback">Please use the format [«IDScheme»::]«Identifier» for identifier</div>
+						</div>
+					</div>
+					<script>
+						function addIdRow(id) {
+							var row = $('<li>').text(id).addClass('list-group-item d-flex justify-content-between align-items-center');
+							row.append('<a href="#" onclick="$(this).parent().remove()"><i class="bi bi-x-circle text-danger"</i></a>');
+							$('#additionalIdsList').append(row);
+						}
+						
+						var additionalIds = $('#additionalIds').val();
+						if (additionalIds.length > 1)
+							additionalIds.split(",").forEach(id => {if (id.length > 0) addIdRow(id)});
+						
+						$('#additionalID').on('input', function (event) {
+							if (event.target.textLength == 0) {
+								$('#addIdBtn').prop('disabled', true);
+								$('#addIdBtn').addClass('disabled')
+							} else {
+								$('#addIdBtn').prop('disabled', false);
+								$('#addIdBtn').removeClass('disabled')
+							}
+						});
+						$('#additionalID').keypress(function(event) {
+							if (event.key === "Enter" || event.keyCode === 13) {
+								event.preventDefault();
+								$('#addIdBtn').click();
+							}
+						});
+						$('#addIdBtn').click( function (event) {
+							if ($('#additionalID').val().length > 0) {
+								var newId = $('#additionalID').val();
+								const checkId = /^(([\w@\.-]{1,}:?)+::)?([\w@\.-]{1,}:?)+$/;
+								if (!checkId.test(newId)) {
+									$('#invalidIdMsg').show();
+									return;
+								}	
+								$('#invalidIdMsg').hide();								
+								addIdRow(newId);																
+								$('#additionalID').val('');
+								$('#addIdBtn').prop('disabled', true);
+								$('#addIdBtn').addClass('disabled');
+							}
+						});
+						
+						$("#participantForm").submit(() => {
+							var idList = "";
+							$("#additionalIdsList>li").each(function () {
+								idList += this.textContent + ",";
+							});
+							$("#additionalIds").val(idList);							
+						});
+					</script>						
+				</div>
+			</div>
+			<div class="card-header">
+				<div class="row align-items-center">
+					<div class="col col-md-auto">Supported Services</div>
+					<div class="col ">
+						<button type="button" th:disabled="${availableSMT.isEmpty()}"
+								class="btn btn-sm btn-outline-primary" data-bs-toggle="modal"
+								data-bs-target="#smtDialog">Add supported Service</button>
+					</div>
+				</div>
+			</div>
+			<div class="card-body row">
+				<table id="servicesList" class="table table-scroll-body" >
+					<thead>
+						<tr class="d-flex">
+							<th class="col-5">Service Metadata Template</th>
+							<th class="col-5">Processes</th>
+							<th class="col-2"></th>
+						</tr>
+					</thead>
+					<tbody style="height: 15vh;">
+						<tr class="d-flex" th:each="smt : *{boundSMT}">
+							<td class="col-5" th:text="${smt.name}"
+								th:title="${smt.service.id.toString()}">Service description</td>
+							<td class="col-5">
+								<div th:each="pg : ${smt.processMetadata}">
+									<div th:each="p : ${pg.processInfo}">
+									<span th:if="${!p.processId.isNoProcess()}" th:text="${p.process.name}"
+										  th:title="${p.processId.value}"></span>
+									<span th:if="${p.processId.isNoProcess()}">«No process»</span>
+									<br/>
+									</div>
+								</div>
+							</td>
+							<td class="col-2 justify-content-start">
+								<button type="submit" name="removeBinding" th:value="${smt.id}"
+										class="btn btn-sm btn-outline-danger">Remove</button>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+
+			</div>
+		</div>
+		<div class="row justify-content-center mt-3">
+			<div class="col-3"><button type='submit' name="save" class="btn btn-primary">Save participant data</button></div>
+			<div class="col-3 "><button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#confirmCancel">Cancel update</button></div>
+		</div>
+
+		<div class="modal fade" id="smtDialog" data-bs-backdrop="static" tabindex="-1" aria-labelledby="gridModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="gridModalLabel">Add supported Service</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body row g-2">
+						<label>Support for services is managed through Service Metadata Templates.</label>
+						<select id="selectSMT" class="smt form-select" name="template2add" >
+							<option value="" selected>Select service metadata template to add</option>
+							<option th:each="smt : ${availableSMT}" th:value="${smt.id}"
+									th:text="${smt.name}" th:title="${smt.service.id}"></option>
+						</select>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+						<button type="submit" name="addBinding" id="btnAddSvc" class="btn btn-primary" disabled data-bs-dismiss="modal">Add</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</form>
+	<script>
+		$("#selectSMT").change(function (e) {
+			e.preventDefault();
+			e.stopPropagation();
+			if (this.selectedIndex == 0)
+				$("#btnAddSvc").prop("disabled", true);
+			else
+				$("#btnAddSvc").prop("disabled", false);
+
+		});
+	</script>
+
+	<div class="modal fade" id="confirmCancel" tabindex="-1" aria-labelledby="gridModalLabel" style="display: none;" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Cancel update?</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<p>Are you sure you want to discard all updates made to the participant registration ?</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Go back</button>
+					<a th:href="@{/participants}"><button type="button" class="btn btn-danger">Discard changes</button></a>
+				</div>
+			</div>
+		</div>
+	</div>
+
+</section>
+</body>
+</html>

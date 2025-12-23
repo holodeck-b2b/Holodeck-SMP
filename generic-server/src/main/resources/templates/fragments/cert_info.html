@@ -1,0 +1,63 @@
+<!-- 
+ * Copyright (C) 2025 The Holodeck B2B Team
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the Affero GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ -->
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="display (cert)">
+	<div class="row mb-2">
+		<label class="col-2 col-form-label">Subject name</label>
+		<div class="col-9">
+			<input type="text" class="form-control-plaintext" readonly
+				   th:value="${cert.subjectName}">
+		</div>
+	</div>
+	<div class="row mb-2">
+		<label class="col-2 col-form-label">Issuer name</label>
+		<div class="col-9">
+			<input type="text" class="form-control-plaintext" readonly
+				   th:value="${cert.issuerName}">
+		</div>
+	</div>
+	<div class="row mb-2">
+		<label class="col-2 col-form-label">Serial number</label>
+		<div class="col-4">
+			<input type="text" class="form-control-plaintext" readonly
+				   th:value="${cert.serialNo.toString()}">
+		</div>
+	</div>
+	<div class="row mb-2">
+		<label class="col-2 col-form-label">Not valid before</label>
+		<div class="col-3">
+			<input type="text" class="form-control-plaintext" readonly
+				   th:classappend="${cert.notBefore.after(#dates.createNow())} ? 'text-danger'"
+				   th:value="${cert.notBefore}">
+		</div>
+		<label th:if="${cert.notBefore.after(#dates.createNow())}"
+			   class="col-2 col-form-label text-danger">NOT VALID YET</label>
+	</div>
+	<div class="row mb-2">
+		<label class="col-2 col-form-label">Not valid after</label>
+		<div class="col-3">
+			<input type="text" class="form-control-plaintext" readonly
+				   th:classappend="${cert.notAfter.before(#dates.createNow())} ? 'text-danger'"
+				   th:value="${cert.notAfter}">
+		</div>
+		<label th:if="${cert.notAfter.before(#dates.createNow())}"
+			   class="col-auto col-form-label text-danger">EXPIRED</label>
+	</div>
+</div>
+</body>
+</html>

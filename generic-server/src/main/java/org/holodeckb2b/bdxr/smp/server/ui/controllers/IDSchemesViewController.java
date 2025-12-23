@@ -16,10 +16,14 @@
  */
 package org.holodeckb2b.bdxr.smp.server.ui.controllers;
 
-import org.holodeckb2b.bdxr.smp.server.db.entities.IDSchemeE;
-import org.holodeckb2b.bdxr.smp.server.db.repos.IDSchemeRepository;
+import org.holodeckb2b.bdxr.smp.server.db.entities.IDSchemeEntity;
+import org.holodeckb2b.bdxr.smp.server.services.core.IdSchemeMgmtService;
+import org.holodeckb2b.bdxr.smp.server.services.core.PersistenceException;
 import org.holodeckb2b.commons.util.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -35,42 +39,44 @@ import jakarta.validation.Valid;
 @Controller
 @RequestMapping("settings/ids")
 public class IDSchemesViewController {
-	private static final String S_ATTR = "scheme";
+	private static final String SCHEME_ATTR = "scheme";
 
 	@Autowired
-	protected IDSchemeRepository		idschemes;
-
+	protected IdSchemeMgmtService	idsMgmtSvc;
 
 	@GetMapping(value = {"","/"})
-    public String getOverview(Model m) {
-		m.addAttribute("schemes", idschemes.findAll());
-	    return "admin-ui/idschemes";
+    public String getOverview(Model m) throws PersistenceException {
+		m.addAttribute("schemes", idsMgmtSvc.getIDSchemes(PageRequest.ofSize(100)));
+	    return "idschemes";
     }
 
 	@GetMapping(value = {"/edit", "/edit/{schemeId}" })
-	public String editScheme(@PathVariable(name = "schemeId", required = false) String schemeId, Model m) {
-		m.addAttribute(S_ATTR, !Utils.isNullOrEmpty(schemeId) ? idschemes.findById(schemeId).get() : new IDSchemeE());
-		return "admin-ui/idscheme_form";
+	public String editScheme(@PathVariable(name = "schemeId", required = false) String schemeId, Model m) throws PersistenceException {
+		m.addAttribute(SCHEME_ATTR, Utils.isNullOrEmpty(schemeId) ? new IDSchemeEntity() : idsMgmtSvc.getIDScheme(schemeId));
+		return "idscheme_form";
 	}
 
 	@PostMapping(value = "/update")
-	public String saveScheme(@ModelAttribute(S_ATTR) @Valid IDSchemeE input, BindingResult br, @RequestParam("action") String action) {
-		if (!br.hasErrors() && "add".equals(action) && !idschemes.findById(input.getSchemeId()).isEmpty()) {
+	public String saveScheme(@ModelAttribute(SCHEME_ATTR) @Valid IDSchemeEntity input, BindingResult br, 
+							 @RequestParam("action") String action, @AuthenticationPrincipal UserDetails user) throws PersistenceException {
+		if (!br.hasErrors() && "add".equals(action) && idsMgmtSvc.getIDScheme(input.getSchemeId()) != null) {
 			br.rejectValue("schemeId", "ID_EXISTS", "There already exists another identifier scheme with the same identifier");
 			br.rejectValue("schemeId", "ID_EXISTS");
 		}
 
 		if (br.hasErrors())
-			return "admin-ui/idscheme_form";
-		else {
-			idschemes.save(input);
-			return "redirect:/settings/ids";
-		}
+			return "idscheme_form";
+		else if ("add".equals(action)) 
+			idsMgmtSvc.addIDScheme(user, input);
+		else 
+			idsMgmtSvc.updateIDScheme(user, input);
+		
+		return "redirect:/settings/ids";
 	}
 
 	@GetMapping(value = "/delete/{schemeId}")
-	public String removeScheme(@PathVariable("schemeId") String schemeId) {
-		idschemes.deleteById(schemeId);
+	public String removeScheme(@PathVariable("schemeId") String schemeId, @AuthenticationPrincipal UserDetails user) throws PersistenceException {
+		idsMgmtSvc.deleteIDScheme(user, idsMgmtSvc.getIDScheme(schemeId));
 		return "redirect:/settings/ids";
 	}
 }

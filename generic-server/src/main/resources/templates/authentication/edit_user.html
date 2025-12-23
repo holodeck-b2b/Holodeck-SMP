@@ -1,0 +1,192 @@
+<!-- 
+ * Copyright (C) 2025 The Holodeck B2B Team
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the Affero GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ -->
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layouts/settings-layout}">
+<section layout:fragment="settings-content">
+	
+<div class="card">
+	<div class="card-header">
+		<h5 class="card-title">User account info</h5>		
+	</div>
+	<div class="card-body">
+	<form method="post" th:action="@{/settings/users/update}" th:object="${user}">
+		<input type="hidden" th:field="*{oid}">
+		<div class="row mb-3">
+			<label class="col-sm-2 col-form-label">Email address</label>
+			<div class="col-sm-6">
+				<input type="email" class="form-control" th:field="*{emailAddress}" th:errorclass="is-invalid">
+				<div id="invalidEmailAddressMsg"
+					 th:if="${#fields.hasErrors('emailAddress')}" class="invalid-feedback"
+					 th:errors="*{emailAddress}">
+				</div>				
+			</div>
+		</div>
+		<div class="row mb-3">
+			<label class="col-sm-2 col-form-label">Full name</label>
+			<div class="col-sm-4">
+				<input type="text" class="form-control" th:field="*{fullName}" th:errorclass="is-invalid">
+				<div th:if="${#fields.hasErrors('fullName')}"
+					id="invalidFullNameMsg" class="invalid-feedback" th:errors="*{fullName}">
+				</div>
+			</div>
+		</div>
+		<div th:unless="*{oid} == null" class="row mb-3">
+			<label class="col-2 form-check-label" for="isAdmin">Account is locked</label>
+			<div class="col-4">
+				<input class="form-check-input" type="checkbox" id="isLocked" th:field="*{locked}">
+			</div>
+		</div>		
+		<div class="row mb-3">
+			<label class="col-sm-2 col-form-label">Password</label>
+			<label class="col-sm-6 col-form-label">
+				<span th:if="${user.oid == null && mailEnabled}">An email will be sent to the user to set the password</span>
+				<span th:if="${user.oid == null && !mailEnabled}">A password reset link will be generated to allow the user to set the password</span>				
+				<span th:unless="*{oid} == null">Only the user can set the password, you can however
+					<a th:if="${mailEnabled}" href="#" th:onclick="performAction(this)"  
+						th:attr="data-action-link=@{/settings/users/requestpwdreset(uid=*{oid})},
+		    			data-success='Password reset link sent to ' + *{fullName},
+	    		 		data-failed='Could not send password reset link to ' + *{fullName}">send a password reset link</a>
+	    		 	<a th:unless="${mailEnabled}" href="#" onclick="performAction(this, showLinkDlg)"  
+						th:attr="data-action-link=@{/settings/users/requestpwdreset(uid=*{oid})}, 
+		    			data-failed='Could not generate password reset link for ' + *{fullName}">generate a password reset link</a> 
+		    			to allow the user to set the password.
+		    		<span id="unlockMsg" th:if="*{locked}"><br class="mb-2"/>
+		    			<span class="px-2 py-1 alert alert-primary">
+		    				<i class="bi bi-info-circle me-1"></i> Generating a password reset link will also unlock the account</span>
+		    		</span>
+				</span>
+    		</label>			
+		</div>
+		<div th:unless="*{oid} == null" class="row mb-3">
+			<label class="col-2 form-check-label" for="has2FA">Has 2FA enabled</label>
+			<div class="col-auto">
+				<input class="form-check-input" type="checkbox" id="has2FA" name="has2FA"
+					th:checked="*{totpSecret}" th:value="*{totpSecret != null}" th:onclick="|return *{totpSecret != null}|">
+			</div>
+			<label th:if="*{totpSecret}" class="col form-check-label">(Authenticator device: 
+				<span th:text="*{totpDevice}"></span>)</label>
+		</div>
+		<div class="row mb-3">
+			<label class="col-2 form-check-label" for="isAdmin">Is administrator</label>
+			<div class="col-4">
+				<input class="form-check-input" type="checkbox" id="isAdmin" th:field="*{roles}" 
+					th:value="${T(org.holodeckb2b.bdxr.smp.server.ui.auth.UserRole).ADMIN}">
+			</div>
+		</div>
+		<div class="row mt-4 justify-content-center">			
+			<div class="col-sm-2"><button class="btn btn-primary" type="submit">Save user info</button></div>
+			<div class="col-sm-5"><button class="btn btn-danger" type="button" data-bs-toggle="modal" data-bs-target="#confirmCancel">Cancel update</button></div>	
+		</div>
+	</form>	
+	</div>
+</div>
+
+<div class="modal fade" id="confirmCancel" tabindex="-1" style="display: none;">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<span id="title" class="modal-title">Cancel update?</span>
+				<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+			</div>
+			<div class="modal-body">
+				<p id="question">Are you sure you want to discard all updates made to this user account?</p>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Go back</button>
+				<a th:href="@{/settings/users}"><button id="confirmBtn" type="button" class="btn btn-danger">Discard changes</button></a>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal" id="infoPwdResetLink" tabindex="-1" style="display: none;">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<span id="title" class="modal-title">Password reset link</span>
+			</div>
+			<div class="modal-body">
+				<p>The following password reset link has been generated for this user. Please provide it to the user 
+				to allow them to set the password.</p>
+				<p>
+					<span id="resetLink" th:text="${resetLink}"></span>
+					<a id="copyLink" href="#" class="col text-body" data-bs-toggle="tooltip" data-bs-placement="right" 
+					title="Copy password reset link" onClick="copyLink();">
+					<i class="ms-1 bi bi-files"></i></a>
+				</p>
+				<p>NOTE: The password reset link is only valid for <span id="linkExpires" th:text="${linkExpires}"></span> hours.</p>
+			</div>
+			<div class="modal-footer">
+				<a th:href="@{/settings/users}" id="linkDlgCloseBtn" class="btn btn-primary">OK</a>
+			</div>
+		</div>
+	</div>
+</div>
+<div th:include="fragments/actions :: actionWithToasts"></div>
+
+<script>	
+
+const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+
+var linkDlg = new bootstrap.Modal(document.querySelector('#infoPwdResetLink'));
+var resetLinkEl = document.getElementById('resetLink');
+var btnCopyLink = document.getElementById('copyLink');
+var ttCopyLink = new bootstrap.Tooltip(btnCopyLink);
+
+function copyLink() {
+	navigator.clipboard.writeText(resetLinkEl.textContent).then(
+			  () => {
+				  btnCopyLink.setAttribute('data-bs-original-title', "Copied!");
+				  ttCopyLink.show();
+				  setTimeout( function () {
+						ttCopyLink.hide();
+					  	btnCopyLink.setAttribute('data-bs-original-title', "Copy password reset link");
+					  }, 2000);
+
+			  },
+			  () => {}
+			);	
+}
+
+function showLinkDlg(response) {
+	if (response.ok) {
+		document.getElementById('isLocked').checked = false;
+		let unlockMsg = document.getElementById('unlockMsg');
+		if (unlockMsg)
+			unlockMsg.classList.add('d-none');
+		response.text().then(linkInfo => {			
+			resetLinkEl.textContent = linkInfo.split(',')[0];
+			document.getElementById('linkExpires').textContent = linkInfo.split(',')[1];
+			let linkDlgCloseBtn	= document.getElementById('linkDlgCloseBtn');
+			linkDlgCloseBtn.href = "#";
+			linkDlgCloseBtn.setAttribute('data-bs-toggle', 'modal');
+			linkDlg.show();
+		});
+	}
+}
+
+</script>
+
+<script th:inline="javascript" th:if="${resetLink}">
+	// Show the dialog with the password reset link 
+	linkDlg.show();
+</script>
+
+</section>
+</html>

@@ -1,0 +1,91 @@
+<!-- 
+ * Copyright (C) 2025 The Holodeck B2B Team
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the Affero GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ -->
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/settings-layout}"
+>
+<body>
+<section layout:fragment="settings-content">
+	<div class="row">
+		<div class="container">
+			<div class="mb-2 d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+				<h5 class="d-flex align-items-center me-3 mb-lg-0 text-dark text-decoration-none">
+					List of registered user accounts
+				</h5>
+				<a th:href="@{/settings/users/edit/}" class="btn btn-sm btn-outline-primary col-lg-auto me-lg-auto justify-content-center  ">Add new User</a>
+			</div>
+		</div>
+	</div>
+	<table class="table table-striped overview">
+		<thead>
+			<tr>
+				<th>Full Name</th>
+				<th>eMail address</th>
+				<th class="text-center">2FA?</th>
+				<th class="text-center">Locked?</th>
+				<th class="text-center">Admin?</th>
+				<th></th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr th:each="u : ${accounts}" th:with="isAdm=${u.roles.contains(T(org.holodeckb2b.bdxr.smp.server.ui.auth.UserRole).ADMIN)}">
+				<td th:text="${u.fullName}">Full name</td>
+				<td th:text="${u.emailAddress}">email</td>
+				<td class="text-center"><span class="bi" th:classappend="${u.totpSecret}? 'bi-check-square' : 'bi-dash-square'"></span></td>
+				<td class="text-center"><span class="bi" th:classappend="${u.locked}? 'bi-lock-fill' : 'bi-unlock-fill'"></span></td>
+				<td class="text-center"><span class="bi" th:classappend="${isAdm}? 'bi-check-square' : 'bi-dash-square'"></span></td>
+				<td th:unless="${#authentication.principal.oid == u.oid}" class="col-2">
+					<a th:href="@{/settings/users/edit/{id}(id=${u.oid})}" class="btn btn-sm btn-outline-dark">Edit</a>
+					<button class="btn btn-sm btn-outline-danger"
+							th:disabled="${isAdm and numAdm le 1}"
+							data-bs-toggle="modal" data-bs-target="#confirmDelete"
+							th:attr="data-bs-user=@{/settings/users/delete/{id}(id=${u.oid})}">Delete</button>
+				</td>
+				<td th:if="${#authentication.principal.oid == u.oid}" class="col-2">
+					<a th:href="@{/account/update}" class="btn btn-sm btn-outline-dark">Edit</a>
+					<button class="btn btn-sm btn-outline-danger" disabled>Delete</button>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+
+	<div class="modal fade" id="confirmDelete" tabindex="-1" style="display: none;">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Confirm delete</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+				</div>
+				<div class="modal-body">
+					<p>Are you sure you want to delete this user?</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+					<a id="delConfirmed"><button type="button" class="btn btn-danger">Delete user</button></a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script>
+		$('#confirmDelete').on('show.bs.modal', function (event) {
+		  $('#delConfirmed').attr('href', event.relatedTarget.getAttribute('data-bs-user'));
+		})
+	</script>
+</section>
+</body>
+</html>

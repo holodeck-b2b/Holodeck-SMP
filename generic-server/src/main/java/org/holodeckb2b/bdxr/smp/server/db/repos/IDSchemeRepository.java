@@ -16,7 +16,7 @@
  */
 package org.holodeckb2b.bdxr.smp.server.db.repos;
 
-import org.holodeckb2b.bdxr.smp.server.db.entities.IDSchemeE;
+import org.holodeckb2b.bdxr.smp.server.db.entities.IDSchemeEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
@@ -24,6 +24,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
  *
  * @author Sander Fieten (sander at holodeck-b2b.org)
  */
-public interface IDSchemeRepository extends JpaRepository<IDSchemeE, String> {
-
+public interface IDSchemeRepository extends JpaRepository<IDSchemeEntity, Long>, IDSchemeIdCapableRepo {
 }

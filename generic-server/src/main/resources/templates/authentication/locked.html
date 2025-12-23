@@ -1,0 +1,50 @@
+<!-- 
+ * Copyright (C) 2025 The Holodeck B2B Team
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the Affero GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ -->
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Holodeck SMP Server Administration</title>
+    <link th:rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css} "/>
+    <link th:rel="stylesheet" th:href="@{/css/main.css} "/>
+</head>
+<body>
+<div class="container">
+    <div class="w-25 position-absolute top-50 start-50 translate-middle">
+        <div class="col h-auto d-table">
+            <div class="card d-table-cell align-middle">
+                <div class="card-header">
+					<div class="row mx-5 my-2">
+						<img th:src='@{/img/logo.png}'/>
+					</div>
+					<div class="row mx-1 text-center">
+						<span class="fs-4">Authentication Failure</span>
+					</div>
+                </div>
+				<div class="card-body">
+					<div class="row px-2">
+						<div class="col alert alert-danger p-2">
+						Your account has been locked as you have exceeded the maximum number of login attempts.<br/> 
+						Contact your administrator to unlock your account.
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,104 @@
+<!-- 
+ * Copyright (C) 2025 The Holodeck B2B Team
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the Affero GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ -->
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="actionWithToasts">
+	
+	<div id="waitOverlay"></div>
+	
+	<div id="confirmToast" class="toast align-items-center text-white bg-primary position-fixed top-0 end-0 m-4 p-1" style="z-index: 1070;" role="alert">
+		<div class="d-flex">
+			<div id="message" class="toast-body"></div>
+			<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast"></button>
+		</div>
+	</div>
+	
+	<div id="errorToast" class="toast position-fixed top-0 end-0 m-4" style="z-index: 1070; width: auto;" role="alert" data-bs-autohide="false">
+	  <div class="toast-header bg-danger text-white">
+	    <i class="bi bi-exclamation-triangle-fill me-1"></i>
+	    <strong class="me-auto">Error</strong>
+	    <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+	  </div>
+	  <div class="toast-body"><span id="message">An error occurred</span>.<br>
+	  Please try again later or contact support when the error persists.	    
+	  </div>
+	</div>
+
+	<script type="text/javascript">
+	function performAction(t, cb) {
+		const overlay = document.getElementById('waitOverlay');
+		const url = t.getAttribute('data-action-link');
+		overlay.classList.add('waiting')
+		fetch(url)
+			.then(r => { 
+				overlay.classList.remove('waiting');
+				let toast;
+				let msg;
+				if (r.ok) {
+					toast = document.querySelector('#confirmToast');
+				    msg = t.getAttribute('data-success');			
+				} else {
+					toast = document.querySelector('#errorToast');
+					msg = t.getAttribute('data-failed');
+				}	
+				if (msg) {
+					toast.querySelector('#message').textContent = msg;
+					new bootstrap.Toast(toast).show();
+				}
+				if (cb) 
+					cb(r)
+			})
+			.catch(err => {
+				overlay.classList.remove('waiting');
+			});
+	};
+	</script>
+
+</div>
+	
+<div th:fragment="confirmDelete">
+
+	<div class="modal fade" id="confirmDelete" tabindex="-1" style="display: none;">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Confirm delete</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<p><span id="question">Are you sure</span>?</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No, cancel delete</button>
+					<a id="delConfirmed"><button type="button" class="btn btn-danger">Yes, delete</button></a>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script type="text/javascript">
+	function confirmDelete(t) {
+		const dialog = document.querySelector('#confirmDelete');
+		dialog.querySelector('#question').textContent = t.getAttribute('data-question');
+		dialog.querySelector('#delConfirmed').href = t.getAttribute('data-action-link');
+		new bootstrap.Modal(dialog).show();
+	};
+	</script>	
+</div>
+
+</body>
+</html>

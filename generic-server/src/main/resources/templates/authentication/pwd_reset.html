@@ -1,0 +1,62 @@
+<!-- 
+ * Copyright (C) 2025 The Holodeck B2B Team
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the Affero GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ -->
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/nomenu-layout}"
+>
+<body>
+<section layout:fragment="page-content">
+	<div class="container position-absolute top-50 start-50 translate-middle">
+		<div class="row">
+			<div class="card col-6 m-auto shadow">
+				<div class="row px-4 pt-2">
+				Please set a new password to access the portal.
+				</div>				
+				<form class="form p-4 needs-validation" method="post" th:action="@{/reset/{id}(id=${requestId})}">
+					<div class="password-group">
+						<div class="row mb-2">
+							<label class="col-sm-4 col-form-label">Password</label>
+							<div class="col-sm-8">
+								<div class="input-group">
+									<input id="password-input" name="password" class="form-control" type="password" required/>
+									<button id="visibility-btn" class="btn btn-outline-secondary bi bi-eye-slash" type="button"></button>
+								</div>
+								<small class="form-text text-muted mt-2" id="passwordHelp">The password must be at least 8 characters 
+								or more and should contain lowercase and uppercase letters, numbers and symbols.</small>
+								<div class="progress">
+									<div class="progress-bar bg-danger" id="password-strength-bar" role="progressbar"></div>
+								</div>
+							</div>
+						</div>
+						<div class="row mb-3">
+							<label class="col-sm-4 col-form-label">Confirm password</label>
+							<div class="col-sm-8">
+								<input id="password-confirm" class="form-control" type="password" required/>
+								<div class="invalid-feedback">Please provide a password</div>
+							</div>			
+						</div>
+					</div>
+					<button class="btn btn-primary d-flex m-auto" type="submit">Set password</button>
+				</form>
+			</div>
+		</div>
+	</div>
+	<script th:src="@{/js/pwd_checker.js}"></script>	
+</section>
+</body>
+</html>

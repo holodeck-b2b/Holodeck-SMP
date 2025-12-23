@@ -1,0 +1,117 @@
+<!-- 
+ * Copyright (C) 2025 The Holodeck B2B Team
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the Affero GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ -->
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+>
+<head>
+	<meta charset="UTF-8"/>
+	<title>Holodeck SMP Server Administration</title>
+
+	<link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}" />
+	<link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/font/bootstrap-icons.css}">
+	<link rel="stylesheet" th:href="@{/css/main.css}" />
+	<script th:src="@{/webjars/jquery/3.1.1/jquery.min.js}"></script>
+	<script th:src="@{/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
+</head>
+<body>
+	<header class="p-3 mb-3 border-bottom">
+	    <div class="container">
+	      <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+	        <a th:href="@{/}" class="d-flex align-items-center col-md-3 mb-2 mb-lg-0 mb-md-0 text-dark text-decoration-none">
+	          <img th:src='@{/img/logo.png}' height="60em" role="img" aria-label="Holodeck B2B SMP Server"/>
+	        </a>
+	       	<ul class="nav fs-6 col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0"
+				th:with="baseURL=@{/}">
+			  <li><a th:href="|${baseURL}participants|" th:class="|nav-link px-2 ${{requestURI.startsWith({baseURL}+'participants')}? 'link-secondary' : 'link-dark'}|">Participants</a></li>
+	          <li><a th:href="|${baseURL}smd/services|" th:class="|nav-link px-2 ${{requestURI.startsWith({baseURL}+'smd')}? 'link-secondary' : 'link-dark'}|">Service Metadata</a></li>
+			  <li><a th:href="|${baseURL}endpoints|" th:class="|nav-link px-2 ${{requestURI.startsWith({baseURL}+'endpoints')}? 'link-secondary' : 'link-dark'}|">Endpoints</a></li>
+	          <li><a th:href="|${baseURL}settings/transports|" th:class="|nav-link px-2 ${{requestURI.startsWith({baseURL}+'settings')}? 'link-secondary' : 'link-dark'}|">Settings</a></li>
+	          <li sec:authorize="hasRole('ADMIN')" class="nav-item">
+				<a th:href="|${baseURL}auditlog|" th:class="|nav-link px-2 ${{requestURI.startsWith({baseURL}+'auditlog')}? 'link-secondary' : 'link-dark'}|">Audit Log</a>
+		  	  </li>
+	          <li><a th:href="|${baseURL}about|" class="nav-link px-2 link-dark">About</a></li>
+			</ul>
+		    <div class="text-end">
+		    	<div class="dropdown">
+			          <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
+	            		<i class="bi fs-3 me-2 bi-person-circle"></i>
+	          		</a>
+		          	<ul class="text-small dropdown-menu" aria-labelledby="dropdownUser1">
+					  	<li><span class="dropdown-header" th:text="${#authentication.principal.fullName}">User's name</span></li>
+		            	<li><a class="dropdown-item " th:href="@{/account/update}">Account settings</a></li>
+		            	<li><hr class="dropdown-divider"></li>
+		            	<li><a class="dropdown-item " th:href="@{/logout}">Log out</a></li>
+		          	</ul>
+	        	</div>
+	       	</div>
+	      </div>
+	    </div>
+ 	</header>
+	<div class="container">
+ 		<div class="row mt-2">
+			<section layout:fragment="dynamic-content"></section>
+		</div>
+	</div>
+
+<div th:if="${errorMessage}" class="modal fade" id="errorDialog" data-bs-backdrop="static" tabindex="-1" style="display: none;">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title text-danger">
+					<i class="bi me-2 bi-exclamation-triangle-fill"></i>Error
+				</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<p id="errMessage"></p>
+				<p>Please try again. If the error persists please contact support.</p>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+//Enable Bootstrap validation formatting
+//
+document.querySelectorAll('.needs-validation').
+	forEach(f => { 
+			f.addEventListener('submit', e => {
+			        if (e.target.checkValidity() === false) {
+						event.preventDefault()
+						event.stopPropagation()
+			        } else
+			        	document.body.style.cursor = "wait";
+			        e.target.classList.add('was-validated')
+			      })
+			f.noValidate = true;
+			});
+</script>
+
+<script th:inline="javascript" th:if="${errorMessage}">
+
+// Show the error message
+const dialog = document.querySelector('#errorDialog');
+dialog.querySelector('#errMessage').innerHTML = /*[[(${errorMessage})]]*/ 'An unexpected error occurred executing the request.';
+new bootstrap.Modal(dialog).show();
+</script>
+
+</body>
+</html>

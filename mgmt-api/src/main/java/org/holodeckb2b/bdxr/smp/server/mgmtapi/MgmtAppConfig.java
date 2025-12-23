@@ -16,12 +16,17 @@
  */
 package org.holodeckb2b.bdxr.smp.server.mgmtapi;
 
+import java.util.Collections;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.annotation.PropertySources;
+import org.springframework.security.core.userdetails.User;
 
 /**
  * Configuration for the REST management API server part.
@@ -35,5 +40,9 @@ import org.springframework.context.annotation.PropertySources;
 	@PropertySource(value = "file:${smp.home:.}/mgmt-api.properties", ignoreResourceNotFound = true)})
 @EnableAutoConfiguration(exclude = { SecurityAutoConfiguration.class })
 public class MgmtAppConfig {
-
+	
+	@Bean
+	User provideMgmtAPIUser(@Value("${mgmtapi.username}") String apiUserName) {
+		return new User(apiUserName, "mgmtapi", true, true, true, true, Collections.emptyList());
+	}
 }

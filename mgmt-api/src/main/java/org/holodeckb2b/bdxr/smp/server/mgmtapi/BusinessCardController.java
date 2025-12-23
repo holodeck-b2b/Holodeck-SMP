@@ -18,17 +18,19 @@ package org.holodeckb2b.bdxr.smp.server.mgmtapi;
 
 import java.util.NoSuchElementException;
 
-import org.holodeckb2b.bdxr.smp.server.db.entities.IdentifierE;
-import org.holodeckb2b.bdxr.smp.server.db.entities.ParticipantE;
-import org.holodeckb2b.bdxr.smp.server.db.repos.ParticipantRepository;
+import org.holodeckb2b.bdxr.common.datamodel.impl.IdentifierImpl;
+import org.holodeckb2b.bdxr.smp.server.datamodel.Participant;
+import org.holodeckb2b.bdxr.smp.server.db.entities.EmbeddedIdentifier;
 import org.holodeckb2b.bdxr.smp.server.mgmtapi.xml.BusinessEntity;
-import org.holodeckb2b.bdxr.smp.server.svc.DirectoryException;
-import org.holodeckb2b.bdxr.smp.server.svc.DirectoryIntegrationService;
-import org.holodeckb2b.bdxr.smp.server.svc.IdUtils;
-import org.holodeckb2b.bdxr.smp.server.svc.SMLIntegrationService;
+import org.holodeckb2b.bdxr.smp.server.services.core.ParticipantsService;
+import org.holodeckb2b.bdxr.smp.server.services.core.PersistenceException;
+import org.holodeckb2b.bdxr.smp.server.services.network.DirectoryException;
+import org.holodeckb2b.bdxr.smp.server.services.network.SMLException;
+import org.holodeckb2b.bdxr.smp.server.utils.IdUtils;
 import org.holodeckb2b.commons.util.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -38,7 +40,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import eu.peppol.schema.pd.businesscard._20161123.IdentifierType;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
@@ -47,99 +48,91 @@ import lombok.extern.slf4j.Slf4j;
 public class BusinessCardController {
 
 	@Autowired
-	protected ParticipantRepository	participants;
+	protected User	mgmtAPIUser;
 	
 	@Autowired
-	protected SMLIntegrationService smlService;	
-	@Autowired
-	protected DirectoryIntegrationService directoryService;
-	@Autowired
 	protected IdUtils idUtils;
+	
+	@Autowired
+	protected ParticipantsService participantsSvc;
 
 	@PutMapping
 	@ResponseStatus(HttpStatus.ACCEPTED)
 	public void updateBusinessCard(@PathVariable("partID") String partID, @RequestBody BusinessEntity bc) {
 		log.debug("Request to update the Business Card info for Participant {}", partID);
-		IdentifierE pid;
-		try {
-			pid = idUtils.parseIDString(partID);
-		} catch (NoSuchElementException unknownScheme) {
-			log.warn("ID Scheme of given Participant ID ({}) not found!", partID);
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-		}
-		
-		ParticipantE p = participants.findByIdentifier(pid);
-		if (p == null) {
-			log.warn("Cannot update business card info as Participant with PartID ({}) is not found", pid.toString());
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-		}
-
 		if (Utils.isNullOrEmpty(bc.getName()) || Utils.isNullOrEmpty(bc.getCountryCode())) {
-			log.warn("Missing required information in update request for Participant ({})", pid.toString());
+			log.warn("Missing required information in BC update request for Participant ({})", partID);
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
 		}
+		Participant p = findParticipant(partID);
 		
 		p.setName(bc.getName());
-		p.setCountry(bc.getCountryCode());
-		p.setAddressInfo(bc.getGeographicalInformation());
+		p.setRegistrationCountry(bc.getCountryCode());
+		p.setLocationInfo(bc.getGeographicalInformation());
 		if (bc.getRegistrationDate() != null)
-			p.setFirstRegistration(bc.getRegistrationDate().toGregorianCalendar().toZonedDateTime().toLocalDate());
-		StringBuilder additionalIds = new StringBuilder();
-		for(IdentifierType id : bc.getIdentifier()) {
-			if (!Utils.isNullOrEmpty(id.getScheme()))
-				additionalIds.append(id.getScheme()).append("::");
-			additionalIds.append(id.getValue()).append(',');
-		}
-		p.setAdditionalIds(additionalIds.length() > 0 ? additionalIds.toString() : null);
+			p.setFirstRegistrationDate(bc.getRegistrationDate().toGregorianCalendar().toZonedDateTime().toLocalDate());
+		
+		bc.getIdentifier().forEach(id -> p.addAdditionalId(new IdentifierImpl(id.getValue(), id.getScheme())));
 		log.trace("Updating business card info");
-		p = participants.save(p);
-		log.debug("Saved participant data");
-		
-		if (directoryService.isDirectoryIntegrationAvailable()) 
-			try {
-				log.trace("Publish participant to directory");
-				directoryService.publishParticipantInfo(p);
-				p.setPublishedInDirectory(true);
-				participants.save(p);
-				log.debug("Published participant to directory");
-			} catch (DirectoryException publishFailure) {
-				log.error("Error in publishing Participant ({}) to directoty : {}", pid.toString(), publishFailure.getMessage());
-				throw new ResponseStatusException(HttpStatus.PARTIAL_CONTENT);
+		try {
+			Participant updated = participantsSvc.updateParticipant(mgmtAPIUser, p);
+			log.info("Updated business card info of Participant {}", p.getId().toString());
+			if (!p.isPublishedInDirectory() && participantsSvc.isDirectoryPublicationAvailable()) {
+				log.debug("Publish Participant to Directory");
+				participantsSvc.publishInDirectory(mgmtAPIUser, updated);			
 			}
-		
-		log.info("Updated business card info of Participant {}", pid.toString());
+		} catch (DirectoryException directoryError) {
+			log.error("Error occurred publishing updated Participant (ID={}) to Directory : {}", partID,
+					  Utils.getExceptionTrace(directoryError));
+			throw new ResponseStatusException(HttpStatus.PARTIAL_CONTENT);
+		} catch (PersistenceException e) {
+			log.error("Error in updating Participant info ({}) : {}", p.getId().toString(), Utils.getExceptionTrace(e));
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
 	
 	@DeleteMapping
 	@ResponseStatus(HttpStatus.ACCEPTED)
 	public void deleteBusinessCard(@PathVariable("partID") String partID) {
-		log.debug("Request to update the Business Card info for Participant {}", partID);
-		IdentifierE pid;
+		log.debug("Request to remove Participant ({}) from network directory", partID);		
 		try {
-			pid = idUtils.parseIDString(partID);
+			participantsSvc.removeFromDirectory(mgmtAPIUser, findParticipant(partID));
+			log.info("Removed Participant {} from directory", partID);
+		} catch (DirectoryException directoryError) {
+			log.error("Error occurred removing Participant (ID={}) from Directory : {}", partID,
+					  Utils.getExceptionTrace(directoryError));
+			throw new ResponseStatusException(HttpStatus.FAILED_DEPENDENCY);
+		} catch (PersistenceException pe) {
+			log.error("Error occurred updating Participant (ID={}) meta-data : {}", partID,
+					Utils.getExceptionTrace(pe));
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	/**
+	 * Helper method to retrieve the Participant registration from the database.
+	 * 
+	 * @param partID	the identifier of the Participant
+	 * @return	the Participant's registration in the database if it exists
+	 * @throws ResponseStatusException when the given string does not represent a valid Participant ID (BAD_REQUEST),
+	 * 								   no Participant with the given ID is found (NOT_FOUND) or
+	 * 								   an error occurs checking the Participant registrations (INTERNAL_SERVER_ERROR) 
+	 */
+	private Participant findParticipant(String partID) throws ResponseStatusException {
+		try {
+			EmbeddedIdentifier pid = idUtils.toEmbeddedIdentifier(idUtils.parseIDString(partID));
+			Participant p = participantsSvc.getParticipant(pid);
+			if (p == null) {
+				log.warn("No Participant with ID ({}) is found", pid.toString());
+				throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+			} else
+				return p;
 		} catch (NoSuchElementException unknownScheme) {
 			log.warn("ID Scheme of given Participant ID ({}) not found!", partID);
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-		}
-		
-		ParticipantE p = participants.findByIdentifier(pid);
-		if (p == null) {
-			log.warn("Cannot update business card info as Participant with PartID ({}) is not found", pid.toString());
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-		}
-		
-		if (p.publishedInDirectory()) 
-			try {
-				log.trace("Remove participant from directory");
-				directoryService.removeParticipantInfo(p);
-				p.setPublishedInDirectory(false);
-				participants.save(p);
-				log.debug("Removed participant from directory");
-			} catch (DirectoryException publishFailure) {
-				log.error("Error in publishing Participant ({}) to directoty : {}", pid.toString(), publishFailure.getMessage());
-				throw new ResponseStatusException(HttpStatus.FAILED_DEPENDENCY);
-			}
-		
-		log.info("Removed Participant {} from directory", pid.toString());
-	}
+		} catch (PersistenceException pe) {
+			log.error("Unexpected error checking for Participant (PID={}) : {}", partID, Utils.getExceptionTrace(pe));
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
+		}		
+	}	
 }

@@ -1,0 +1,88 @@
+<!-- 
+ * Copyright (C) 2025 The Holodeck B2B Team
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the Affero GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ -->
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main-layout}"
+	  >
+<body>
+<section layout:fragment="dynamic-content">
+	<div class="row">
+		<div class="container">
+			<div class="mb-2 d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+				<h5 class="d-flex align-items-center mb-2 me-3 mb-lg-0 text-dark text-decoration-none">
+					List of Endpoints
+				</h5>
+				<a th:href="@{/endpoints/add}" class="btn btn-sm btn-outline-primary col-lg-auto me-lg-auto justify-content-center  ">Add new Endpoint</a>
+			</div>
+		</div>
+	</div>
+	<div class="row mb-2">	
+		<table class="table table-striped table-fit overview">
+			<thead>
+				<tr >
+					<th>Name</th>
+					<th>Transport profile</th>
+					<th>Endpoint URL</th>
+					<th class="text-center">#Templates</th>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="ep : ${endpoints.content}" class="align-middle">
+					<td th:text="${ep.value1().name}">Endpoint name</td>
+					<td th:text="${ep.value1().transportProfileId}">transport-profile-id</td>
+					<td th:text="${ep.value1().endpointURL.toString()}">https://demo.goes.no.where/as4</td>
+					<td th:text="${ep.value2()}" class="text-center">N</td>
+					<td>
+						<a th:href="@{/endpoints/edit/{id}(id=${ep.value1().id})}" class="px-3 btn btn-sm btn-outline-dark">Edit</a>
+						<button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#confirmDelete"
+							th:disabled="${ep.value2() > 0}"
+							th:attr="data-bs-endpoint=@{/endpoints/delete/{id}(id=${ep.value1().id})}">Delete</button>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	<div th:replace="~{fragments/page_nav :: pageNavigation(${endpoints}, '/smd/endpoints')}" ></div>
+
+	<div class="modal fade" id="confirmDelete" tabindex="-1" aria-labelledby="gridModalLabel" style="display: none;" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Delete endpoint?</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<p>Are you sure you want to delete endpoint registration?</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+					<a id="delConfirmed"><button type="button" class="btn btn-danger">Delete endpoint</button></a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script>
+		$('#confirmDelete').on('show.bs.modal', function (event) {
+		  $('#delConfirmed').attr('href', event.relatedTarget.getAttribute('data-bs-endpoint'));
+		})
+	</script>
+
+</section>
+</body>
+</html>

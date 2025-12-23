@@ -1,0 +1,73 @@
+<!-- 
+ * Copyright (C) 2025 The Holodeck B2B Team
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the Affero GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ -->
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="pageNavigation (pages, baseUrl)">
+ 	<div th:if="${pages.totalPages > 1}" class="row text-center">	
+	 	<nav>
+		  <ul class="pagination justify-content-center" style="margin-bottom: 0.3rem;">
+		    <li class="page-item" th:classappend="${pages.number == 0 ? 'disabled' : ''}">
+		      <a class="page-link" th:href="@{${baseUrl}(page=${pages.number - 1})}">
+		      	<span class="bi bi-chevron-left"></span>
+		      </a>
+		    </li>
+		    <th:block th:if="${pages.totalPages <= 7}">
+		    	<li th:each="p : ${#numbers.sequence(0, pages.totalPages - 1)}" class="page-item"
+			    	th:classappend="${p == pages.number ? 'active' : ''}">
+			    	<a class="page-link" th:href="@{${baseUrl}(page=${p})}" th:text="${p+1}">x</a>
+		    	</li>	    			    
+			</th:block>
+			<th:block th:if="${pages.totalPages > 7}">
+			    <li class="page-item" th:classappend="${pages.number == 0 ? 'active' : ''}">
+			    	<a class="page-link" th:href="@{${baseUrl}(page=0)}">1</a>
+			    </li>
+		    	<li th:if="${pages.number > 2}" class="page-item disabled"><a class="page-link" >...</a></li>
+			    <li th:each="p : ${#numbers.sequence(T(java.lang.Math).max(1, pages.number - 2),
+			    	T(java.lang.Math).min(pages.totalPages - 2, pages.number + 2))}" class="page-item"
+			    	th:classappend="${p == pages.number ? 'active' : ''}">
+			    	<a class="page-link" th:href="@{${baseUrl}(page=${p})}" th:text="${p+1}">x</a>
+			    </li>
+		    	<li th:if="${pages.totalPages - pages.number > 4}" class="page-item disabled">
+		    		<a class="page-link" >...</a>
+		    	</li>
+			    <li class="page-item" th:classappend="${pages.number == pages.totalPages ? 'active' : ''}">
+			    	<a class="page-link" th:href="@{${baseUrl}(page=${pages.totalPages - 1})}"
+			    		th:text="${pages.totalPages}">N</a>
+			    </li>
+	    	</th:block>
+	    	
+			<li class="page-item" th:classappend="${pages.number == pages.totalPages - 1 ? 'disabled' : ''}">
+	      		<a class="page-link" th:href="@{${baseUrl}(page=${pages.number + 1})}">
+	      			<span class="bi bi-chevron-right"></span>
+		    	</a>
+	    	</li>	    	
+		  </ul>
+		</nav>	
+	</div>
+	<div class="row text-center">	
+		<div class="small">
+			<span th:if="${pages.totalElements == 0}">0</span>
+			<span th:if="${pages.totalElements > 0}" th:text="${pages.number * pages.size + 1}">1</span>
+			-
+			<span th:text="${pages.number * pages.size + pages.numberOfElements}">50</span>
+			of
+			<span th:text="${pages.totalElements}">200</span>			
+		</div>	
+	</div>
+</div>
+</body>
+</html>

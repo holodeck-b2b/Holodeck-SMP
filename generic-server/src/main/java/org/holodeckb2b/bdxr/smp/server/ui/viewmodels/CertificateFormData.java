@@ -20,9 +20,11 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 
-import org.holodeckb2b.bdxr.smp.server.db.entities.CertificateE;
+import org.holodeckb2b.bdxr.smp.datamodel.Certificate;
+import org.holodeckb2b.bdxr.smp.server.db.entities.EmbeddedCertificate;
 import org.holodeckb2b.commons.security.CertificateUtils;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -55,8 +57,7 @@ public class CertificateFormData {
 	@DateTimeFormat(pattern = "HH:mm")
 	private LocalTime	expirationTime;
 
-	public CertificateFormData(CertificateE c) {
-		oid = c.getOid();
+	public CertificateFormData(Certificate c) {
 		X509Certificate x509Cert = c.getX509Cert();
 		if (x509Cert != null) {
 			try {
@@ -73,5 +74,16 @@ public class CertificateFormData {
 		expirationDate = expiration != null ? expiration.toLocalDate() : null;
 		expirationTime = expiration != null ? expiration.toLocalTime() : null;
 		usage = c.getUsage();
+	}
+	
+	public EmbeddedCertificate toEmbeddedCertificate() {
+		EmbeddedCertificate c = new EmbeddedCertificate();
+		c.setCertificate(pemText);
+		c.setUsage(usage);
+		if (activationDate != null && activationTime != null)
+			c.setActivationDate(activationDate.atTime(activationTime).atZone(ZoneOffset.UTC));
+		if (expirationDate != null && expirationTime != null)
+			c.setExpirationDate(expirationDate.atTime(expirationTime).atZone(ZoneOffset.UTC));
+		return c;
 	}
 }

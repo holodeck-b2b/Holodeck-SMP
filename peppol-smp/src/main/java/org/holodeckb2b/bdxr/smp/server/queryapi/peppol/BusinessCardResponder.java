@@ -20,12 +20,14 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.NoSuchElementException;
 
-import org.holodeckb2b.bdxr.smp.datamodel.Identifier;
-import org.holodeckb2b.bdxr.smp.server.db.entities.ParticipantE;
-import org.holodeckb2b.bdxr.smp.server.db.repos.ParticipantRepository;
-import org.holodeckb2b.bdxr.smp.server.queryapi.IQueryResponder;
-import org.holodeckb2b.bdxr.smp.server.queryapi.QueryResponse;
-import org.holodeckb2b.bdxr.smp.server.svc.IdUtils;
+import org.holodeckb2b.bdxr.common.datamodel.Identifier;
+import org.holodeckb2b.bdxr.smp.server.datamodel.Participant;
+import org.holodeckb2b.bdxr.smp.server.services.core.ParticipantsService;
+import org.holodeckb2b.bdxr.smp.server.services.core.PersistenceException;
+import org.holodeckb2b.bdxr.smp.server.services.query.IQueryResponder;
+import org.holodeckb2b.bdxr.smp.server.services.query.QueryResponse;
+import org.holodeckb2b.bdxr.smp.server.utils.IdUtils;
+import org.holodeckb2b.commons.util.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -49,7 +51,7 @@ public class BusinessCardResponder extends AbstractResponseFactory implements IQ
 	@Autowired
 	protected IdUtils	queryUtils;
 	@Autowired
-	protected ParticipantRepository participants;
+	protected ParticipantsService participantsSvc;
 			
 	@Override
 	public QueryResponse processQuery(String query, HttpHeaders headers) {
@@ -70,9 +72,14 @@ public class BusinessCardResponder extends AbstractResponseFactory implements IQ
 		}
 		
 		log.trace("Business Card requested of Participant={}", partID.toString());
-		ParticipantE participant = participants.findByIdentifier(partID);
-		
-		if (participant == null || !participant.publishedInDirectory()) {
+		Participant participant;
+		try {
+			participant = participantsSvc.getParticipant(partID);
+		} catch (PersistenceException e) {
+			log.error("Error retrieving Participant (ID={}) : {}", partID.toString(), Utils.getExceptionTrace(e));
+			return new QueryResponse(HttpStatus.INTERNAL_SERVER_ERROR, null, null);
+		}		
+		if (participant == null || !participant.isPublishedInDirectory()) {
 			log.warn("Got Business Card request for non-existing or not published Participant ID ({})", partID.toString());
 			return new QueryResponse(HttpStatus.NOT_FOUND, null, null);
 		}
@@ -87,19 +94,16 @@ public class BusinessCardResponder extends AbstractResponseFactory implements IQ
 		MultilingualNameType name = new MultilingualNameType();
 		name.setValue(participant.getName());
 		busInfo.getName().add(name);
-		busInfo.setCountryCode(participant.getCountry());
-		busInfo.setGeographicalInformation(participant.getAddressInfo());
-		busInfo.setRegistrationDate(createDateContent(participant.getFirstRegistration()));
-		String additionalIds = participant.getAdditionalIds();
-		if (additionalIds != null && additionalIds.length() > 1) {
-			for(String id : additionalIds.split(",")) {
-				int schemeEnd = Math.max(0, id.indexOf("::"));
-				IdentifierType idType = new IdentifierType();
-				idType.setScheme(id.substring(0, schemeEnd));
-				idType.setValue(id.substring(schemeEnd > 0 ? schemeEnd + 2 : 0));
-				busInfo.getIdentifier().add(idType);
-			}
-		}		
+		busInfo.setCountryCode(participant.getRegistrationCountry());
+		busInfo.setGeographicalInformation(participant.getLocationInfo());
+		busInfo.setRegistrationDate(createDateContent(participant.getFirstRegistrationDate()));
+		for(Identifier id : participant.getAdditionalIds()) {
+			IdentifierType idType = new IdentifierType();
+			if (id.getScheme() != null) 
+				idType.setScheme(id.getScheme().getSchemeId());
+			idType.setValue(id.getValue());
+			busInfo.getIdentifier().add(idType);
+		}
 		bc.getBusinessEntity().add(busInfo);			
 		
 		try {

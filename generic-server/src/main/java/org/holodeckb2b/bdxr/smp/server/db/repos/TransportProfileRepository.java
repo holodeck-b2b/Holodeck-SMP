@@ -16,22 +16,15 @@
  */
 package org.holodeckb2b.bdxr.smp.server.db.repos;
 
-import org.holodeckb2b.bdxr.smp.server.db.entities.TransportProfileE;
+import org.holodeckb2b.bdxr.smp.server.db.entities.TransportProfileEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 /**
- * The Spring JPA repository for transport profile meta-data.
+ * The Spring JPA repository for Transport Profile meta-data which beside the default repository operations also 
+ * supports searching and duplicate checks on the profile identifier.
  *
  * @author Sander Fieten (sander at holodeck-b2b.org)
  */
-public interface TransportProfileRepository extends JpaRepository<TransportProfileE, String> {
-
-	@Query("""
-			select count(*)
-			from Endpoint ep
-			where ep.profile = :tp
-        """)
-	public Integer getNumberOfEndpoints(@Param("tp") TransportProfileE profile);
+public interface TransportProfileRepository extends JpaRepository<TransportProfileEntity, Long>,
+													TransportProfileIdCapableRepo {
 }

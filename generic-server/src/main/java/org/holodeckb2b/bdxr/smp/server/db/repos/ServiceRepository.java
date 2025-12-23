@@ -16,18 +16,15 @@
  */
 package org.holodeckb2b.bdxr.smp.server.db.repos;
 
-import org.holodeckb2b.bdxr.smp.server.db.entities.ServiceE;
+import org.holodeckb2b.bdxr.smp.server.db.entities.ServiceEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 /**
- * The Spring JPA repository for service meta-data.
+ * The Spring JPA repository for Service meta-data which beside the default repository operations also supports
+ * searching and duplicate checks on the service identifier. Furthermore a method to count the number of Service 
+ * Metadata Templates in which the Service is used is specified. 
  *
  * @author Sander Fieten (sander at holodeck-b2b.org)
  */
-public interface ServiceRepository extends JpaRepository<ServiceE, Long>, ServiceSearchByIdRepo {
-
-	@Query("select count(*) from ServiceMetadataTemplate smt where smt.service = :svc")
-	Integer getNumberOfTemplates(@Param("svc") ServiceE svc);
+public interface ServiceRepository extends JpaRepository<ServiceEntity, Long>, ServiceIdCapableRepo {
 }

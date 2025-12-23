@@ -18,15 +18,14 @@ package org.holodeckb2b.bdxr.smp.server.queryapi.oasisv2;
 
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
-import lombok.extern.slf4j.Slf4j;
+
+import org.holodeckb2b.bdxr.common.datamodel.Identifier;
 import org.holodeckb2b.bdxr.smp.datamodel.Certificate;
 import org.holodeckb2b.bdxr.smp.datamodel.EndpointInfo;
-import org.holodeckb2b.bdxr.smp.datamodel.Identifier;
 import org.holodeckb2b.bdxr.smp.datamodel.ProcessGroup;
 import org.holodeckb2b.bdxr.smp.datamodel.ProcessInfo;
 import org.holodeckb2b.bdxr.smp.datamodel.RedirectionV2;
 import org.holodeckb2b.bdxr.smp.datamodel.impl.CertificateImpl;
-import org.holodeckb2b.bdxr.smp.server.datamodel.ServiceMetadataBinding;
 import org.holodeckb2b.bdxr.smp.server.datamodel.ServiceMetadataTemplate;
 import org.oasis_open.docs.bdxr.ns.smp._2.aggregatecomponents.CertificateType;
 import org.oasis_open.docs.bdxr.ns.smp._2.aggregatecomponents.EndpointType;
@@ -47,6 +46,8 @@ import org.oasis_open.docs.bdxr.ns.smp._2.basiccomponents.TransportProfileIDType
 import org.oasis_open.docs.bdxr.ns.smp._2.basiccomponents.TypeCodeType;
 import org.oasis_open.docs.bdxr.ns.smp._2.servicemetadata.ServiceMetadataType;
 import org.w3c.dom.Document;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Is a factory for <code>ServiceMetadata</code> XML documents as specified by the OASIS SMP V2 Specification.
@@ -69,15 +70,15 @@ public class ServiceMetadataFactory extends AbstractResponseFactory {
 	 * Creates a XML Document with <code>ServiceMetadata</code> root element as defined by the OASIS SMP2 Specification
 	 * using the metadata from the given ServiceMetadata Binding.
 	 *
-	 * @param smb	the Servicemetadata Binding to use
+	 * @param partID the Participant identifier
+	 * @param smt	 the Servicemetadata Template to use
 	 * @return	new XML Document containing the <code>ServiceMetadata</code>
 	 */
-	Document newResponse(ServiceMetadataBinding smb) throws InstantiationException {
-		ServiceMetadataTemplate smt = smb.getTemplate();
+	Document newResponse(Identifier partID, ServiceMetadataTemplate smt) throws InstantiationException {
 		ServiceMetadataType smd = new ServiceMetadataType();
 		smd.setSMPVersionID(SMP_VERSION_ID);
-		smd.setID(convertID(smt.getServiceId(), IDType.class));
-		smd.setParticipantID(convertID(smb.getParticipantId(), ParticipantIDType.class));
+		smd.setID(convertID(smt.getService().getId(), IDType.class));
+		smd.setParticipantID(convertID(partID, ParticipantIDType.class));
 		for(ProcessGroup pg : smt.getProcessMetadata())
 			smd.getProcessMetadata().add(createProcessMetadata(pg));
 
@@ -110,9 +111,7 @@ public class ServiceMetadataFactory extends AbstractResponseFactory {
 
 	private EndpointType createEndpoint(EndpointInfo ep) throws InstantiationException {
 		EndpointType e = new EndpointType();
-		TransportProfileIDType tp = new TransportProfileIDType();
-		tp.setValue(ep.getTransportProfile());
-		e.setTransportProfileID(tp);
+		convertID(ep.getTransportProfileId(), TransportProfileIDType.class);
 		e.setDescription(createTextContent(ep.getDescription(), DescriptionType.class));
 		e.setContact(createTextContent(ep.getContactInfo(), ContactType.class));
 		e.setAddressURI(createTextContent(ep.getEndpointURL().toString(), AddressURIType.class));

@@ -22,13 +22,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-import lombok.extern.slf4j.Slf4j;
+
+import org.holodeckb2b.bdxr.smp.server.services.query.IQueryResponder;
 import org.holodeckb2b.commons.util.Utils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
@@ -36,6 +35,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Maps a request URL to a {@link IQueryResponder} that is responsible for handling the SMP query that is represented by
@@ -80,7 +81,7 @@ public class QueryMapper {
 			initMapping();
 
 		return queryMap.entrySet().parallelStream().filter(m -> m.getKey().matcher(urlPath).matches())
-												   .findFirst()
+												  .findFirst()
 												  .map(m -> m.getValue())
 												  .orElse(null);
 	}

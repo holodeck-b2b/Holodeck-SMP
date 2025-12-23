@@ -13,7 +13,7 @@ If Participants and their associated business info should be registered in the S
 
 #### Managing Participants
 Participant registrations are managed using the `/participants` resource. 
-A new Participant registration is added by executing a PUT request with the Participant Identifier added to the URL, i.e. `/participants/«ParticipantID»`. The identifier should be in the URL encoded format specified in [section 3.6.3](https://docs.oasis-open.org/bdxr/bdx-smp/v2.0/os/bdx-smp-v2.0-os.html#_Toc62566898) of the OASIS SMP Version 2.0 specification. When automatic SML registratio is enabled, an optional query parameter `migrationCode` may be added to provide the _migration code_ when the Participant is moved from another SMP to this SMP, e.g. `/participants/«ParticipantID»?migrationCode=«migration code»`.
+A new Participant registration is added by executing a PUT request with the Participant Identifier added to the URL, i.e. `/participants/«ParticipantID»`. The identifier should be in the URL encoded format specified in [section 3.6.3](https://docs.oasis-open.org/bdxr/bdx-smp/v2.0/os/bdx-smp-v2.0-os.html#_Toc62566898) of the OASIS SMP Version 2.0 specification. When automatic SML registration is enabled, an optional query parameter `migrationCode` may be added to provide the _migration code_ when the Participant is moved from another SMP to this SMP, e.g. `/participants/«ParticipantID»?migrationCode=«migration code»`.
 The server will respond with following HTTP response codes to indicate how the request was processed:
 
 | HTTP status                 | Indicates      |
@@ -34,10 +34,17 @@ To delete a Participant registration a DELETE request with the Participant Ident
 | 500 (Internal Server Error) | An unexpected error occurred during the processing of the request | 
 
 ##### SML Registration
-The registration of a Participant in the SML can be managed using the `/participants/«ParticipantID»/sml` resource where ParticipantID should be in the URL  encoded format specified in [section 3.6.3](https://docs.oasis-open.org/bdxr/bdx-smp/v2.0/os/bdx-smp-v2.0-os.html#_Toc62566898) of the OASIS SMP Version 2.0 specification.  
+The registration of a Participant in the SML can be checked and managed using the `/participants/«ParticipantID»/sml` resource where ParticipantID should be in the URL encoded format specified in [section 3.6.3](https://docs.oasis-open.org/bdxr/bdx-smp/v2.0/os/bdx-smp-v2.0-os.html#_Toc62566898) of the OASIS SMP Version 2.0 specification. Whether the Participant is registered in the SML can be checked by executing a GET request. The response code indicates the SML registration state of the Participant:
+
+| HTTP status             | Indicates      |
+| :-----------------------| :------------- | 
+| 200 (OK)                | The Participant Identifier is registered in the SML by this SMP server. | 
+| 404 (Not Found)         | The Participant Identifier is not registered in the SML.**NOTE:** this status will also be returned when no Participant with the specified  Identifier is registered on the SMP server. |
+| 302 (Moved temporarily) | The Participant Identifier is registered in the SML by this SMP server, but is being prepared for migration. | 
+                            
 Using the PUT method the Participant is registered in the SML. An optional query parameter `migrationCode` may be added to provide the _migration code_ when the Participant is moved from another SMP to this SMP, e.g. `/participants/«ParticipantID»/sml?migrationCode=«migration code»`.  
 Removing the Participant from the SML is done by executing a DELETE request on the resource. Note that deleting the Participant from the SML will also remove it from the directory if it was published to it (as SML registration is a precondition for publication). 
-The server indicates the result of the registratio or deletion request using the following HTTP status codes:
+The server indicates the result of the registration or deletion request using the following HTTP status codes:
 
 | HTTP status                 | Indicates      |
 | :-------------------------- | :------------- | 

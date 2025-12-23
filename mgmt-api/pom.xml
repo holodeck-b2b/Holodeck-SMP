@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.holodeckb2b.bdxr.smp.server</groupId>
 		<artifactId>parent</artifactId>
-		<version>2.1.2</version>
+		<version>3.0.2</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<artifactId>mgmt-api</artifactId>
@@ -17,6 +17,10 @@
 	<packaging>jar</packaging>
 
 	<dependencies>
+	    <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>interfaces</artifactId>
+        </dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>oasis-smp2-responder</artifactId>
@@ -27,7 +31,6 @@
 			<artifactId>peppol-smp-server-comp</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-
 		<dependency>
 			<groupId>org.holodeckb2b.commons</groupId>
 			<artifactId>generic-utils</artifactId>
@@ -35,12 +38,12 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web-services</artifactId>
-			<exclusions>
+<!--			<exclusions>
 				<exclusion>
 					<groupId>org.springframework.boot</groupId>
 					<artifactId>spring-boot-starter-tomcat</artifactId>
 				</exclusion>
-			</exclusions>
+			</exclusions>-->
 		</dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>
@@ -56,23 +59,28 @@
 			<artifactId>jaxb-impl</artifactId>
 			<scope>runtime</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+    		<artifactId>spring-boot-starter-test</artifactId>
+    		<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
 		<plugins>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>jaxb2-maven-plugin</artifactId>
+				<artifactId>jaxb2-maven-plugin</artifactId>			
 				<configuration>
                     <sources>
-                        <source>src/main/xsd/smt.xsd</source>
+                        <source>src/main/xsd/metadata.xsd</source>                        
                     </sources>
                     <xjbSources>
-         				<xjbSource>src/main/xsd/bindings.xjb</xjbSource>
+         				<xjbSource>src/main/xsd/metadata.xjb</xjbSource>         				
          			</xjbSources>
                     <extension>true</extension>
                 </configuration>				
-			</plugin>
+			</plugin>					
 		</plugins>
 	</build>
 

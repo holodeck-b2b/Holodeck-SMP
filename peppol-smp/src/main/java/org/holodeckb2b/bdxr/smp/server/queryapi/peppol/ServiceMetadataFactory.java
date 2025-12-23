@@ -32,14 +32,13 @@ import org.busdox.servicemetadata.publishing._1.SignedServiceMetadataType;
 import org.busdox.transport.identifiers._1.DocumentIdentifierType;
 import org.busdox.transport.identifiers._1.ParticipantIdentifierType;
 import org.busdox.transport.identifiers._1.ProcessIdentifierType;
+import org.holodeckb2b.bdxr.common.datamodel.Identifier;
+import org.holodeckb2b.bdxr.common.datamodel.ProcessIdentifier;
 import org.holodeckb2b.bdxr.smp.datamodel.Certificate;
 import org.holodeckb2b.bdxr.smp.datamodel.EndpointInfo;
-import org.holodeckb2b.bdxr.smp.datamodel.Identifier;
 import org.holodeckb2b.bdxr.smp.datamodel.ProcessGroup;
-import org.holodeckb2b.bdxr.smp.datamodel.ProcessIdentifier;
 import org.holodeckb2b.bdxr.smp.datamodel.ProcessInfo;
-import org.holodeckb2b.bdxr.smp.datamodel.RedirectionV2;
-import org.holodeckb2b.bdxr.smp.server.datamodel.ServiceMetadataBinding;
+import org.holodeckb2b.bdxr.smp.datamodel.Redirection;
 import org.holodeckb2b.bdxr.smp.server.datamodel.ServiceMetadataTemplate;
 import org.w3._2005._08.addressing.AttributedURIType;
 import org.w3._2005._08.addressing.EndpointReferenceType;
@@ -59,13 +58,12 @@ public class ServiceMetadataFactory extends AbstractResponseFactory {
 	 * Creates a XML Document with <code>SignedServiceMetadata</code> root element as defined by the PEPPOL SMP
 	 * Specification using the metadata from the given ServiceMetadata Binding.
 	 *
-	 * @param smb	the Servicemetadata Binding to use
+	 * @param partId the Participant identifier
+	 * @param smt	 the Service Metadata Template to use
 	 * @return	new XML Document containing the <code>ServiceMetadata</code>
 	 */
-	Document newResponse(ServiceMetadataBinding smb) throws InstantiationException {
+	Document newResponse(Identifier partId, ServiceMetadataTemplate smt) throws InstantiationException {
 		ServiceMetadataType smd = new ServiceMetadataType();
-
-		ServiceMetadataTemplate smt = smb.getTemplate();
 		Collection<? extends ProcessGroup> pmd = smt.getProcessMetadata();
 		long redirections = pmd.stream().filter(pg -> pg.getRedirection() != null).count();
 		if (redirections != 0 && pmd.size() > 1) {
@@ -73,9 +71,9 @@ public class ServiceMetadataFactory extends AbstractResponseFactory {
 						smt.getName());
 			throw new InstantiationException("Incompatible Service Metadata Template");
 		} else if (redirections == 1)
-			smd.setRedirect(createRedirection(smb));
+			smd.setRedirect(createRedirection(partId, smt));
 		else
-			smd.setServiceInformation(createServiceInformation(smb));
+			smd.setServiceInformation(createServiceInformation(partId, smt));
 
 		SignedServiceMetadataType ssmd = new SignedServiceMetadataType();
 		ssmd.setServiceMetadata(smd);
@@ -83,16 +81,15 @@ public class ServiceMetadataFactory extends AbstractResponseFactory {
 		return jaxb2dom(ssmd);
 	}
 
-	private RedirectType createRedirection(ServiceMetadataBinding smb) {
+	private RedirectType createRedirection(Identifier partId, ServiceMetadataTemplate smt) {
 		RedirectType redirection = new RedirectType();
 
-		RedirectionV2 rmd = (RedirectionV2) smb.getTemplate().getProcessMetadata().stream()
+		Redirection rmd = smt.getProcessMetadata().stream()
 										  .filter(pg -> pg.getRedirection() != null).findFirst().get().getRedirection();
 
 		String baseURL = rmd.getNewSMPURL().toString();
 		redirection.setHref(String.format("%s%s%s/services/%s", baseURL, baseURL.endsWith("/") ? "" : "/",
-											smb.getParticipantId().getURLEncoded(),
-											smb.getTemplate().getServiceId().getURLEncoded()));
+											partId.getURLEncoded(), smt.getService().getId().getURLEncoded()));
 
 		// NOTE: The Subject UID is set to the empty string as the use of this certificate field is not included in
 		// certificates issued in the Peppol network but the element is required by the XSD
@@ -101,20 +98,17 @@ public class ServiceMetadataFactory extends AbstractResponseFactory {
 		return redirection;
 	}
 
-	private ServiceInformationType createServiceInformation(ServiceMetadataBinding smb) throws InstantiationException {
+	private ServiceInformationType createServiceInformation(Identifier partId, ServiceMetadataTemplate smt) 
+																						throws InstantiationException {
 		ServiceInformationType si = new ServiceInformationType();
-
-		Identifier participantId = smb.getParticipantId();
 		ParticipantIdentifierType pid = new ParticipantIdentifierType();
-		if (participantId.getScheme() != null)
-			pid.setScheme(participantId.getScheme().getSchemeId());
-		pid.setValue(participantId.getValue());
+		if (partId.getScheme() != null)
+			pid.setScheme(partId.getScheme().getSchemeId());
+		pid.setValue(partId.getValue());
 		si.setParticipantIdentifier(pid);
 
-		ServiceMetadataTemplate smt = smb.getTemplate();
-
 		DocumentIdentifierType did = new DocumentIdentifierType();
-		Identifier serviceId = smt.getServiceId();
+		Identifier serviceId = smt.getService().getId();
 		if (serviceId.getScheme() != null)
 			did.setScheme(serviceId.getScheme().getSchemeId());
 		did.setValue(serviceId.getValue());
@@ -145,7 +139,7 @@ public class ServiceMetadataFactory extends AbstractResponseFactory {
 
 	private EndpointType createEndpoint(EndpointInfo ep) throws InstantiationException {
 		EndpointType e = new EndpointType();
-		e.setTransportProfile(ep.getTransportProfile());
+		e.setTransportProfile(ep.getTransportProfileId().toString());
 
 		EndpointReferenceType epr = new EndpointReferenceType();
 		AttributedURIType epURL = new AttributedURIType();

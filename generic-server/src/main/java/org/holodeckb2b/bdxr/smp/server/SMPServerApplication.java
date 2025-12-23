@@ -31,8 +31,10 @@ import org.springframework.core.io.ClassPathResource;
  * @author Sander Fieten (sander at holodeck-b2b.org)
  */
 public class SMPServerApplication {
-	
-	public static boolean isMgmtAPILoaded = false;
+	/**
+	 * Indicator whether the REST management API has been loaded.
+	 */
+	private static boolean isMgmtAPILoaded = false;
 	
 	public static void main(String[] args) {
 		boolean queryApi = false, adminUI = false, mgmtApi = false;
@@ -65,7 +67,7 @@ public class SMPServerApplication {
 		}		
 		if (mgmtApi || runAll) {
 			try {
-				Class mgmtAppClass = Class.forName("org.holodeckb2b.bdxr.smp.server.mgmtapi.MgmtAppConfig");
+				Class<?> mgmtAppClass = Class.forName("org.holodeckb2b.bdxr.smp.server.mgmtapi.MgmtAppConfig");
 				isMgmtAPILoaded = true;
 				if (queryApi || adminUI || runAll)
 					app = app.sibling(mgmtAppClass);
@@ -82,5 +84,14 @@ public class SMPServerApplication {
 		}
 			
 		app.run(args);
+	}
+	
+	/**
+	 * Indicates whether the REST management API has been loaded.
+	 * 
+	 * @return	<code>true</code> if the management API is loaded, <code>false</code> otherwise
+	 */
+	public static boolean isMgmtAPILoaded() {
+		return isMgmtAPILoaded;
 	}
 }

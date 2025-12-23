@@ -1,0 +1,208 @@
+<!-- 
+ * Copyright (C) 2025 The Holodeck B2B Team
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the Affero GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ -->
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/settings-layout}"
+>
+<body>
+<section layout:fragment="settings-content">
+<div class="container">
+	<div class="card">
+		<div class="card-header">
+			Certificate of key pair currently in use
+		</div>
+		<div class="card-body">
+			<div th:if="${currentCert}">
+				<div th:replace="~{fragments/cert_info::display (cert=${currentCert})}"></div>
+			</div>
+			<div th:unless="${currentCert}">
+				There currently is no SMP certificate set up.
+			</div>
+		</div>
+	</div>
+	<div class="card">
+		<div class="card-header">
+			Install new key pair
+		</div>
+		<div th:unless='${newCert}' class="card-body">
+			<div th:if="${plannedUpdate}" class="row mb-2">
+				<div class="col mx-2 p-2 alert"
+					th:classappend="${smlCertRegRequired ? 'alert-warning' : 'alert-info'}">
+					<div class="row align-items-center">
+						<div class="col-auto">
+							<i class="bi fs-5 ms-1" 
+							th:classappend="${smlCertRegRequired ? 'bi-exclamation-circle' : 'bi-info-circle'}"></i>
+						</div>
+						<div class="col-9 ps-0">
+							<div class="container">
+								A certificate update has already been registered and is planned to be activated on 
+								<span th:text="${plannedUpdate.activateOn}">27/11/2024</span>.
+								<span th:if="${smlCertRegRequired}">
+								<br>Uploading a new key pair may not be accepted by the network's SML service and
+								 therefore result in error.
+								</span>
+							</div>
+						</div>
+						<div class="col-2 ps-2 text-end">
+							<button class="btn btn-sm" data-bs-toggle="modal" data-bs-target="#certUpdInfoDialog"
+								th:classappend="${smlCertRegRequired ? 'btn-warning' : 'btn-info'}"
+								>View new certificate</button>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div th:replace="~{::upload-form}"></div>
+		</div>
+		<div th:if="${newCert}" class="card-body"
+			th:with="valid=${newCert.notAfter.after(#dates.createNow())} and ${newCert.notBefore.before(#dates.createNow())}">
+			<div class="row mb-3">
+				<strong>Certificate of key pair to be installed</strong>
+			</div>
+			<div th:replace="~{fragments/cert_info::display (cert=${newCert})}"></div>
+			<form th:if="${valid}" method="POST" th:action="@{/settings/cert/apply}">
+			<div th:if="${currentCert}" class="row mb-3 me-2">
+				<span class="col-2">Activate</span>		
+				<div class="col-4">
+					<div class="row">
+						<div class="col">
+							<div class="form-check">
+							  <input class="form-check-input" type="radio" name="activation" id="activateNow"
+							  		th:checked="${#strings.equals('now', activation)}"
+							  		value="now" th:classappend="${activationError} ? 'is-invalid' : _">
+							  <label class="form-check-label" for="activateNow">Now</label>
+							</div>						
+						</div>
+					</div>	
+					<div class="row align-items-center">
+						<div class="col-auto">
+							<div class="form-check">
+							  	<input class="form-check-input" type="radio" name="activation" id="activateScheduled"
+							  		th:checked="${#strings.equals('scheduled', activation)}"
+							  		value="scheduled" th:classappend="${activationError} ? 'is-invalid' : _">
+							  	<label class="form-check-label" for="activateScheduled">On:</label>
+						  	</div>
+					  	</div>
+					  	<div class="col">
+						  	<input type="date" class="form-control" id="activateOn" name="activateOn"
+								   th:min="${newCert.notBefore}" th:value='${activateOn}'
+								   th:classappend="${activationError} ? 'is-invalid' : _">
+			 			</div>	
+					</div>
+					<div th:if="${activationError}" id="invalidActivationMsg" class="row mt-2">
+						<span class="col small text-danger" th:text="${activationError}">Something went wrong</span>
+					</div>					
+				</div>
+				<div th:if="${smlCertRegRequired}" class="col-6 p-2 alert alert-primary">
+				The network's SML service requires that the new SMP certificate is also registered in the SML. The SML
+				service may require that the registration is done in advance, i.e. that the activation date must be in
+				the future.<br/>
+				Also note that once the new certificate is registered you may not be able to upload a new certificate
+				until the new certificate has been activated. Check with the network's SML operator what applies in your
+				situation. 
+				</div>
+			</div>
+			<div th:unless="${currentCert}" class="d-none">
+				<input type="hidden" name="activation" value="now">
+				<input type="hidden" name="activateOn" value="${#dates.createNow()}">
+			</div>
+			<div class="row justify-content-center mt-3">
+				<div class="col-auto">
+					<button type='submit' class="btn btn-primary" th:classappend="${!valid?'pe-none':_}" 
+						th:disabled="${!valid}" 
+						th:text="${currentCert != null ? 'Apply certificate update' : 'Install uploaded key pair'}">
+					Apply certificate update
+					</button>
+				</div>
+				<div class="col-auto">
+					<a th:href="@{/settings/cert}">
+						<button type="button" class="btn btn-secondary">Discard uploaded key pair</button>
+					</a>
+				</div>
+			</div>
+			</form>
+			<div th:unless="${valid}" class="col-12 p-1 alert alert-danger">
+				<i class="mx-2 bi bi-exclamation-triangle"></i>
+				As the validity of the uploaded certificate has expired it cannot be activated. Please upload another certificate!					
+			</div>			
+			<div th:unless="${valid}" th:insert="~{::upload-form}"></div>			
+		</div>
+	</div>
+</div>
+
+<div hidden tabindex="-1">
+
+<form th:fragment="upload-form" method="POST" enctype="multipart/form-data" th:action="@{/settings/cert/upload}">
+<div class="row mb-3">
+	<label for="formFile" class="col-2 col-form-label">Key pair file</label>
+	<div class="col-9">
+	<div class="input-group">
+		<input type="file" class="form-control" id="keypairFile" name="keypair">
+		<label for="keypairFile" class="input-group-text">Supported formats: PKCS#12, JKS or JCEKS</label>
+	</div>
+	</div>
+</div>
+<div class="row mb-4">
+	<label for="serviceID" class="col-2 col-form-label">Key pair password</label>
+	<div class="col-4">
+		<input type="password" class="form-control" id="password" name="password"/>
+	</div>
+  <div class="col-auto "><button type='submit' class="btn btn-primary">Upload key pair</button></div>
+  <div th:if="${keyPairError}" class="offset-2 mt-1 text-danger"
+	   th:text="${keyPairError}">Errors go here</div>
+</div>
+</form>
+			
+</div>
+
+<div th:if="${plannedUpdate}" th:with="cert=${plannedUpdate.cert}" class="modal fade" id="certUpdInfoDialog" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Scheduled update certificate details</h4>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+       	<div class="row mb-1 align-items-center">
+          <label class="col-form-label col-4">Subject name</label>
+          <div class="col"><input class="form-control-plaintext" readonly th:value="${cert.subjectName}"></div>				
+        </div>
+        <div class="row mb-1 align-items-center">
+          <label class="col-4">Issuer name</label>
+          <div class="col"><input class="form-control-plaintext" readonly th:value="${cert.issuerName}"></div>				
+        </div>
+        <div class="row mb-1 align-items-center">
+          <label class="col-4">Serial number</label>
+          <div class="col"><input class="form-control-plaintext" readonly th:value="${cert.serialNo}"></div>				
+        </div>
+        <div class="row mb-1 align-items-center">
+          <label class="col-4">Not valid before</label>
+          <div class="col"><input class="form-control-plaintext" readonly th:value="${cert.notBefore}"></div>          
+        </div>
+        <div class="row mb-1 align-items-center">
+          <label class="col-4">Not valid after</label>
+          <div class="col"><input class="form-control-plaintext" readonly th:value="${cert.notAfter}"></div>          
+        </div>
+      </div>
+    </div>
+  </div>		
+</div>	
+
+
+</section>
+</body>
+</html>

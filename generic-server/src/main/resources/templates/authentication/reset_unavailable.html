@@ -1,0 +1,37 @@
+<!-- 
+ * Copyright (C) 2025 The Holodeck B2B Team
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the Affero GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ -->
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/nomenu-layout}"
+>
+<body>
+<section layout:fragment="page-content">
+	<div class="container position-absolute top-50 start-50 translate-middle">
+		<div class="row">
+			<div class="card col-6 m-auto shadow">
+				<div class="row m-4">
+					<p>This password reset request cannot be completed. Maybe it has expired or your account is locked.</p>
+					<p><a th:href="@{/reset/forgotten}">Request a new password reset</a> or contact you administrator for more information.
+					</p>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+</body>
+</html>

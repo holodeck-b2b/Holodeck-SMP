@@ -1,0 +1,137 @@
+<!-- 
+ * Copyright (C) 2025 The Holodeck B2B Team
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the Affero GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ -->
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layouts/main-layout}">
+<section layout:fragment="dynamic-content">
+	
+<div class="card">
+	<div class="card-header">
+		<h5 class="card-title">Your user account info</h5>		
+	</div>
+	<div class="card-body">
+	<form class="form" method="post" th:action="@{/account/save}" th:object="${user}">
+		<input type="hidden" name="returnTo" th:value="${returnTo}">
+		<input type="hidden" th:field="*{oid}">
+		<div class="row mb-3">
+			<label class="col-sm-2 col-form-label">Email address</label>
+			<div class="col-sm-6">
+				<input type="email" class="form-control" th:field="*{emailAddress}" th:errorclass="is-invalid">
+				<div id="invalidEmailAddressMsg" class="invalid-feedback" th:errors="*{emailAddress}"></div>				
+			</div>
+		</div>
+		<div class="row mb-3">
+			<label class="col-sm-2 col-form-label">Full name</label>
+			<div class="col-sm-4">
+				<input type="text" class="form-control" th:field="*{fullName}" th:errorclass="is-invalid">
+				<div id="invalidFullNameMsg" class="invalid-feedback" th:errors="*{fullName}"></div>
+			</div>
+		</div>
+		<div class="password-group">		
+			<div class="row mb-3">
+				<label class="col-sm-2 col-form-label">Password</label>
+				<div class="col-sm-6">
+					<div class="input-group">
+						<input id="password-input" class="form-control" type="password" th:field="*{password}" 
+							th:errorclass="is-invalid"/>
+						<button id="visibility-btn" class="btn btn-outline-secondary bi bi-eye-slash" type="button"></button>
+					</div>
+					<small class="form-text text-muted mt-2" id="passwordHelp">The password must be at least 8 characters 
+					or more and should contain lowercase and uppercase letters, numbers and symbols.</small>
+					<div class="progress">
+						<div class="progress-bar bg-danger" id="password-strength-bar"></div>
+					</div>
+				</div>
+			</div>
+			<div class="row mb-3">
+				<label class="col-sm-2 col-form-label">Confirm password</label>
+				<div class="col-sm-6">
+					<input id="password-confirm" name="passwordConfirm" class="form-control" type="password" 
+						 th:classappend="${#fields.hasErrors('password') ? 'is-invalid' : ''}"/>
+					<div id="invalidPasswordMsg" class="invalid-feedback" th:errors="*{password}"></div>
+				</div>			
+			</div>
+		</div>
+		<div class="row mb-3 align-items-center">
+			<input id="newTotpDevice" name="newTotpDevice" type="hidden" th:value="${newTotpDevice}">
+			<div th:unless="*{#strings.isEmpty(totpSecret)} and ${#strings.isEmpty(newTotpDevice)}" id="totpStatus" 
+				class="col-auto col-form-label">
+				<div th:if="${#strings.isEmpty(newTotpDevice)} and !*{#strings.isEmpty(totpDevice)}">
+					<span>You have enabled two-factor authentication using</span>
+					<span th:text="*{totpDevice}"></span><span> as your authenticator.</span>
+				</div>
+				<div th:unless="${#strings.isEmpty(newTotpDevice)}">
+					<span th:text="${newTotpDevice}"></span><span> will be registered as your new authenticator.</span>
+				</div>
+			</div>
+			<div th:if="*{#strings.isEmpty(totpSecret)} and ${#strings.isEmpty(newTotpDevice)}" id="totpStatus" 
+				class="col-auto col-form-label">
+				You have not yet enabled two-factor authentication.
+			</div>
+			<div class="col-3 ">
+				<button class="btn btn-sm btn-outline-primary" type="button" 
+					data-bs-toggle="modal" data-bs-target="#totpRegDialog"
+				>[[${user.totpSecret != null ? 'Change device':'Enable 2FA'}]]</button>
+			</div>			
+		</div>
+		<div class="row mt-4 justify-content-center">			
+			<div class="col-sm-2"><button class="btn btn-primary" type="submit">Update user account</button></div>
+			<div class="col-sm-5"><button class="btn btn-danger" type="button" data-bs-toggle="modal" 
+				data-bs-target="#confirmCancel">Cancel update</button></div>	
+		</div>
+	</form>	
+	</div>
+</div>
+
+<div class="modal fade" id="confirmCancel" tabindex="-1" style="display: none;">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<span id="title" class="modal-title">Cancel update?</span>
+				<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+			</div>
+			<div class="modal-body">
+				<p id="question">Are you sure you want to discard all updates made to your user account?</p>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Go back</button>
+				<a th:href="@{${returnTo}}"><button id="confirmBtn" type="button" class="btn btn-danger">Discard changes</button></a>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<div th:include="authentication/totp_dialog :: totpRegistrationDlg(false, 'verify')"></div>
+
+<script th:src="@{/js/pwd_checker.js}"></script>
+
+<script>	
+
+const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+
+// The totpDlgElement var is set by the script included in the totp_dialog fragment 
+totpDlgElement.addEventListener('hidden.bs.modal', e => 
+	{ if (newTotpDeviceFld.value !== "")
+		document.getElementById('totpStatus').innerText = 
+											newTotpDeviceFld.value + " will be registered as your new authenticator.";
+	});
+</script>
+
+</section>
+</html>

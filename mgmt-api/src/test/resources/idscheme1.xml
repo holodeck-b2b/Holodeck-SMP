@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<IdSchemeMetadata xmlns:xhb="http://docs.oasis-open.org/bdxr/ns/SMP/2/BasicComponents"
+ xmlns:udt="http://docs.oasis-open.org/bdxr/ns/SMP/2/UnqualifiedDataTypes"
+ xmlns:ccts="urn:un:unece:uncefact:documentation:2"
+ xmlns:smp="http://docs.oasis-open.org/bdxr/ns/SMP/2/ServiceMetadata"
+ xmlns:sma="http://docs.oasis-open.org/bdxr/ns/SMP/2/AggregateComponents"
+ xmlns:ext="http://docs.oasis-open.org/bdxr/ns/SMP/2/ExtensionComponents"
+ xmlns:qdt="http://docs.oasis-open.org/bdxr/ns/SMP/2/QualifiedDataTypes"
+ xmlns:ccts-cct="urn:un:unece:uncefact:data:specification:CoreComponentTypeSchemaModule:2"
+ xmlns="http://holodeck-smp.org/schemas/2025/05/server/api/metadata"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://holodeck-smp.org/schemas/2025/05/server/api/metadata file:/Users/safi/Development/HB2B/hb2b-smp-server/mgmt-api/src/main/xsd/metadata.xsd">
+    <ID>iso6523-actorid-upis</ID>
+    <CaseSensitiveIdentifiers>true</CaseSensitiveIdentifiers>
+    <ext:Name>Peppol Participants Identifiers</ext:Name>
+</IdSchemeMetadata>

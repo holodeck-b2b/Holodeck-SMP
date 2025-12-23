@@ -16,11 +16,20 @@
  */
 package org.holodeckb2b.bdxr.smp.server.ui.controllers;
 
-import org.holodeckb2b.bdxr.smp.server.db.entities.TransportProfileE;
-import org.holodeckb2b.bdxr.smp.server.db.repos.TransportProfileRepository;
+import java.util.NoSuchElementException;
+
+import org.holodeckb2b.bdxr.smp.server.db.entities.TransportProfileEntity;
+import org.holodeckb2b.bdxr.smp.server.services.core.EndpointMgmtService;
+import org.holodeckb2b.bdxr.smp.server.services.core.PersistenceException;
+import org.holodeckb2b.bdxr.smp.server.services.core.TransportProfileMgmtService;
+import org.holodeckb2b.bdxr.smp.server.utils.IdUtils;
 import org.holodeckb2b.commons.Pair;
 import org.holodeckb2b.commons.util.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -30,48 +39,71 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
 
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 
 @Controller
+@Slf4j
 @RequestMapping("settings/transports")
 public class TransportsViewController {
-	private static final String P_ATTR = "profile";
+	private static final String PROFILE_ATTR = "profile";
+
+	@Value("${smp.ui.maxitems_per_page:50}")
+	private int maxItemsPerPage;
+	
+	@Autowired
+	protected TransportProfileMgmtService	tpMgmtSvc;
 
 	@Autowired
-	protected TransportProfileRepository		profiles;
+	protected EndpointMgmtService	epMgmtSvc;
+	
+	@Autowired
+	protected IdUtils idUtils;
 
 
 	@GetMapping(value = {"","/"})
-    public String getOverview(Model m) {
-		m.addAttribute("profiles", profiles.findAll().parallelStream()
-									.map(p -> new Pair<TransportProfileE, Integer>(p, profiles.getNumberOfEndpoints(p)))
-									.toList());
-	    return "admin-ui/transports";
+    public ModelAndView getOverview(@RequestParam(name = "page", required = false) Integer page) throws PersistenceException {
+		return new ModelAndView("transports", "profiles", 
+				tpMgmtSvc.getTransportProfiles(PageRequest.of(page == null ? 0 : page, maxItemsPerPage))
+				.map(p -> {
+					try {
+						return new Pair<TransportProfileEntity, Integer>((TransportProfileEntity) p, epMgmtSvc.findEndpointsUsingProfile(p).size());
+					} catch (PersistenceException e) {
+						log.error("Could not count endpoint for profile: {}", Utils.getExceptionTrace(e));
+						return new Pair<TransportProfileEntity, Integer>((TransportProfileEntity) p, 0);
+					}
+				}));		
     }
 
 	@GetMapping(value = {"/edit", "/edit/{id}" })
-	public String editProfile(@PathVariable(name = "id", required = false) String id, Model m) {
-		m.addAttribute(P_ATTR, !Utils.isNullOrEmpty(id) ? profiles.findById(id).get() : new TransportProfileE());
-		return "admin-ui/transport_form";
+	public String editProfile(@PathVariable(name = "id", required = false) String id, Model m) throws NoSuchElementException, PersistenceException {
+		m.addAttribute(PROFILE_ATTR, !Utils.isNullOrEmpty(id) ? tpMgmtSvc.getTransportProfile(idUtils.parseIDString(id))
+															: new TransportProfileEntity());
+		return "transport_form";
 	}
 
 	@PostMapping(value = "/update")
-	public String saveProfile(@ModelAttribute(P_ATTR) @Valid TransportProfileE input, BindingResult br, @RequestParam("action") String action) {
-		if (!br.hasErrors() && "add".equals(action) && !profiles.findById(input.getId()).isEmpty())
-			br.rejectValue("id", "ID_EXISTS", "There already exists another Transport Profile with the same identifier");
+	public String saveProfile(@ModelAttribute(PROFILE_ATTR) @Valid TransportProfileEntity input, BindingResult br, 
+								@RequestParam("action") String action, @AuthenticationPrincipal UserDetails user) throws PersistenceException {
+		if (!br.hasErrors() && "add".equals(action) && tpMgmtSvc.getTransportProfile(input.getId()) != null)
+			br.rejectValue("id.value", "ID_EXISTS", "There already exists another Transport Profile with the same identifier");
 
 		if (br.hasErrors())
-			return "admin-ui/transport_form";
-		else {
-			profiles.save(input);
-			return "redirect:/settings/transports";
-		}
+			return "transport_form";
+		else if ("add".equals(action)) 
+			tpMgmtSvc.addTransportProfile(user, input);
+		else 
+			tpMgmtSvc.updateTransportProfile(user, input);
+			
+		return "redirect:/settings/transports";
+	
 	}
 
 	@GetMapping(value = "/delete/{id}")
-	public String removeProfile(@PathVariable("id") String id) {
-		profiles.deleteById(id);
+	public String removeProfile(@PathVariable("id") String id, @AuthenticationPrincipal UserDetails user) throws PersistenceException {
+		tpMgmtSvc.deleteTransportProfile(user, tpMgmtSvc.getTransportProfile(idUtils.parseIDString(id)));
 		return "redirect:/settings/transports";
 	}
 }
