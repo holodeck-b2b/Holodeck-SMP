@@ -11,7 +11,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 * Internal Error when removing last SMT binding from Participant [#18](https://github.com/holodeck-b2b/Holodeck-SMP/issues/18)
 * Incorrect validation error message when updating network registration [#20](https://github.com/holodeck-b2b/Holodeck-SMP/issues/20)
-
+* Internal Error when updating certificate "Now" [#21](https://github.com/holodeck-b2b/Holodeck-SMP/issues/21)
 
 ## 3.0.2
 ##### 2025-11-25

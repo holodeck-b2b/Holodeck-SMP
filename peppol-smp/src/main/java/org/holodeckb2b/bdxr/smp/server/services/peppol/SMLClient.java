@@ -25,6 +25,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.time.ZonedDateTime;
 import java.util.GregorianCalendar;
 import java.util.function.Function;
 import java.util.logging.Logger;
@@ -198,11 +199,14 @@ public class SMLClient implements SMLIntegrationService {
 
 	@Override
 	public void updateSMPCertificate(String smpId, Certificate cert) throws SMLException {
+		ZonedDateTime activationDate = cert.getActivationDate();
+		if (activationDate == null) 
+			throw new SMLException("Certificate activation date must be at least one day in the future");
+		
 		try {
 			PrepareChangeCertificateType certUpdate = new PrepareChangeCertificateType();
 			XMLGregorianCalendar xmlDate = DatatypeFactory.newInstance()
-														  .newXMLGregorianCalendar(GregorianCalendar.from(
-																  					cert.getActivationDate()));
+													  .newXMLGregorianCalendar(GregorianCalendar.from(activationDate));																  					
 			certUpdate.setMigrationDate(xmlDate);
 			certUpdate.setNewCertificatePublicKey(CertificateUtils.getPEMEncoded(cert.getX509Cert()));
 
