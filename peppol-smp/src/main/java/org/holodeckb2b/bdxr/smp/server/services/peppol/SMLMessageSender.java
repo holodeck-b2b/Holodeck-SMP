@@ -22,6 +22,7 @@ import java.util.Iterator;
 
 import org.apache.hc.client5.http.classic.HttpClient;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.springframework.ws.transport.WebServiceConnection;
 import org.springframework.ws.transport.http.HttpComponents5Connection;
@@ -45,17 +46,19 @@ public class SMLMessageSender extends HttpComponents5MessageSender {
 	@Override
 	public WebServiceConnection createConnection(URI uri) throws IOException {
 		HttpPost httpPost = new HttpPost(uri);
+		HttpHost httpHost = HttpHost.create(uri);
+		
 		if (isAcceptGzipEncoding()) {
 			httpPost.addHeader(HttpTransportConstants.HEADER_ACCEPT_ENCODING, HttpTransportConstants.CONTENT_ENCODING_GZIP);
 		}
 		HttpContext httpContext = createContext(uri);
-		return new SMLConnection(getHttpClient(), httpPost, httpContext);
+		return new SMLConnection(getHttpClient(), httpHost, httpPost, httpContext);
 	}
 
 	private class SMLConnection extends HttpComponents5Connection {
 
-		SMLConnection(HttpClient httpClient, HttpPost httpPost, HttpContext httpContext) {
-			super(httpClient, httpPost, httpContext);
+		SMLConnection(HttpClient httpClient, HttpHost httpHost, HttpPost httpPost, HttpContext httpContext) {
+			super(httpClient, httpHost, httpPost, httpContext);
 		}
 
 		/**

@@ -68,7 +68,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.ws.client.core.WebServiceTemplate;
 import org.springframework.ws.soap.client.SoapFaultClientException;
 import org.springframework.ws.soap.client.core.SoapActionCallback;
+import org.springframework.ws.transport.http.HttpComponents5ClientFactory;
 import org.springframework.ws.transport.http.HttpComponents5MessageSender;
+import org.springframework.ws.transport.http.HttpComponentsMessageSender;
 
 import ec.services.wsdl.bdmsl.data._1.PrepareChangeCertificateType;
 import jakarta.xml.bind.JAXBElement;
@@ -370,7 +372,7 @@ public class SMLClient implements SMLIntegrationService {
 				new SMLMessageSender(
 						HttpClients.custom()
 								.setConnectionManager(new BasicHttpClientConnectionManager(socketFactoryRegistry))
-								.addRequestInterceptorFirst(new HttpComponents5MessageSender.RemoveSoapHeadersInterceptor())
+								.addRequestInterceptorFirst(new HttpComponents5ClientFactory.RemoveSoapHeadersInterceptor())
 								.build()
 						));
 
