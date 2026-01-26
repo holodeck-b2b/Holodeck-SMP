@@ -23,9 +23,7 @@ import java.time.ZoneOffset;
 
 import org.holodeckb2b.bdxr.smp.server.auditlogging.AuditLogSearchCriteria;
 import org.holodeckb2b.bdxr.smp.server.auditlogging.AuditLogService;
-import org.holodeckb2b.bdxr.smp.server.db.entities.IDSchemeEntity;
 import org.holodeckb2b.bdxr.smp.server.services.core.PersistenceException;
-import org.holodeckb2b.bdxr.smp.server.utils.IDSchemeConvertor;
 import org.holodeckb2b.commons.util.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;

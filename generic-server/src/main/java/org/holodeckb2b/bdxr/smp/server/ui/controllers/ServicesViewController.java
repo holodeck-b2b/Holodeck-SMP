@@ -21,13 +21,10 @@ import java.util.Collection;
 import java.util.NoSuchElementException;
 
 import org.holodeckb2b.bdxr.smp.datamodel.IDScheme;
-import org.holodeckb2b.bdxr.smp.server.db.entities.EmbeddedProcessIdentifier;
 import org.holodeckb2b.bdxr.smp.server.db.entities.IDSchemeEntity;
-import org.holodeckb2b.bdxr.smp.server.db.entities.ProcessEntity;
 import org.holodeckb2b.bdxr.smp.server.db.entities.ServiceEntity;
 import org.holodeckb2b.bdxr.smp.server.services.core.IdSchemeMgmtService;
 import org.holodeckb2b.bdxr.smp.server.services.core.PersistenceException;
-import org.holodeckb2b.bdxr.smp.server.services.core.ProcessMgmtService;
 import org.holodeckb2b.bdxr.smp.server.services.core.SMTMgmtService;
 import org.holodeckb2b.bdxr.smp.server.services.core.ServiceMgmtService;
 import org.holodeckb2b.bdxr.smp.server.ui.auth.UserAccount;

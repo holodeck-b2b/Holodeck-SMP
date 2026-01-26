@@ -35,7 +35,6 @@ import static org.mockito.Mockito.when;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.Collection;
-import java.util.Objects;
 import java.util.Set;
 
 import org.holodeckb2b.bdxr.smp.server.CommonServerConfig;

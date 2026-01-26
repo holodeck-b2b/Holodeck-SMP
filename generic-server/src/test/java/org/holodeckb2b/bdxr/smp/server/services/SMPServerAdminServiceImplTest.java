@@ -33,7 +33,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.net.URL;
 import java.security.KeyStore.PrivateKeyEntry;
-import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.time.ZonedDateTime;
 import java.util.UUID;
@@ -53,7 +52,6 @@ import org.holodeckb2b.bdxr.smp.server.utils.DataEncryptor;
 import org.holodeckb2b.commons.security.CertificateUtils;
 import org.holodeckb2b.commons.security.KeystoreUtils;
 import org.holodeckb2b.commons.testing.TestUtils;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -62,10 +60,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
-import jakarta.persistence.EntityManager;
 
 @SpringBootTest(classes = { CommonServerConfig.class })
 class SMPServerAdminServiceImplTest {

@@ -26,7 +26,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.net.URL;
 import java.time.LocalDate;
 
-import org.holodeckb2b.bdxr.common.datamodel.Identifier;
 import org.holodeckb2b.bdxr.common.datamodel.impl.IdentifierImpl;
 import org.holodeckb2b.bdxr.smp.datamodel.impl.IDSchemeImpl;
 import org.holodeckb2b.bdxr.smp.server.datamodel.Contact;
