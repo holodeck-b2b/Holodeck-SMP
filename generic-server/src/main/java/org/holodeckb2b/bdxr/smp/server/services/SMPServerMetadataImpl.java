@@ -39,7 +39,7 @@ import lombok.Setter;
 public class SMPServerMetadataImpl implements SMPServerMetadata {
 
 	@Setter
-	@NotBlank(message = "A SMP ID must be provided")
+	@NotBlank(message = "An SMP ID must be provided")
 	String 	SMPId;
 
 	@NotNull(message = "An absolute base URL for SMP queries must be provided")

@@ -28,7 +28,6 @@ import org.holodeckb2b.commons.security.CertificateUtils;
 import org.holodeckb2b.commons.security.KeystoreUtils;
 import org.holodeckb2b.commons.util.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -314,7 +313,7 @@ public class SMPServerAdminServiceImpl implements SMPServerAdminService {
 	}
 	
 	/**
-	 * Converts the configuration data contained in the entity object to a SMP server metadata object specified by the
+	 * Converts the configuration data contained in the entity object to an SMP server metadata object specified by the
 	 * <i>interfaces</i> layer.
 	 * 
 	 * @param config	the {@link ServerConfigEntity} object representing the server configuration
