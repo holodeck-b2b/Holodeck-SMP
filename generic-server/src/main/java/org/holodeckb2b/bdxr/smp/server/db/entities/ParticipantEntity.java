@@ -185,7 +185,7 @@ public class ParticipantEntity extends AbstractIdBasedEntity<Identifier, Embedde
 	
 	@Override
 	public Collection<ServiceMetadataTemplate> getBoundSMT() {
-		return Collections.unmodifiableCollection(bindings);
+		return Collections.unmodifiableCollection(new ArrayList<>(bindings));
 	}
 
 	/**

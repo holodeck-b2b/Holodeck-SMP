@@ -17,7 +17,6 @@
 package org.holodeckb2b.bdxr.smp.server.utils;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Map;
 
 import org.holodeckb2b.commons.util.Utils;

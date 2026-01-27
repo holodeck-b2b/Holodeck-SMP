@@ -79,7 +79,7 @@ Binding a Service Metadata Template to a Participant is done by executing a PUT 
 
 | HTTP status       | Indicates      |
 | :---------------- | :------------- | 
-| 201 (Created)     | The Service Metadata Template was succesfully bound to the Participant | 
+| 201 (Created)     | The Service Metadata Template was successfully bound to the Participant | 
 | 400 (Bad Request) | The specified Participant Identifier could not be parsed or the specified scheme does not exist |
 | 404 (Not Found)   | Either no Participant or Service Metadata Template with the specified identifier could be found |
 | 500 (Internal Server Error) | An unexpected error occurred during the processing of the request |
@@ -99,13 +99,13 @@ The information is created or updated by executing a PUT request on the resource
 
 | HTTP status           | Indicates      |
 | :-------------------- | :------------- | 
-| 202 (Accepted)        | The Business Card of the Participant was succesfully updated and published to the Directory | 
-| 206 (Partial Content) | The Business Card of the Participant was succesfully updated, but there was an error publishing to the Directory. When this happens publishing can be retried by executing the update again either through the API or UI | 
+| 202 (Accepted)        | The Business Card of the Participant was successfully updated and published to the Directory | 
+| 206 (Partial Content) | The Business Card of the Participant was successfully updated, but there was an error publishing to the Directory. When this happens publishing can be retried by executing the update again either through the API or UI | 
 | 400 (Bad Request)     | The provided data is invalid. It could be that the specified Participant Identifier could not be parsed or its specified scheme does not exist or required business entity information is missing |
 | 404 (Not Found)       | No Participant with the specified identifier could be found |
 | 500 (Internal Server Error) | An unexpected error occurred during the processing of the request |
 
-Removing the Bussiness Card from a Participant can be done by executing a DELETE request on the resource. The following HTTP response status codes are used to indicate the processing result:
+Removing the Business Card from a Participant can be done by executing a DELETE request on the resource. The following HTTP response status codes are used to indicate the processing result:
 
 | HTTP status                 | Indicates      |
 | :-------------------------- | :------------- | 
@@ -115,7 +115,7 @@ Removing the Bussiness Card from a Participant can be done by executing a DELETE
 | 400 (Bad Request)           | The specified Participant Identifier could not be parsed or the specified scheme does not exist |
 | 500 (Internal Server Error) | An unexpected error occurred during the processing of the request | 
 
-### Licence
+### License
 This software is licensed under the Affero General Public License V3 (AGPLv3) which is included in the [LICENSE](LICENSE) file in the root of the project.
 
 ### Support

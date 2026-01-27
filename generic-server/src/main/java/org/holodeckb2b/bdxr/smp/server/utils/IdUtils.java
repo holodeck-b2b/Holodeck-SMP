@@ -17,7 +17,6 @@
 package org.holodeckb2b.bdxr.smp.server.utils;
 
 import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.NoSuchElementException;
 

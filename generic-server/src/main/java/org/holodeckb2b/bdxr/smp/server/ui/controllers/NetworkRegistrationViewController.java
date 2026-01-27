@@ -22,17 +22,12 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.holodeckb2b.bdxr.smp.server.datamodel.NetworkServicesData;
-import org.holodeckb2b.bdxr.smp.server.services.SMPServerAdminServiceImpl;
 import org.holodeckb2b.bdxr.smp.server.services.SMPServerMetadataImpl;
 import org.holodeckb2b.bdxr.smp.server.services.core.PersistenceException;
 import org.holodeckb2b.bdxr.smp.server.services.core.SMPServerAdminService;
-import org.holodeckb2b.bdxr.smp.server.services.network.DirectoryIntegrationService;
 import org.holodeckb2b.bdxr.smp.server.services.network.SMLException;
-import org.holodeckb2b.bdxr.smp.server.services.network.SMLIntegrationService;
 import org.holodeckb2b.bdxr.smp.server.ui.auth.UserAccount;
 import org.holodeckb2b.commons.util.Utils;
 import org.springframework.beans.factory.annotation.Autowired;

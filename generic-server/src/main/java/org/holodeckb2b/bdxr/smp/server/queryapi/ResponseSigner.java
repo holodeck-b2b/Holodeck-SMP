@@ -17,11 +17,9 @@
 package org.holodeckb2b.bdxr.smp.server.queryapi;
 
 import java.security.InvalidAlgorithmParameterException;
-import java.security.KeyStore;
 import java.security.KeyStore.PrivateKeyEntry;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
-import java.security.cert.CertificateException;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -45,8 +43,6 @@ import org.holodeckb2b.bdxr.smp.server.services.query.ResponseSigningService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
-
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * Implements the {@link ResponseSigningService}.

@@ -27,7 +27,6 @@ import org.holodeckb2b.bdxr.smp.server.datamodel.Participant;
 import org.holodeckb2b.bdxr.smp.server.datamodel.ServiceMetadataTemplate;
 import org.holodeckb2b.bdxr.smp.server.db.entities.IDSchemeEntity;
 import org.holodeckb2b.bdxr.smp.server.db.entities.ParticipantEntity;
-import org.holodeckb2b.bdxr.smp.server.db.entities.ServiceMetadataTemplateEntity;
 import org.holodeckb2b.bdxr.smp.server.services.core.IdSchemeMgmtService;
 import org.holodeckb2b.bdxr.smp.server.services.core.ParticipantsService;
 import org.holodeckb2b.bdxr.smp.server.services.core.PersistenceException;
