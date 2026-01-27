@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## 3.0.3
-##### 
+##### 2026-01-27
 ### Changed
 * Spring Boot version updated to 3.5.9
 * HB2B generic-utils library updated to 2.0.0
