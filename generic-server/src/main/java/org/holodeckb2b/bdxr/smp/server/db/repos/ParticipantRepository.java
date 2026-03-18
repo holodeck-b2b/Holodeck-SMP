@@ -106,7 +106,7 @@ public interface ParticipantRepository extends JpaRepository<ParticipantEntity, 
 	 * @param templateId	the identifier of the Service Metadata Template registration to count
 	 * @return			the number of Participants supporting the given <i>Service Metadata Template</i>
 	 */
-	@NativeQuery("select count(smb.PARTICIPANT_OID) from SERVICE_METADATA_BINDING smb where smb.TEMPLATE_OID = :templateOid")
+	@NativeQuery("select count(smb.PARTICIPANT_OID) from {h-schema}service_metadata_binding smb where smb.TEMPLATE_OID = :templateOid")
 	int countParticipantsSupporting(Long templateOid);		
 	
 	/**

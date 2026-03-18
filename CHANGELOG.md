@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## 3.0.4
+##### 
+### Fixed
+* Internal error on Service Metadata Templates page [#25](https://github.com/holodeck-b2b/Holodeck-SMP/issues/25)
 ## 3.0.3
 ##### 2026-01-27
 ### Changed
