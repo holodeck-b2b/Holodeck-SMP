@@ -6,6 +6,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ##### 
 ### Fixed
 * Internal error on Service Metadata Templates page [#25](https://github.com/holodeck-b2b/Holodeck-SMP/issues/25)
+* HTTP 404 (Not Found) error when trying to delete a Service Metadata Template [#26](https://github.com/holodeck-b2b/Holodeck-SMP/issues/26)
 ## 3.0.3
 ##### 2026-01-27
 ### Changed
