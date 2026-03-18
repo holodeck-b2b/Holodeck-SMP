@@ -45,7 +45,7 @@
 			<tbody>
 				<tr th:each="ep : ${endpoints.content}" class="align-middle">
 					<td th:text="${ep.value1().name}">Endpoint name</td>
-					<td th:text="${ep.value1().transportProfileId}">transport-profile-id</td>
+					<td th:text="${ep.value1().transportProfileId}" class="text-break">transport-profile-id</td>
 					<td th:text="${ep.value1().endpointURL.toString()}">https://demo.goes.no.where/as4</td>
 					<td th:text="${ep.value2()}" class="text-center">N</td>
 					<td>

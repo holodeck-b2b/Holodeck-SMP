@@ -43,8 +43,8 @@
 			</thead>
 			<tbody>
 				<tr th:each="p : ${profiles.content}">
-					<td th:text="${p.value1().id}">ProfileID</td>
-					<td th:text="${p.value1().specificationRef}">«Spec Reference</td>
+					<td class="text-break" th:text="${p.value1().id}" >ProfileID</td>
+					<td class="text-break" th:text="${p.value1().specificationRef}">«Spec Reference</td>
 					<td th:text="${p.value2()}" class="text-center">1</td>
 					<td class="col-2" th:with="urlId=${T(org.holodeckb2b.bdxr.smp.server.utils.IdUtils).toIDString(p.value1().id)}">
 						<a th:disabled="${p.value2() > 0}"
