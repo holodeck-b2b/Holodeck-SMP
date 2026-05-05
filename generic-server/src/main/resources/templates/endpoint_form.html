@@ -154,7 +154,7 @@
 		<div class="modal-dialog modal-lg">
 			<div class="modal-content">
 				<div class="modal-header">
-					<h5 class="modal-title" id="gridModalLabel" th:text="(${certIndex} != null ? 'Edit' : 'Add') + ' endpoint certificate'"></h5>
+					<h5 class="modal-title" id="gridModalLabel" th:text="(${certIndex} >= 0 ? 'Edit' : 'Add') + ' endpoint certificate'"></h5>
 					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 				</div>
 				<form method="post" th:action="@{/endpoints/edit}" th:object="${cert2edit}" novalidate>
@@ -210,7 +210,7 @@
 					<div class="modal-footer">
 						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
 						<button type="submit" name="saveCertificate" id="btnAdd" class="btn btn-primary"
-								th:value="${certIndex}?: -1" th:text="${certIndex} != null ? 'Save' : 'Add'"></button>
+								th:value="${certIndex}" th:text="${certIndex} >= 0 ? 'Save' : 'Add'"></button>
 					</div>
 				</form>
 			</div>

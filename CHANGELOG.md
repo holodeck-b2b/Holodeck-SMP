@@ -5,6 +5,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## 3.0.4
 ##### 
 ### Fixed
+* Editing an Endpoint certificate results in addition of new certificate [#22](https://github.com/holodeck-b2b/Holodeck-SMP/issues/22)
 * Internal error on Service Metadata Templates page [#25](https://github.com/holodeck-b2b/Holodeck-SMP/issues/25)
 * HTTP 404 (Not Found) error when trying to delete a Service Metadata Template [#26](https://github.com/holodeck-b2b/Holodeck-SMP/issues/26)
 * Invalid BusinessCard XML when no ID scheme specified for additional identifier [#30](https://github.com/holodeck-b2b/Holodeck-SMP/issues/30)

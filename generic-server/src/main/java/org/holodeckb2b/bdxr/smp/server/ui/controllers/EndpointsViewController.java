@@ -71,6 +71,7 @@ import lombok.extern.slf4j.Slf4j;
 public class EndpointsViewController {
 	private static final String EP_ATTR = "endpoint";
 	private static final String CERT_ATTR = "cert2edit";
+	private static final String CERT_IDX_ATTR = "certIndex";
 	
 	@Value("${smp.ui.maxitems_per_page:50}")
 	private int maxItemsPerPage;
@@ -187,7 +188,8 @@ public class EndpointsViewController {
 		input.setCerts(((EndpointFormData) s.getAttribute(EP_ATTR)).getCerts());
 		s.setAttribute(EP_ATTR, input);	
 		return new ModelAndView("endpoint_form", EP_ATTR, s.getAttribute(EP_ATTR))
-					.addObject(CERT_ATTR, row < 0 ? new CertificateFormData() : input.getCerts().get(row.intValue())); 
+					.addObject(CERT_ATTR, row < 0 ? new CertificateFormData() : input.getCerts().get(row.intValue()))
+					.addObject(CERT_IDX_ATTR, row); 
 	}
 		
 	@PostMapping(value = "/edit", params = { "saveCertificate" })
@@ -240,7 +242,7 @@ public class EndpointsViewController {
 			m.addAttribute(CERT_ATTR, null);
 		} else {
 			m.addAttribute(CERT_ATTR, input);
-			m.addAttribute("certIndex", row);
+			m.addAttribute(CERT_IDX_ATTR, row);
 		}
 		
 		return "endpoint_form";
