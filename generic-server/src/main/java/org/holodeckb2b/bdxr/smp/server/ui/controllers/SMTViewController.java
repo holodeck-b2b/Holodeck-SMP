@@ -144,9 +144,10 @@ public class SMTViewController {
 	}
 	
 	@PostMapping(value = "/update")
-	public String saveSMT(@AuthenticationPrincipal UserAccount user, @ModelAttribute(SMT_ATTR) @Valid ServiceMetadataTemplateEntity input, 
+	public String saveSMT(@AuthenticationPrincipal UserAccount user, @ModelAttribute(SMT_ATTR) ServiceMetadataTemplateEntity input, 
 						  BindingResult br, Model m, HttpSession s) throws PersistenceException {
-		ServiceMetadataTemplateEntity smt = updateBasicInfo(m, s);
+		
+		ServiceMetadataTemplateEntity smt = updateBasicInfo(m, s);	
 		List<ProcessGroupEntity> procGroups = smt.getProcessMetadata();
 		if (procGroups.isEmpty())
 			br.rejectValue("processMetadata", "NoProcGroups", "At least one process group must be specified");
@@ -168,19 +169,20 @@ public class SMTViewController {
 	}
 
 	@PostMapping(value = "/update", params = { "addProcGroup" })
-	public String addProcGroup(@ModelAttribute(SMT_ATTR) ServiceMetadataTemplateEntity input, Model m, HttpSession s) {
+	public String addProcGroup(@ModelAttribute(SMT_ATTR) ServiceMetadataTemplateEntity input, BindingResult br,
+								Model m, HttpSession s) {
 		return performUpdate(m, s, smt -> smt.addProcessGroup(new ProcessGroupEntity()));
 	}
 
 	@PostMapping(value = "/update", params = { "removeProcGroup" })
-	public String removeProcGroup(@ModelAttribute(SMT_ATTR) ServiceMetadataTemplateEntity input, Model m, HttpSession s, 
-								  @RequestParam("removeProcGroup") Long row) {
+	public String removeProcGroup(@ModelAttribute(SMT_ATTR) ServiceMetadataTemplateEntity input, BindingResult br,
+								Model m, HttpSession s, @RequestParam("removeProcGroup") Long row) {
 		return performUpdate(m, s, smt -> smt.getProcessMetadata().remove(row.intValue()));
 	}
 
 	@PostMapping(value = "/update", params = { "addProcessInfo" })
-	public String addProcessInfo(@ModelAttribute(SMT_ATTR) ServiceMetadataTemplateEntity smtInput, Model m, HttpSession s, 
-								 @RequestParam("addProcessInfo") Long row) {
+	public String addProcessInfo(@ModelAttribute(SMT_ATTR) ServiceMetadataTemplateEntity smtInput, 
+								 BindingResult br, Model m, HttpSession s, @RequestParam("addProcessInfo") Long row) {
 		return performUpdate(m, s, smt -> {
 			m.addAttribute(PI_ATTR, new PgProcInfoFormData(row.intValue()));
 			try {
@@ -192,8 +194,8 @@ public class SMTViewController {
 	}
 
 	@PostMapping(value = "/update", params = { "editProcessInfo" })
-	public String editProcessInfo(@ModelAttribute(SMT_ATTR) ServiceMetadataTemplateEntity smtInput, Model m, HttpSession s,
-								  @RequestParam("editProcessInfo") String idx) {
+	public String editProcessInfo(@ModelAttribute(SMT_ATTR) ServiceMetadataTemplateEntity smtInput, BindingResult br,
+								Model m, HttpSession s, @RequestParam("editProcessInfo") String idx) {
 		return performUpdate(m, s, smt -> {
 			int pgIdx = Integer.parseInt(idx.substring(0, idx.indexOf(',')));
 			int procIdx = Integer.parseInt(idx.substring(idx.indexOf(',') + 1));
@@ -208,8 +210,8 @@ public class SMTViewController {
 	}
 
 	@PostMapping(value = "/update", params = { "removeProcessInfo" })
-	public String removeProcessInfo(@ModelAttribute(SMT_ATTR) ServiceMetadataTemplateEntity smtInput, Model m, HttpSession s, 
-									@RequestParam("removeProcessInfo") String idx) {
+	public String removeProcessInfo(@ModelAttribute(SMT_ATTR) ServiceMetadataTemplateEntity smtInput, BindingResult br,
+									Model m, HttpSession s, @RequestParam("removeProcessInfo") String idx) {
 		return performUpdate(m, s, smt -> {
 			int pgIdx = Integer.parseInt(idx.substring(0, idx.indexOf(',')));
 			int procIdx = Integer.parseInt(idx.substring(idx.indexOf(',') + 1));
@@ -253,8 +255,8 @@ public class SMTViewController {
 	}
 
 	@PostMapping(value = "/update", params = { "addEndpoint" })
-	public String addEndpoint(@ModelAttribute(SMT_ATTR) ServiceMetadataTemplateEntity smtInput, Model m, HttpSession s,
-							  @RequestParam("addEndpoint") Long row) {
+	public String addEndpoint(@ModelAttribute(SMT_ATTR) ServiceMetadataTemplateEntity smtInput, BindingResult br,
+							Model m, HttpSession s, @RequestParam("addEndpoint") Long row) {
 		return performUpdate(m, s, smt -> {
 			int pgIdx = row.intValue();
 			m.addAttribute(EP_ATTR, new PgEndpointFormData(pgIdx, null));
@@ -270,8 +272,8 @@ public class SMTViewController {
 	}
 
 	@PostMapping(value = "/update", params = { "removeEndpoint" })
-	public String removeEndpoint(@ModelAttribute(SMT_ATTR) ServiceMetadataTemplateEntity smtInput, Model m, HttpSession s, 
-								 @RequestParam("removeEndpoint") String idx) {
+	public String removeEndpoint(@ModelAttribute(SMT_ATTR) ServiceMetadataTemplateEntity smtInput, BindingResult br,
+								Model m, HttpSession s, @RequestParam("removeEndpoint") String idx) {
 		return performUpdate(m, s, smt -> {
 			int pgIdx = Integer.parseInt(idx.substring(0, idx.indexOf(',')));
 			int epIdx = Integer.parseInt(idx.substring(idx.indexOf(',') + 1));
@@ -301,21 +303,21 @@ public class SMTViewController {
 	}
 
 	@PostMapping(value = "/update", params = { "addRedirect" })
-	public String addRedirection(@ModelAttribute(SMT_ATTR) ServiceMetadataTemplateEntity smtInput,Model m, HttpSession s, 
-								 @RequestParam("addRedirect") Long row) {
+	public String addRedirection(@ModelAttribute(SMT_ATTR) ServiceMetadataTemplateEntity smtInput, BindingResult br,
+								Model m, HttpSession s, @RequestParam("addRedirect") Long row) {
 		return performUpdate(m, s, smt -> m.addAttribute(R_ATTR, new PgRedirectionFormData(row.intValue())));
 	}
 
 	@PostMapping(value = "/update", params = { "editRedirect" })
-	public String editRedirection(@ModelAttribute(SMT_ATTR) ServiceMetadataTemplateEntity smtInput, Model m, HttpSession s, 
-								  @RequestParam("editRedirect") Long row) {
+	public String editRedirection(@ModelAttribute(SMT_ATTR) ServiceMetadataTemplateEntity smtInput, BindingResult br,
+								Model m, HttpSession s, @RequestParam("editRedirect") Long row) {
 		return performUpdate(m, s, smt -> m.addAttribute(R_ATTR, 
 			new PgRedirectionFormData(row.intValue(), smt.getProcessMetadata().get(row.intValue()).getRedirection())));
 	}
 
 	@PostMapping(value = "/update", params = { "removeRedirect" })
-	public String removeRedirection(@ModelAttribute(SMT_ATTR) ServiceMetadataTemplateEntity smtInput, Model m, HttpSession s, 
-									@RequestParam("removeRedirect") Long idx) {
+	public String removeRedirection(@ModelAttribute(SMT_ATTR) ServiceMetadataTemplateEntity smtInput, BindingResult br, 
+									Model m, HttpSession s, @RequestParam("removeRedirect") Long idx) {
 		return performUpdate(m, s, smt -> smt.getProcessMetadata().get(idx.intValue()).removeRedirection());
 	}
 	
@@ -371,7 +373,8 @@ public class SMTViewController {
 		ServiceMetadataTemplateEntity sSMT = (ServiceMetadataTemplateEntity) s.getAttribute(SMT_ATTR);
 		ServiceMetadataTemplateEntity mSMT = (ServiceMetadataTemplateEntity) m.getAttribute(SMT_ATTR);
 		if (mSMT != null) {
-			sSMT.setService(mSMT.getService());
+			if (mSMT.getService() != null) 
+				sSMT.setService(mSMT.getService());
 			sSMT.setName(!Utils.isNullOrEmpty(mSMT.getName()) ? mSMT.getName() :
 													mSMT.getService() != null ? mSMT.getService().getName() : null);
 		}

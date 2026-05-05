@@ -38,8 +38,8 @@
 						<option value="" selected>Select service to use for this template</option>
 						<option th:each="s : ${allServices}" th:value="${s.oid}" th:text="${s.name}" th:title="${s.id.value}">Select service</option>
 					</select>
-					<div th:if="${#fields.hasErrors('service')}" th:errors="*{service}"
-						id="invalidServiceMsg" class="invalid-feedback"></div>
+					<div th:if="${#fields.hasErrors('service')}" 
+						id="invalidServiceMsg" class="invalid-feedback">A Service must be selected</div>
 				</div>
 			</div>
 			<div class="row mb-3" th:if="${apiEnabled}">
