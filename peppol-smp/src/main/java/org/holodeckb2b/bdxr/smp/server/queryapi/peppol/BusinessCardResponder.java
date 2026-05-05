@@ -101,6 +101,8 @@ public class BusinessCardResponder extends AbstractResponseFactory implements IQ
 			IdentifierType idType = new IdentifierType();
 			if (id.getScheme() != null) 
 				idType.setScheme(id.getScheme().getSchemeId());
+			else
+				idType.setScheme("");
 			idType.setValue(id.getValue());
 			busInfo.getIdentifier().add(idType);
 		}

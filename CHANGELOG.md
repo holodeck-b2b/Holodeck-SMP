@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 * Internal error on Service Metadata Templates page [#25](https://github.com/holodeck-b2b/Holodeck-SMP/issues/25)
 * HTTP 404 (Not Found) error when trying to delete a Service Metadata Template [#26](https://github.com/holodeck-b2b/Holodeck-SMP/issues/26)
+* Invalid BusinessCard XML when no ID scheme specified for additional identifier [#30](https://github.com/holodeck-b2b/Holodeck-SMP/issues/30)
 * Change in Participant identifier results in new registration [#31](https://github.com/holodeck-b2b/Holodeck-SMP/issues/31)
 * Errors when editing process group meta-data of a Service Metadata Template before selecting a Service [#32](https://github.com/holodeck-b2b/Holodeck-SMP/issues/32)
 * Layout issues on overview pages with long identifier values
