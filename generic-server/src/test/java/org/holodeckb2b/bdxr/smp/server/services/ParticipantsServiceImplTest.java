@@ -240,7 +240,7 @@ class ParticipantsServiceImplTest {
 	}	
 
 	@Test
-	void testRejectBindingsUpdateParticipant() {
+	void testIgnoreBindingsUpdateParticipant() {
 		ServiceEntity svc = new ServiceEntity();
 		svc.setId(new EmbeddedIdentifier("SvcId-T-1"));
 		svc = services.save(svc);				
@@ -256,7 +256,7 @@ class ParticipantsServiceImplTest {
 		Participant saved = assertDoesNotThrow(() -> partMgmtService.addParticipant(T_USER, p));
 		((ParticipantEntity) saved).addBinding(storedSMT);
 		
-		assertThrows(PersistenceException.class, () -> partMgmtService.updateParticipant(T_USER, saved));
+		assertDoesNotThrow(() -> partMgmtService.updateParticipant(T_USER, saved));
 		
 		assertTrue(participants.findById(((ParticipantEntity) saved).getOid()).get().getBoundSMT().isEmpty());		
 	}

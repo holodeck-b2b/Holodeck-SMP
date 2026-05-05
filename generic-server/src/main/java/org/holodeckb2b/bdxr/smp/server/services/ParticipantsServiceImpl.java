@@ -140,11 +140,8 @@ public class ParticipantsServiceImpl
 		// Ensure that registration states are not changed when updating meta-data
 		entity.setRegisteredInSML(current.isRegisteredInSML());
 		entity.setSMLMigrationCode(current.getSMLMigrationCode());
-		entity.setPublishedInDirectory(current.isPublishedInDirectory());		
-		if (!Utils.areEqual(current.getBoundSMT(), entity.getBoundSMT())) {
-			log.warn("Attempt to change bound SMT of Participant (ID={}) in update", entity.getId().toString());
-			throw new PersistenceException("Bound SMT cannot be changed");
-		}		
+		entity.setPublishedInDirectory(current.isPublishedInDirectory());
+		entity.setBindings(current.getBoundSMT());
 		ParticipantEntity updated = executeCRUD(CrudOps.Update, user, entity);
 		
 		if (updated.isPublishedInDirectory()) {

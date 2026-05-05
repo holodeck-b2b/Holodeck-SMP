@@ -212,12 +212,11 @@ public class ParticipantsViewController {
 																	.filter(smt -> !boundSMT.contains(smt)).toList());									
 		}
 		
-		if (existing == null) {
+		if (input.getOid() == null)
 			existing = (ParticipantEntity) participantsSvc.addParticipant(user, input);
-		} else {
-			input.setBindings(existing.getBindings());
+		else  
 			existing = (ParticipantEntity) participantsSvc.updateParticipant(user, input.asEntity());
-		}
+		
 		try {
 			Collection<ServiceMetadataTemplate> existingSMT = existing.getBoundSMT();
 			for (ServiceMetadataTemplate smt : boundSMT) {
