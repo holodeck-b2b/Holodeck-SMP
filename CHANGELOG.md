@@ -12,6 +12,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 * Errors when editing process group meta-data of a Service Metadata Template before selecting a Service [#32](https://github.com/holodeck-b2b/Holodeck-SMP/issues/32)
 * Layout issues on overview pages with long identifier values
 
+### Changed
+* Updated the default URLs of the Peppol SML [#28](https://github.com/holodeck-b2b/Holodeck-SMP/issues/28) (thanks to @BernhardK91)
+
 ## 3.0.3
 ##### 2026-01-27
 ### Changed
