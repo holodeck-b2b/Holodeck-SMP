@@ -13,7 +13,17 @@ Issue tracker https://github.com/holodeck-b2b/Holodeck-SMP/issues
 For more information about installing and using the server, please see the documentation on [our website](https://holodeck-smp.org/).
 
 ## Contributing
-We are still working on improvements and addition of features. This may result in changes to the internal architecture of the server. If you would like to contribute to this project please contact us, so we ensure efficient cooperation.
+We are using the simplified Github workflow to accept modifications which means you should:
+* create an issue related to the problem you want to fix or the function you want to add (good for traceability and cross-reference)
+* fork the repository
+* create a branch (optionally with the reference to the issue in the name)
+* write your code, including comments 
+* commit incrementally with readable and detailed commit messages
+* run tests to check everything works on runtime
+* update the changelog with a short description of the changes including a reference to the issues fixed
+* submit a pull request _against the `next` branch_ of this repository
+
+If your contribution is more than a patch, please contact us beforehand to discuss which branch you can best submit the pull request to.
 
 ### Submitting bugs
 You can report issues directly on the [project Issue Tracker](https://github.com/holodeck-b2b/Holodeck-SMP/issues).
