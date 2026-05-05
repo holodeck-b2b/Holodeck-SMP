@@ -88,12 +88,12 @@ public class SMLClient implements SMLIntegrationService {
 
 	@Value("${peppol.sml.prod.name:Peppol Production SML}")
 	protected String prodName;
-	@Value("${peppol.sml.prod.url:https://edelivery.tech.ec.europa.eu/edelivery-sml}")
+	@Value("${peppol.sml.prod.url:https://api.sml.prod.tech.peppol.org/edelivery-sml}")
 	protected String prodURL;
 
 	@Value("${peppol.sml.acc.name:Peppol Acceptance SML (SMK)}")
 	protected String testName;
-	@Value("${peppol.sml.acc.url:https://acc.edelivery.tech.ec.europa.eu/edelivery-sml}")
+	@Value("${peppol.sml.acc.url:https://api.sml.test.tech.peppol.org/edelivery-sml}")
 	protected String testURL;
 
 	@Value("${peppol.sml.ssl.verifyhostname:true}")
