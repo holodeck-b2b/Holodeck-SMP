@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## 3.0.4
-##### 
+##### 2026-06-02
 ### Fixed
 * Editing an Endpoint certificate results in addition of new certificate [#22](https://github.com/holodeck-b2b/Holodeck-SMP/issues/22)
 * Internal error on Service Metadata Templates page [#25](https://github.com/holodeck-b2b/Holodeck-SMP/issues/25)
